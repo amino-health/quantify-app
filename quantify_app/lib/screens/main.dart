@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:quantify_app/screens/homeScreen.dart';
+//import 'package:quantify_app/screens/homeScreen.dart';
+import 'package:quantify_app/screens/welcomeScreen.dart';
 
 
 
@@ -16,7 +17,7 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
           primarySwatch: Colors.blue,
         ),
-        home: HomeScreen());
+        home: WelcomeScreen());
   }
 }
 
