@@ -17,16 +17,16 @@ class WelcomeScreen extends StatelessWidget {
               child: Container(
                 height: MediaQuery.of(context).size.height * 0.25,
                 alignment: Alignment.center,
-                child: SvgPicture.asset("lib/assets/red_logo.svg",
-                    height: MediaQuery.of(context).size.height * 1),
+                child: SvgPicture.asset("lib/assets/red_logo.svg",)
+                    //height: MediaQuery.of(context).size.height * 1),
               ),
             ),
             Container(
               height: MediaQuery.of(context).size.height * 0.1,
               alignment: Alignment.center,
               child: SvgPicture.asset("lib/assets/text.svg",
-                  color: Colors.black,
-                  height: MediaQuery.of(context).size.height * 0.04),
+                  color: Colors.black,)
+                  //height: MediaQuery.of(context).size.height * 0.04),
             ),
             Padding(
               padding: const EdgeInsets.only(left: 50, right: 50),
