@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 //import 'package:google_fonts/google_fonts.dart';
-import 'package:quantify_app/screens/homeScreen.dart';
+import 'package:quantify_app/screens/userInfoScreen.dart';
 //import 'package:quantify_app/screens/main.dart';
 //import 'package:flutter_svg/flutter_svg.dart';
 
@@ -56,8 +56,8 @@ class WelcomeScreen extends StatelessWidget {
                             TextStyle(fontFamily: 'Roboto-Medium', fontSize: 16.0))),
                   ),
                   onPressed: () {
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => HomeScreen()
+                    Navigator.pushReplacement(context,
+                        MaterialPageRoute(builder: (context) => UserInfoScreen()
                         )
                     );
                   }
