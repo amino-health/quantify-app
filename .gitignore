@@ -1,3 +1,21 @@
+Skip to content
+ 
+Search…
+All gists
+Back to GitHub
+@ErikJungh 
+@Cheesetouched
+Cheesetouched/.gitignore
+Created 2 years ago • Report abuse
+5
+4
+ Code
+ Revisions 1
+ Stars 5
+ Forks 4
+<script src="https://gist.github.com/Cheesetouched/ace446b9e6bedef76eb4fb7afb1ea164.js"></script>
+Standardised gitignore for your Flutter apps & Dart projects
+.gitignore
 ### Flutter Generated
 
 # Miscellaneous
@@ -887,3 +905,42 @@ DerivedData/
 !**/ios/**/default.pbxuser
 !**/ios/**/default.perspectivev3
 !/packages/flutter_tools/test/data/dart_dependencies_test/**/.packages
+@ErikJungh
+ 
+Leave a comment
+No file chosen
+Attach files by dragging & dropping, selecting or pasting them.
+© 2021 GitHub, Inc.
+Terms
+Privacy
+Security
+Status
+Docs
+Contact GitHub
+Pricing
+API
+Training
+Blog
+About
+
+
+# Xcode
+#
+build/
+*.pbxuser
+!default.pbxuser
+*.mode1v3
+!default.mode1v3
+*.mode2v3
+!default.mode2v3
+*.perspectivev3
+!default.perspectivev3
+xcuserdata
+*.xccheckout
+*.moved-aside
+DerivedData
+*.hmap
+*.ipa
+*.xcuserstate
+project.xcworkspace
+Pods/
