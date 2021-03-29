@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:bezier_chart/bezier_chart.dart';
+//import 'package:bezier_chart/bezier_chart.dart';
 
 import 'package:flutter_svg/flutter_svg.dart';
 
