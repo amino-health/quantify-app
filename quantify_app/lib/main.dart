@@ -188,79 +188,18 @@ class GraphicalInterface extends StatefulWidget {
 }
 
 class _GraphicalInterfaceState extends State<GraphicalInterface> {
-    /*
-   Widget build(BuildContext context) {
-     
-      final fromDate = DateTime(2021, 03, 21);
-      final toDate = DateTime.now();
-
-      final date1 = DateTime.now().subtract(Duration(days: 2, hours: 14));
-      final date2 = DateTime.now().subtract(Duration(days: 0, hours: 2 ));
-
-      return Center(
-        child: Container(
-          
-          
-          child: BezierChart(
-            
-            fromDate: fromDate,
-            bezierChartScale: BezierChartScale.HOURLY,
-            toDate: toDate,
-            selectedDate: toDate,
-            
-            series: [
-              BezierLine(
-                label: "Glucose",
-                dataPointFillColor: Colors.red ,
-                
-                lineColor: Colors.grey[900],
-                onMissingValue: (dateTime) {
-                  if (dateTime.day.isEven) {
-                    return 10.0;
-                  }
-                  return 5.0;
-                },
-                data: [
-                  DataPoint<DateTime>(value: 10, xAxis: date1),
-                  DataPoint<DateTime>(value: 50, xAxis: date2),
-                ],
-              ),
-            ],
-            config: BezierChartConfig(
-              displayYAxis: true,
-              
-              
-              xAxisTextStyle: TextStyle(
-                color: Colors.black,
-                fontSize: 10),
-              yAxisTextStyle: TextStyle(
-                color: Colors.black,
-                fontSize: 10),
-              showDataPoints: true,
-              verticalIndicatorStrokeWidth: 3.0,
-              verticalIndicatorColor: Colors.black26,
-              showVerticalIndicator: true,
-              verticalIndicatorFixedPosition: false,
-              backgroundColor: Color(0xFFE0E0E0),           
-              footerHeight: 30.0,
-              snap: false
-            ),
-          ),
-        ),
-      );
-    }
-    */
-  ZoomPanBehavior _zoomPanBehavior;
     
-    @override
-    void initState(){
-      _zoomPanBehavior = ZoomPanBehavior(
-                    
-        enablePanning: true
-      );
-        super.initState();
-    }
+  
+    
+  
+  ZoomPanBehavior _zoomPanBehavior = ZoomPanBehavior(
+                
+    enablePanning: true
+  );
+      
+  
 
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
@@ -330,6 +269,68 @@ class _GraphicalInterfaceState extends State<GraphicalInterface> {
       )
     );
   }
+  /*
+   Widget build(BuildContext context) {
+     
+      final fromDate = DateTime(2021, 03, 21);
+      final toDate = DateTime.now();
+
+      final date1 = DateTime.now().subtract(Duration(days: 2, hours: 14));
+      final date2 = DateTime.now().subtract(Duration(days: 0, hours: 2 ));
+
+      return Center(
+        child: Container(
+          
+          
+          child: BezierChart(
+            
+            fromDate: fromDate,
+            bezierChartScale: BezierChartScale.HOURLY,
+            toDate: toDate,
+            selectedDate: toDate,
+            
+            series: [
+              BezierLine(
+                label: "Glucose",
+                dataPointFillColor: Colors.red ,
+                
+                lineColor: Colors.grey[900],
+                onMissingValue: (dateTime) {
+                  if (dateTime.day.isEven) {
+                    return 10.0;
+                  }
+                  return 5.0;
+                },
+                data: [
+                  DataPoint<DateTime>(value: 10, xAxis: date1),
+                  DataPoint<DateTime>(value: 50, xAxis: date2),
+                ],
+              ),
+            ],
+            config: BezierChartConfig(
+              displayYAxis: true,
+              
+              
+              xAxisTextStyle: TextStyle(
+                color: Colors.black,
+                fontSize: 10),
+              yAxisTextStyle: TextStyle(
+                color: Colors.black,
+                fontSize: 10),
+              showDataPoints: true,
+              verticalIndicatorStrokeWidth: 3.0,
+              verticalIndicatorColor: Colors.black26,
+              showVerticalIndicator: true,
+              verticalIndicatorFixedPosition: false,
+              backgroundColor: Color(0xFFE0E0E0),           
+              footerHeight: 30.0,
+              snap: false
+            ),
+          ),
+        ),
+      );
+    }
+    */
   
 }
 
@@ -390,7 +391,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        title: 'Quantify app',
+        
         theme: ThemeData(
           primarySwatch: Colors.blue,
         ),
@@ -436,9 +437,9 @@ class FirstScanPage extends StatelessWidget {
 }
 
 class HomePage extends StatefulWidget {
-  HomePage({Key key, this.title}) : super(key: key);
+  HomePage({Key key}) : super(key: key);
 
-  final String title;
+  
   @override
   _HomePageState createState() => _HomePageState();
 }
