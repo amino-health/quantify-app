@@ -30,17 +30,20 @@ class _TosScreenState extends State<TosScreen> {
                 style: TextStyle(fontSize: 30),
               ),
             ),
-            Align(
-              child: Container(
-                height: MediaQuery.of(context).size.height * 0.7,
-                width: MediaQuery.of(context).size.width * 0.9,
-                color: Color(0xFFF0F0F0),
-                child: Padding(
-                  padding: const EdgeInsets.all(10.0),
-                  child: SingleChildScrollView(
-                    controller: _scrollController,
-                    child: Text(lipsum.createText(numParagraphs: 5),
-                        style: GoogleFonts.roboto(fontSize: 15)),
+            Flexible(
+              flex: 7,
+                          child: Align(
+                child: Container(
+                  height: MediaQuery.of(context).size.height * 0.7,
+                  width: MediaQuery.of(context).size.width * 0.9,
+                  color: Color(0xFFF0F0F0),
+                  child: Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: SingleChildScrollView(
+                      controller: _scrollController,
+                      child: Text(lipsum.createText(numParagraphs: 5),
+                          style: GoogleFonts.roboto(fontSize: 15)),
+                    ),
                   ),
                 ),
               ),
@@ -57,25 +60,28 @@ class _TosScreenState extends State<TosScreen> {
                     });
                   }),
             ),
-            Align(
-              child: ElevatedButton(
-                onPressed: () {
-                  if (_checked) {
-                    Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => HomeScreen()));
-                  }
-                },
-                style: ButtonStyle(backgroundColor:
-                    MaterialStateProperty.resolveWith<Color>(
-                        (Set<MaterialState> states) {
-                  return const Color(0xFF99163D);
-                })),
-                child: Container(
-                  height: MediaQuery.of(context).size.height * 0.06,
-                  width: MediaQuery.of(context).size.width * 0.7,
-                  child: Center(child: Text("Continue")),
+            Flexible(
+              flex: 1,
+                          child: Align(
+                child: ElevatedButton(
+                  onPressed: () {
+                    if (_checked) {
+                      Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => HomeScreen()));
+                    }
+                  },
+                  style: ButtonStyle(backgroundColor:
+                      MaterialStateProperty.resolveWith<Color>(
+                          (Set<MaterialState> states) {
+                    return const Color(0xFF99163D);
+                  })),
+                  child: Container(
+                    height: MediaQuery.of(context).size.height * 0.06,
+                    width: MediaQuery.of(context).size.width * 0.7,
+                    child: Center(child: Text("Continue")),
+                  ),
                 ),
               ),
             )

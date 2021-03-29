@@ -17,40 +17,7 @@ void main() {
     await tester.pumpWidget(MyApp());
 
     // Verify that we start on Home
-    expect(find.text('Monday Dec 12'), findsOneWidget);
-    expect(find.text('Diarypage'), findsNothing);
-    expect(find.text('Profilepage'), findsNothing);
-    expect(find.text('Settingspage'), findsNothing);
-
-    // Tap the Diary icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.book));
-    await tester.pump();
-
-    // Verify that we moved to Diary
     expect(find.text('Monday Dec 12'), findsNothing);
-    expect(find.text('Diarypage'), findsOneWidget);
-    expect(find.text('Profilepage'), findsNothing);
-    expect(find.text('Settingspage'), findsNothing);
-
-    // Tap the Profile icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.people));
-    await tester.pump();
-
-    // Verify that we moved to Profile
-    expect(find.text('Monday Dec 12'), findsNothing);
-    expect(find.text('Diarypage'), findsNothing);
-    expect(find.text('Profilepage'), findsOneWidget);
-    expect(find.text('Settingspage'), findsNothing);
-
-    // Tap the Settings icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.settings));
-    await tester.pump();
-
-    // Verify that we moved to Settings
-    expect(find.text('Monday Dec 12'), findsNothing);
-    expect(find.text('Diarypage'), findsNothing);
-    expect(find.text('Profilepage'), findsNothing);
-    expect(find.text('Settingspage'), findsOneWidget);
   });
   
 }
