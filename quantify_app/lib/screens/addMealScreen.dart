@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:quantify_app/screens/firstScanScreen.dart';
+import 'package:quantify_app/screens/homeSkeleton.dart';
 
 class AddMealScreen extends StatefulWidget {
   AddMealScreen({Key key}) : super(key: key);
@@ -11,6 +10,16 @@ class AddMealScreen extends StatefulWidget {
 
 class _AddMealScreenState extends State<AddMealScreen> {
   Widget build(BuildContext context) {
-    return new Scaffold(body: Text("testt"));
+    return new Scaffold(
+      appBar: CustomAppBar(),
+      body: Center(
+          child: ElevatedButton(
+        onPressed: () {},
+        child: Text("Camera"),
+      )),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      floatingActionButton: SmartButton(),
+      bottomNavigationBar: CustomNavBar(),
+    );
   }
 }
