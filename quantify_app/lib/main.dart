@@ -50,133 +50,126 @@ class SmartButton extends StatefulWidget {
 class _SmartButtonState extends State<SmartButton> {
   Widget build(BuildContext context) {
     return FloatingActionButton(
-      backgroundColor: Colors.transparent,
-      elevation: 0.0,
-      child: Container(
-        height: 70,
-        width: 70,
-        decoration: BoxDecoration(
-          border: Border.all(color: Colors.white, width: 4),
-          shape: BoxShape.circle,
-          gradient: LinearGradient(
-            begin: const Alignment(0.7, -0.5),
-            end: const Alignment(0.6, 0.5),
-            colors: [
-              Color(0xFF53a78c),
-              Color(0xFF70d88b),
-            ],
-          ),
-        ),
-        child: Icon(Icons.add, color: Color(0xFF99163D))
-      ),
-      onPressed: () => showModalBottomSheet<void>(
         backgroundColor: Colors.transparent,
-        context: context,
-        isDismissible: true,
-        isScrollControlled: true,
-        builder: (BuildContext context) {
-          return Wrap(
-            children: <Widget>[
-              Container(
-                child: Container(
-                  decoration: new BoxDecoration(
-                    color: Color(0xFF99163D).withOpacity(0.0),
-                    borderRadius: new BorderRadius.only(
-                      topLeft: const Radius.circular(25.0),
-                      topRight: const Radius.circular(25.0)
-                    )
-                  ),
-                  child: Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      //mainAxisSize: MainAxisSize.min,
-                      children: <Widget>[
-                        Column(
-                          children: [
-                            //Row with NFC scan button
-                            Row(
-                              mainAxisAlignment:
-                                MainAxisAlignment.center,
-                              children: [
-                                Padding(
-                                  padding:
-                                    const EdgeInsets.only(top: 20),
-                                  child: FloatingActionButton(
-                                    child: Icon(Icons.nfc,
-                                      color: Color(0xFF99163D)),
-                                    backgroundColor: Colors.white,
-                                    onPressed: () {
-                                      Navigator.pop(context);
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) =>
-                                            FirstScanPage()
+        elevation: 0.0,
+        child: Container(
+            height: 70,
+            width: 70,
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.white, width: 4),
+              shape: BoxShape.circle,
+              gradient: LinearGradient(
+                begin: const Alignment(0.7, -0.5),
+                end: const Alignment(0.6, 0.5),
+                colors: [
+                  Color(0xFF53a78c),
+                  Color(0xFF70d88b),
+                ],
+              ),
+            ),
+            child: Icon(Icons.add, color: Color(0xFF99163D))),
+        onPressed: () => showModalBottomSheet<void>(
+              backgroundColor: Colors.transparent,
+              context: context,
+              isDismissible: true,
+              isScrollControlled: true,
+              builder: (BuildContext context) {
+                return Wrap(
+                  children: <Widget>[
+                    Container(
+                      child: Container(
+                        decoration: new BoxDecoration(
+                            color: Color(0xFF99163D).withOpacity(0.0),
+                            borderRadius: new BorderRadius.only(
+                                topLeft: const Radius.circular(25.0),
+                                topRight: const Radius.circular(25.0))),
+                        child: Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            //mainAxisSize: MainAxisSize.min,
+                            children: <Widget>[
+                              Column(
+                                children: [
+                                  //Row with NFC scan button
+                                  Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Padding(
+                                          padding:
+                                              const EdgeInsets.only(top: 20),
+                                          child: FloatingActionButton(
+                                            child: Icon(Icons.nfc,
+                                                color: Color(0xFF99163D)),
+                                            backgroundColor: Colors.white,
+                                            onPressed: () {
+                                              Navigator.pop(context);
+                                              Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        FirstScanPage()),
+                                              );
+                                            },
+                                          ),
                                         ),
-                                      );
-                                    },
+                                      ]),
+                                  //Row with food and activity add buttons
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsets.only(
+                                            right: 20.0, top: 20),
+                                        child: FloatingActionButton(
+                                          child: Icon(Icons.directions_run,
+                                              color: Color(0xFF99163D)),
+                                          backgroundColor: Colors.white,
+                                          onPressed: () =>
+                                              Navigator.pop(context),
+                                        ),
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.only(
+                                            left: 20.0, top: 20),
+                                        child: FloatingActionButton(
+                                          child: Icon(Icons.fastfood,
+                                              color: Color(0xFF99163D)),
+                                          backgroundColor: Colors.white,
+                                          onPressed: () =>
+                                              Navigator.pop(context),
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                ),
-                              ]
-                            ),
-                            //Row with food and activity add buttons
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.only(
-                                    right: 20.0, top: 20),
-                                  child: FloatingActionButton(
-                                    child: Icon(Icons.directions_run,
-                                      color: Color(0xFF99163D)),
-                                    backgroundColor: Colors.white,
-                                    onPressed: () =>
-                                      Navigator.pop(context),
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.only(
-                                    left: 20.0, top: 20),
-                                  child: FloatingActionButton(
-                                    child: Icon(Icons.fastfood,
-                                      color: Color(0xFF99163D)),
-                                    backgroundColor: Colors.white,
-                                    onPressed: () =>
-                                      Navigator.pop(context),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            //Row with cancelbutton
-                            Row(
-                              mainAxisAlignment:
-                                MainAxisAlignment.center,
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.only(
-                                    top: 20, bottom: 30),
-                                  child: FloatingActionButton(
-                                    child: Icon(Icons.cancel,
-                                      color: Color(0xFF99163D)),
-                                    backgroundColor: Colors.white,
-                                    onPressed: () =>
-                                      Navigator.pop(context),
-                                  ),
-                                ),
-                              ]
-                            ),
-                          ],
-                        )
-                      ],
-                    ),
-                  ),
-                ),
-              )
-            ],
-          );
-        },
-      )
-      );
+                                  //Row with cancelbutton
+                                  Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Padding(
+                                          padding: const EdgeInsets.only(
+                                              top: 20, bottom: 30),
+                                          child: FloatingActionButton(
+                                            child: Icon(Icons.cancel,
+                                                color: Color(0xFF99163D)),
+                                            backgroundColor: Colors.white,
+                                            onPressed: () =>
+                                                Navigator.pop(context),
+                                          ),
+                                        ),
+                                      ]),
+                                ],
+                              )
+                            ],
+                          ),
+                        ),
+                      ),
+                    )
+                  ],
+                );
+              },
+            ));
   }
 }
 
@@ -188,86 +181,68 @@ class GraphicalInterface extends StatefulWidget {
 }
 
 class _GraphicalInterfaceState extends State<GraphicalInterface> {
-    
-  
-    
-  
-  ZoomPanBehavior _zoomPanBehavior = ZoomPanBehavior(
-                
-    enablePanning: true
-  );
-      
-  
+  ZoomPanBehavior _zoomPanBehavior = ZoomPanBehavior(enablePanning: true);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-          child: Container(
-            child: SfCartesianChart(
-                  zoomPanBehavior: _zoomPanBehavior,
-                  onPointTapped: (PointTapArgs args){ 
-                    print(args.pointIndex);
-                  },
-                  onMarkerRender: (MarkerRenderArgs args) {
-                    if (args.pointIndex == 1) {
-                      args.color = Colors.red;
-                      args.markerHeight = 20;
-                      args.markerWidth = 20;
-                      args.shape = DataMarkerType.diamond;
-                      args.borderColor = Colors.green;
-                      args.borderWidth = 2;
-                    }
-                    if (args.pointIndex == 11) {
-                      args.color = Colors.blue;
-                      args.markerHeight = 20;
-                      args.markerWidth = 20;
-                      args.shape = DataMarkerType.diamond;
-                      args.borderColor = Colors.red;
-                      args.borderWidth = 2;
-                    }
-                  },
-                  
-                // Initialize category axis
-                  primaryXAxis: CategoryAxis(
-                    isInversed: true,
-                    visibleMaximum: 8,
-                  ),
-                  title: ChartTitle(text: 'Monday Dec 12'),
-                  
-                  series: <LineSeries<GlucoseData, String>>[
-                    LineSeries<GlucoseData, String>(
-                      // Bind data source
-                      dataSource:  <GlucoseData>[
-                        GlucoseData('2300', 23),
-                        GlucoseData('2200', 22),
-                        GlucoseData('2100', 18),
-                        GlucoseData('2000', 19),
-                        GlucoseData('1900', 24),
-                        GlucoseData('1800', 29),
-                        GlucoseData('1700', 35),
-                        GlucoseData('1600', 40),
-                        GlucoseData('1500', 45),
-                        GlucoseData('1400', 39),
-                        GlucoseData('1300', 26),
-                        GlucoseData('1200', 18),
-                        GlucoseData('1100', 11),
-                      ],
-                      xValueMapper: (GlucoseData glucose, _) => glucose.time,
-                      yValueMapper: (GlucoseData glucose, _) => glucose.glucoseVal,
-                      markerSettings: MarkerSettings(
-                        isVisible: true,
-                        
-                        shape: DataMarkerType.diamond
-                      )
-                    )
-                  ],
-                  
-                )
-          
-        )
-      )
-    );
+        body: Center(
+            child: Container(
+                child: SfCartesianChart(
+      zoomPanBehavior: _zoomPanBehavior,
+      onPointTapped: (PointTapArgs args) {
+        print(args.pointIndex);
+      },
+      onMarkerRender: (MarkerRenderArgs args) {
+        if (args.pointIndex == 1) {
+          args.color = Colors.red;
+          args.markerHeight = 20;
+          args.markerWidth = 20;
+          args.shape = DataMarkerType.diamond;
+          args.borderColor = Colors.green;
+          args.borderWidth = 2;
+        }
+        if (args.pointIndex == 11) {
+          args.color = Colors.blue;
+          args.markerHeight = 20;
+          args.markerWidth = 20;
+          args.shape = DataMarkerType.diamond;
+          args.borderColor = Colors.red;
+          args.borderWidth = 2;
+        }
+      },
+
+      // Initialize category axis
+      primaryXAxis: CategoryAxis(
+        isInversed: true,
+        visibleMaximum: 8,
+      ),
+      title: ChartTitle(text: 'Monday Dec 12'),
+
+      series: <LineSeries<GlucoseData, String>>[
+        LineSeries<GlucoseData, String>(
+            // Bind data source
+            dataSource: <GlucoseData>[
+              GlucoseData('2300', 23),
+              GlucoseData('2200', 22),
+              GlucoseData('2100', 18),
+              GlucoseData('2000', 19),
+              GlucoseData('1900', 24),
+              GlucoseData('1800', 29),
+              GlucoseData('1700', 35),
+              GlucoseData('1600', 40),
+              GlucoseData('1500', 45),
+              GlucoseData('1400', 39),
+              GlucoseData('1300', 26),
+              GlucoseData('1200', 18),
+              GlucoseData('1100', 11),
+            ],
+            xValueMapper: (GlucoseData glucose, _) => glucose.time,
+            yValueMapper: (GlucoseData glucose, _) => glucose.glucoseVal,
+            markerSettings:
+                MarkerSettings(isVisible: true, shape: DataMarkerType.diamond))
+      ],
+    ))));
   }
   /*
    Widget build(BuildContext context) {
@@ -331,7 +306,7 @@ class _GraphicalInterfaceState extends State<GraphicalInterface> {
       );
     }
     */
-  
+
 }
 
 class CustomNavBar extends StatefulWidget {
@@ -342,17 +317,14 @@ class CustomNavBar extends StatefulWidget {
 }
 
 class _CustomNavBarState extends State<CustomNavBar> {
-
-
-
   int _selectedIndex = 0;
-  
 
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
     });
   }
+
   Widget build(BuildContext context) {
     return BottomNavigationBar(
       type: BottomNavigationBarType.fixed,
@@ -362,26 +334,22 @@ class _CustomNavBarState extends State<CustomNavBar> {
       onTap: _onItemTapped,
       items: const <BottomNavigationBarItem>[
         BottomNavigationBarItem(
-          icon: Icon(Icons.home), 
-          backgroundColor: Color(0xFF99163D),
-          label: 'Home'),
-          
+            icon: Icon(Icons.home),
+            backgroundColor: Color(0xFF99163D),
+            label: 'Home'),
         BottomNavigationBarItem(
-          icon: Icon(Icons.book),
-          backgroundColor: Color(0xFF99163D),
-          label: 'Diary'),
-        
+            icon: Icon(Icons.book),
+            backgroundColor: Color(0xFF99163D),
+            label: 'Diary'),
         BottomNavigationBarItem(
-          icon: Icon(Icons.people), 
-          backgroundColor: Color(0xFF99163D),
-          label: 'Profile'),
-
+            icon: Icon(Icons.people),
+            backgroundColor: Color(0xFF99163D),
+            label: 'Profile'),
         BottomNavigationBarItem(
-          icon: Icon(Icons.settings), 
-          backgroundColor: Color(0xFF99163D),
-          label: 'Settings'),
+            icon: Icon(Icons.settings),
+            backgroundColor: Color(0xFF99163D),
+            label: 'Settings'),
       ],
-        
     );
   }
 }
@@ -391,7 +359,6 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        
         theme: ThemeData(
           primarySwatch: Colors.blue,
         ),
@@ -400,8 +367,6 @@ class MyApp extends StatelessWidget {
 }
 
 class FirstScanPage extends StatelessWidget {
-  
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -439,54 +404,49 @@ class FirstScanPage extends StatelessWidget {
 class HomePage extends StatefulWidget {
   HomePage({Key key}) : super(key: key);
 
-  
   @override
   _HomePageState createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin {
-  
+class _HomePageState extends State<HomePage>
+    with SingleTickerProviderStateMixin {
   int _selectedIndex = 0;
-  
+
   final List<Widget> _children = [
-    Center( 
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            flex: 50,
-            child: Container(
-              child: GraphicalInterface(),
-              
-            ),
+    Center(
+        child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          flex: 50,
+          child: Container(
+            child: GraphicalInterface(),
           ),
-          Expanded(
+        ),
+        Expanded(
             flex: 50,
-            child: Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(left:30 , right: 30),
-                  child: Text('Lorem Ipsum', textScaleFactor: 2,),
-                
+            child: Column(children: [
+              Padding(
+                padding: const EdgeInsets.only(left: 30, right: 30),
+                child: Text(
+                  'Lorem Ipsum',
+                  textScaleFactor: 2,
                 ),
-                Padding(
-                  padding: const EdgeInsets.only(left:30 , right: 30),
-                  child: Text('"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ', textScaleFactor: 1,),
-                
+              ),
+              Padding(
+                padding: const EdgeInsets.only(left: 30, right: 30),
+                child: Text(
+                  '"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ',
+                  textScaleFactor: 1,
                 ),
-              ]
-            )
-          )
-
-        ],
-      )
-
-    ),
-   Text('Diarypage'),
-   Text('Profilepage'),
-   Text('Settingspage'),
-
- ];
+              ),
+            ]))
+      ],
+    )),
+    Text('Diarypage'),
+    Text('Profilepage'),
+    Text('Settingspage'),
+  ];
 
   void _onItemTapped(int index) {
     setState(() {
@@ -509,28 +469,23 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           onTap: _onItemTapped,
           items: const <BottomNavigationBarItem>[
             BottomNavigationBarItem(
-              icon: Icon(Icons.home), 
-              backgroundColor: Color(0xFF99163D),
-              label: 'Home'),
-              
+                icon: Icon(Icons.home),
+                backgroundColor: Color(0xFF99163D),
+                label: 'Home'),
             BottomNavigationBarItem(
-              icon: Icon(Icons.book),
-              backgroundColor: Color(0xFF99163D),
-              label: 'Diary'),
-            
+                icon: Icon(Icons.book),
+                backgroundColor: Color(0xFF99163D),
+                label: 'Diary'),
             BottomNavigationBarItem(
-              icon: Icon(Icons.people), 
-              backgroundColor: Color(0xFF99163D),
-              label: 'Profile'),
-              
+                icon: Icon(Icons.people),
+                backgroundColor: Color(0xFF99163D),
+                label: 'Profile'),
             BottomNavigationBarItem(
-              icon: Icon(Icons.settings), 
-              backgroundColor: Color(0xFF99163D),
-              label: 'Settings'),
+                icon: Icon(Icons.settings),
+                backgroundColor: Color(0xFF99163D),
+                label: 'Settings'),
           ],
-        
-    )
-    );
+        ));
     return scaffold;
   }
 }
@@ -540,4 +495,3 @@ class GlucoseData {
   final String time;
   final double glucoseVal;
 }
-
