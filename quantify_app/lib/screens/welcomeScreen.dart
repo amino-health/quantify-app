@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:google_fonts/google_fonts.dart';
+//import 'package:google_fonts/google_fonts.dart';
+import 'package:quantify_app/screens/homeScreen.dart';
 //import 'package:quantify_app/screens/main.dart';
 //import 'package:flutter_svg/flutter_svg.dart';
 
@@ -9,9 +10,17 @@ class WelcomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
+        child:
+          Column(mainAxisAlignment: MainAxisAlignment.start, children: [
+            Padding(
+              padding: const EdgeInsets.only(top: 50),
+              child: Container(
+                height: MediaQuery.of(context).size.height * 0.25,
+                alignment: Alignment.center,
+                child: SvgPicture.asset("lib/assets/red_logo.svg",
+                    height: MediaQuery.of(context).size.height * 1),
+              ),
+            ),
             Container(
               height: MediaQuery.of(context).size.height * 0.1,
               alignment: Alignment.center,
@@ -19,47 +28,39 @@ class WelcomeScreen extends StatelessWidget {
                   color: Colors.black,
                   height: MediaQuery.of(context).size.height * 0.04),
             ),
-
-
-
-
             Padding(
               padding: const EdgeInsets.only(left: 50, right: 50),
               child: Text('Are you ready to take your life to the next level?',
-              textAlign: TextAlign.center,
-              style: 
-                TextStyle(
-                  fontFamily: 'Roboto-Medium', fontSize: 30.0
-                )
-              ),
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontFamily: 'Roboto-Medium', fontSize: (MediaQuery.of(context).size.height * 0.03))),
             ),
             Padding(
-              padding: const EdgeInsets.only(top: 150),
+              padding: EdgeInsets.only(top: (MediaQuery.of(context).size.height * 0.25)),
               child: ElevatedButton(
-                style: ButtonStyle(
-                  backgroundColor: MaterialStateProperty.resolveWith<Color>(
-                    (Set<MaterialState> states) {
-                      if (states.contains(MaterialState.pressed))
-                        return Color(0xDD99163D);
-                      else
-                        return Color(0xFF99163D);
-                      return null; // Use the component's default.
-                    },
+                  style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty.resolveWith<Color>(
+                      (Set<MaterialState> states) {
+                        if (states.contains(MaterialState.pressed))
+                          return Color(0xDD99163D);
+                        else
+                          return Color(0xFF99163D);
+                        
+                      },
+                    ),
                   ),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.only(left:45.0, right: 45.0, top: 12.0, bottom: 12.0),
-                  child: (
-                    Text(
-                      'Get Started',
-                      
-                      style: TextStyle(
-                        fontFamily: 'Roboto-Medium', fontSize: 16.0
-                      )
-                    )
+                  child: Padding(
+                    padding: const EdgeInsets.only(
+                        left: 45.0, right: 45.0, top: 12.0, bottom: 12.0),
+                    child: (Text('Get Started',
+                        style:
+                            TextStyle(fontFamily: 'Roboto-Medium', fontSize: 16.0))),
                   ),
-                ),
-                onPressed: () {}
+                  onPressed: () {
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => HomeScreen()
+                        )
+                    );
+                  }
               ),
             ),
           ]

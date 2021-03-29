@@ -8,7 +8,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:quantify_app/main.dart';
+import 'package:quantify_app/screens/main.dart';
 
 void main() {
 
