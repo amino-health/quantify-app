@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
-
-import 'package:quantify_app/screens/homeScreen.dart';
+import 'package:quantify_app/screens/homeSkeleton.dart';
+import 'package:quantify_app/screens/tos.dart';
 //import 'package:flutter_svg/flutter_svg.dart';
 
 class UserInfoScreen extends StatefulWidget {
@@ -17,6 +17,17 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
 
   String dropdownValue = 'Male';
 
+  final _weighttext = TextEditingController();
+  final _heighttext = TextEditingController();
+  bool _heightvalidate = false;
+  bool _weightvalidate = false;
+
+  @override
+  void dispose() {
+    _weighttext.dispose();
+    _heighttext.dispose();
+    super.dispose();
+  }
 
   _selectDate(BuildContext context) async {
     final ThemeData theme = Theme.of(context);
@@ -94,85 +105,81 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
     );
   }
 
-
-
-
-
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        appBar: CustomAppBar(),
         body: Center(
             child:
                 Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-      Row(
-        //Date of birth row
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          infotitle('Birth', context),
-          Container(
-            child: TextField(
-              onTap: () {
-                _selectDate(context);
-              },
-              focusNode: AlwaysDisabledFocusNode(),
-          
-              decoration: InputDecoration(
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(20)),
+          Row(
+            //Date of birth row
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              infotitle('Birth', context),
+              Container(
+                child: TextField(
+                  onTap: () {
+                    _selectDate(context);
+                  },
+                  focusNode: AlwaysDisabledFocusNode(),
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(20)),
+                    ),
+                    labelText: "${selectedDate.toLocal()}".split(' ')[0],
+                  ),
                 ),
-                labelText: "${selectedDate.toLocal()}".split(' ')[0],
+                height: MediaQuery.of(context).size.height * 0.1,
+                width: MediaQuery.of(context).size.width * 0.5,
               ),
-            ),
-            height: MediaQuery.of(context).size.height * 0.1,
-            width: MediaQuery.of(context).size.width * 0.5,
-          ),
-        ],
-      ),
-      Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-        infotitle('Weight', context),
-        Container(
-          child: TextField(
-            keyboardType: TextInputType.number,
-            inputFormatters: <TextInputFormatter>[
-              FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
             ],
-            maxLength: 3,
-            decoration: InputDecoration(
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.all(Radius.circular(20)),
-              ),
-              labelText: 'Kilograms',
-            ),
           ),
-          height: MediaQuery.of(context).size.height * 0.1,
-          width: MediaQuery.of(context).size.width * 0.5,
-        )
-      ]),
-      Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-        infotitle('Height', context),
-        Container(
-          child: TextField(
-            keyboardType: TextInputType.number,
-            inputFormatters: <TextInputFormatter>[
-              FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
-            ],
-            maxLength: 3,
-            decoration: InputDecoration(
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.all(Radius.circular(20)),
+          Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+            infotitle('Weight', context),
+            Container(
+              child: TextField(
+                controller: _weighttext,
+                keyboardType: TextInputType.number,
+                inputFormatters: <TextInputFormatter>[
+                  FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
+                ],
+                maxLength: 3,
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(20)),
+                  ),
+                  labelText: 'Kilograms',
+                  errorText: _weightvalidate ? 'Value Can\'t Be Empty' : null,
+                ),
               ),
-              labelText: 'Centimeters',
-            ),
-          ),
-          height: MediaQuery.of(context).size.height * 0.1,
-          width: MediaQuery.of(context).size.width * 0.5,
-        )
-      ]),
-      Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
+              height: MediaQuery.of(context).size.height * 0.1,
+              width: MediaQuery.of(context).size.width * 0.5,
+            )
+          ]),
+          Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+            infotitle('Height', context),
+            Container(
+              child: TextField(
+                controller: _heighttext,
+                keyboardType: TextInputType.number,
+                inputFormatters: <TextInputFormatter>[
+                  FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
+                ],
+                maxLength: 3,
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(20)),
+                  ),
+                  labelText: 'Centimeters',
+                  errorText: _heightvalidate ? 'Value Can\'t Be Empty' : null,
+                ),
+              ),
+              height: MediaQuery.of(context).size.height * 0.1,
+              width: MediaQuery.of(context).size.width * 0.5,
+            )
+          ]),
+          Row(mainAxisAlignment: MainAxisAlignment.center, children: [
             infotitle('Gender', context),
             Container(
               child: DropdownButton<String>(
@@ -201,41 +208,47 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
               height: MediaQuery.of(context).size.height * 0.1,
               width: MediaQuery.of(context).size.width * 0.5,
             ),
-            ]
-          ),
+          ]),
           Padding(
-              padding: EdgeInsets.only(top: (MediaQuery.of(context).size.height * 0.25)),
-              child: ElevatedButton(
-                  style: ButtonStyle(
-                    backgroundColor: MaterialStateProperty.resolveWith<Color>(
-                      (Set<MaterialState> states) {
-                        if (states.contains(MaterialState.pressed))
-                          return Color(0xDD99163D);
-                        else
-                          return Color(0xFF99163D);
-                        
-                      },
-                    ),
+            padding: EdgeInsets.only(
+                top: (MediaQuery.of(context).size.height * 0.15)),
+            child: ElevatedButton(
+                style: ButtonStyle(
+                  backgroundColor: MaterialStateProperty.resolveWith<Color>(
+                    (Set<MaterialState> states) {
+                      if (states.contains(MaterialState.pressed))
+                        return Color(0xDD99163D);
+                      else
+                        return Color(0xFF99163D);
+                    },
                   ),
-                  child: Padding(
-                    padding: const EdgeInsets.only(
-                        left: 45.0, right: 45.0, top: 12.0, bottom: 12.0),
-                    child: (Text('Get Started',
-                        style:
-                            TextStyle(fontFamily: 'Roboto-Medium', fontSize: 16.0))),
-                  ),
-                  onPressed: () {
-                    Navigator.pushReplacement(context,
-                        MaterialPageRoute(builder: (context) => HomeScreen()
-                        )
-                    );
-                  }
-              ),
-            ),
-          
-    ])));
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.only(
+                      left: 45.0, right: 45.0, top: 12.0, bottom: 12.0),
+                  child: (Text('Get Started',
+                      style: TextStyle(
+                          fontFamily: 'Roboto-Medium', fontSize: 16.0))),
+                ),
+                onPressed: () {
+                  setState(() {
+                    _weighttext.text.isEmpty
+                        ? _weightvalidate = true
+                        : _weightvalidate = false;
+                    _heighttext.text.isEmpty
+                        ? _heightvalidate = true
+                        : _heightvalidate = false;
+                  });
+                  _weighttext.text.isNotEmpty & _heighttext.text.isNotEmpty
+                      ? Navigator.pushReplacement(context,
+                          MaterialPageRoute(builder: (context) => TosScreen()))
+                      : null;
+                }),
+          ),
+        ])));
   }
 }
+
 class AlwaysDisabledFocusNode extends FocusNode {
   @override
   bool get hasFocus => false;
