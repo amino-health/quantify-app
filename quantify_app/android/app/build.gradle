@@ -34,11 +34,7 @@ android {
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-<<<<<<< HEAD
-        applicationId "com.example.quantify_app"
-=======
         applicationId "bio.quantify.quantify_app"
->>>>>>> a1c6a69474655e959bb737ad5ec7a9ab96ebe4e9
         minSdkVersion 21
         targetSdkVersion 30
         versionCode flutterVersionCode.toInteger()
