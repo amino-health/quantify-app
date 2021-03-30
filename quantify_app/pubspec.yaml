@@ -33,6 +33,7 @@ dependencies:
   google_fonts: ^2.0.0
   path_provider: ^2.0.0
   lipsum: ^1.0.1
+  settings_ui: ^0.6.0
 
 dev_dependencies:
   flutter_test:
