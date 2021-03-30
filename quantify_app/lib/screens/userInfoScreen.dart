@@ -239,10 +239,9 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
                         ? _heightvalidate = true
                         : _heightvalidate = false;
                   });
-                  _weighttext.text.isNotEmpty & _heighttext.text.isNotEmpty
-                      ? Navigator.pushReplacement(context,
-                          MaterialPageRoute(builder: (context) => TosScreen()))
-                      : null;
+                  _weighttext.text.isNotEmpty & _heighttext.text.isNotEmpty ??
+                      Navigator.pushReplacement(context,
+                          MaterialPageRoute(builder: (context) => TosScreen()));
                 }),
           ),
         ])));

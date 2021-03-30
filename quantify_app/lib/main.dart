@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 //import 'package:quantify_app/screens/homeScreen.dart';
-import 'package:quantify_app/screens/welcomeScreen.dart';
-
+import 'package:quantify_app/screens/addActivityScreen.dart';
 
 void main() {
   runApp(MyApp());
@@ -15,6 +14,6 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
           primarySwatch: Colors.blue,
         ),
-        home: WelcomeScreen());
+        home: AddActivityScreen());
   }
 }
