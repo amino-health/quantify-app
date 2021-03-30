@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:quantify_app/screens/change.dart';
 import 'package:quantify_app/screens/tos.dart';
 import 'package:settings_ui/settings_ui.dart';
 
@@ -19,7 +20,10 @@ class _ProfileState extends State<Profile> {
             SettingsTile(
               title: 'Email',
               subtitle: 'current@email.com',
-              onPressed: (BuildContext context) {},
+              onPressed: (BuildContext context) {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => Change(toChange: "email")));
+              },
             ),
           ],
         ),
@@ -31,13 +35,16 @@ class _ProfileState extends State<Profile> {
               subtitle: '190cm',
               onPressed: (BuildContext context) {
                 Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => TosScreen()));
+                    MaterialPageRoute(builder: (context) => Change(toChange: "height")));
               },
             ),
             SettingsTile(
               title: 'Current weight',
               subtitle: '85 kg',
-              onPressed: (BuildContext context) {},
+              onPressed: (BuildContext context) {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => Change(toChange: "weight")));
+              },
             ),
           ],
         ),
