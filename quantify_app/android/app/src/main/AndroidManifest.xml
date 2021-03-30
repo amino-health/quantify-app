@@ -1,11 +1,15 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+<<<<<<< HEAD
     package="com.example.quantify_app">
     <uses-permission android:name="android.permission.CAMERA" /> 
     <uses-sdk android:minSdkVersion="21"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+=======
+    package="bio.quantify.quantify_app">
+>>>>>>> a1c6a69474655e959bb737ad5ec7a9ab96ebe4e9
    <application
-        android:label="quantify_app"
+        android:label="Quantify"
         android:icon="@mipmap/ic_launcher">
         <activity
         android:requestLegacyExternalStorage="true"

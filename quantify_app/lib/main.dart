@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:quantify_app/screens/tos.dart';
+//import 'package:quantify_app/screens/homeScreen.dart';
+import 'package:quantify_app/screens/welcomeScreen.dart';
 
 
 void main() {
@@ -14,7 +15,6 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
           primarySwatch: Colors.blue,
         ),
-        home: TosScreen());
+        home: WelcomeScreen());
   }
 }
-
