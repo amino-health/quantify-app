@@ -7,7 +7,10 @@
 		<true/>
 	</dict>
 <dict>
-
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Allow choosing pictures from gallery.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Allow taking pictures.</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleExecutable</key>
