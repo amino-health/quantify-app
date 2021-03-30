@@ -16,6 +16,7 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
   DateTime selectedDate = DateTime.now();
 
   String dropdownValue = 'Male';
+  bool myvar = false;
 
   final _weighttext = TextEditingController();
   final _heighttext = TextEditingController();
@@ -49,7 +50,7 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
       context: context,
       initialDate: selectedDate,
       firstDate: DateTime(1900),
-      lastDate: DateTime(2021),
+      lastDate: selectedDate,
       builder: (context, child) {
         return Theme(
           data: ThemeData.light(),
@@ -108,6 +109,7 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        resizeToAvoidBottomInset: false,
         appBar: CustomAppBar(),
         body: Center(
             child:
@@ -124,6 +126,7 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
                   },
                   focusNode: AlwaysDisabledFocusNode(),
                   decoration: InputDecoration(
+                    counterText: "",
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(20)),
                     ),
@@ -140,12 +143,14 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
             Container(
               child: TextField(
                 controller: _weighttext,
-                keyboardType: TextInputType.number,
+                keyboardType: TextInputType.numberWithOptions(
+                    signed: true, decimal: true),
                 inputFormatters: <TextInputFormatter>[
                   FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
                 ],
                 maxLength: 3,
                 decoration: InputDecoration(
+                  counterText: "",
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.all(Radius.circular(20)),
                   ),
@@ -162,12 +167,14 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
             Container(
               child: TextField(
                 controller: _heighttext,
-                keyboardType: TextInputType.number,
+                keyboardType: TextInputType.numberWithOptions(
+                    signed: true, decimal: true),
                 inputFormatters: <TextInputFormatter>[
                   FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
                 ],
                 maxLength: 3,
                 decoration: InputDecoration(
+                  counterText: "",
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.all(Radius.circular(20)),
                   ),
@@ -239,9 +246,10 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
                         ? _heightvalidate = true
                         : _heightvalidate = false;
                   });
-                  _weighttext.text.isNotEmpty & _heighttext.text.isNotEmpty ??
-                      Navigator.pushReplacement(context,
-                          MaterialPageRoute(builder: (context) => TosScreen()));
+                  _weighttext.text.isNotEmpty & _heighttext.text.isNotEmpty
+                      ? Navigator.pushReplacement(context,
+                          MaterialPageRoute(builder: (context) => TosScreen()))
+                      : myvar = false;
                 }),
           ),
         ])));

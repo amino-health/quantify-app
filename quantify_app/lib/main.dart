@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-//import 'package:quantify_app/screens/homeScreen.dart';
-import 'package:quantify_app/screens/addActivityScreen.dart';
+import 'package:quantify_app/screens/welcomeScreen.dart';
+//import 'package:quantify_app/screens/addActivityScreen.dart';
 
 void main() {
   runApp(MyApp());
@@ -12,8 +12,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
         theme: ThemeData(
-          primarySwatch: Colors.blue,
+          primaryColor: Color(0xFF99163D),
         ),
-        home: AddActivityScreen());
+        home: WelcomeScreen());
   }
 }
