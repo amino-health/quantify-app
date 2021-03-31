@@ -5,7 +5,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:quantify_app/screens/homeScreen.dart';
 
 class TosScreen extends StatefulWidget {
-  TosScreen({Key key}) : super(key: key);
+  final bool showContinue;
+  TosScreen({Key key, this.showContinue}) : super(key: key);
 
   @override
   _TosScreenState createState() => _TosScreenState();
@@ -32,7 +33,7 @@ class _TosScreenState extends State<TosScreen> {
             ),
             Flexible(
               flex: 7,
-                          child: Align(
+              child: Align(
                 child: Container(
                   height: MediaQuery.of(context).size.height * 0.7,
                   width: MediaQuery.of(context).size.width * 0.9,
@@ -48,7 +49,7 @@ class _TosScreenState extends State<TosScreen> {
                 ),
               ),
             ),
-            Align(
+            widget.showContinue ? Align(
               alignment: Alignment.centerLeft,
               child: CheckboxListTile(
                   title: Text("I accept the terms and conditions."),
@@ -59,10 +60,10 @@ class _TosScreenState extends State<TosScreen> {
                       _checked = !_checked;
                     });
                   }),
-            ),
-            Flexible(
+            ) : Container(),
+            widget.showContinue ? Flexible(
               flex: 1,
-                          child: Align(
+              child: Align(
                 child: ElevatedButton(
                   onPressed: () {
                     if (_checked) {
@@ -84,7 +85,7 @@ class _TosScreenState extends State<TosScreen> {
                   ),
                 ),
               ),
-            )
+            ) : Container()
           ],
         )));
   }

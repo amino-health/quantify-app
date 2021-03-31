@@ -59,10 +59,12 @@ class _ChangeState extends State<Change> {
               ),
             ),
             Container(
-              padding: const EdgeInsets.only(top: 16),
+              padding: const EdgeInsets.only(top: 12),
               child: TextFormField(
                 controller: _inputController,
-                decoration: InputDecoration.collapsed(
+                decoration: InputDecoration(
+                  contentPadding: EdgeInsets.all(4),
+                  isDense: true,
                   hintText: '${_change[0].toUpperCase()}${_change.substring(1)}',
                   border: UnderlineInputBorder(),
                 ),

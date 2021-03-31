@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:quantify_app/screens/change.dart';
+import 'package:quantify_app/screens/tos.dart';
+import 'package:quantify_app/screens/welcomeScreen.dart';
 import 'package:settings_ui/settings_ui.dart';
 
 class Profile extends StatefulWidget {
@@ -65,11 +67,17 @@ class _ProfileState extends State<Profile> {
           tiles: [
             SettingsTile(
               title: 'Sign out',
-              onPressed: (BuildContext context) {},
+              onPressed: (BuildContext context) {
+                Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => WelcomeScreen()));
+              },
             ),
             SettingsTile(
               title: 'Delete account',
-              onPressed: (BuildContext context) {},
+              onPressed: (BuildContext context) {
+              },
             ),
           ],
         ),
@@ -77,8 +85,13 @@ class _ProfileState extends State<Profile> {
           title: 'Miscellaneous',
           tiles: [
             SettingsTile(
-              title: 'Terms of service',
-              onPressed: (BuildContext context) {},
+              title: 'Terms & conditions',
+              onPressed: (BuildContext context) {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => TosScreen(showContinue: false,)));
+              },
             ),
             SettingsTile(
               title: 'About Quantify',
