@@ -5,7 +5,6 @@ import 'package:quantify_app/screens/homeSkeleton.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'package:image_cropper/image_cropper.dart';
-import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'dart:io' show Platform;
 
 class AddMealScreen extends StatefulWidget {
@@ -21,6 +20,7 @@ class _AddMealScreenState extends State<AddMealScreen> {
   File _image;
   DateTime _date = new DateTime.now();
   TimeOfDay _time = TimeOfDay.now();
+  final DateTime today = DateTime.now();
   DateTime _timeStamp;
   String _note = "";
   @override
@@ -31,7 +31,7 @@ class _AddMealScreenState extends State<AddMealScreen> {
   }
 
   Widget build(BuildContext context) {
-    bool _isIos = Platform.isIOS || Platform.isMacOS;
+    bool _isIos = false; //Platform.isIOS || Platform.isMacOS;
     return new Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: CustomAppBar(),
@@ -56,6 +56,7 @@ class _AddMealScreenState extends State<AddMealScreen> {
                 FutureBuilder<String>(builder:
                     (BuildContext context, AsyncSnapshot<String> snapshot) {
                   return new FloatingActionButton(
+                      heroTag: "btn1",
                       onPressed: () async {
                         _getImageGallery();
                       },
@@ -68,6 +69,7 @@ class _AddMealScreenState extends State<AddMealScreen> {
                 FutureBuilder<String>(builder:
                     (BuildContext context, AsyncSnapshot<String> snapshot) {
                   return new FloatingActionButton(
+                      heroTag: "btn2",
                       onPressed: () async {
                         _getImageCamera();
                       },
@@ -103,14 +105,31 @@ class _AddMealScreenState extends State<AddMealScreen> {
                       return const Color(0xFF99163D);
                     })),
                     onPressed: () async {
-                      DateTime newDate = await (_isIos
-                          ? DatePicker.showDatePicker(context,
-                              maxTime: DateTime.now())
-                          : showDatePicker(
-                              context: context,
-                              initialDate: DateTime.now(),
-                              firstDate: DateTime(2000),
-                              lastDate: DateTime.now()));
+                      DateTime newDate;
+                      if (_isIos) {
+                        await showModalBottomSheet(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return CupertinoDatePicker(
+                              mode: CupertinoDatePickerMode.date,
+                              onDateTimeChanged: (picked) {
+                                setState(() {
+                                  newDate = picked;
+                                });
+                              },
+                              maximumDate: DateTime.now(),
+                              initialDateTime: _date,
+                              minimumDate: DateTime(2000),
+                            );
+                          },
+                        );
+                      } else {
+                        newDate = await showDatePicker(
+                            context: context,
+                            initialDate: _date,
+                            firstDate: DateTime(2000),
+                            lastDate: DateTime.now());
+                      }
                       if (newDate != null) {
                         setState(() {
                           _date = newDate;
@@ -150,11 +169,28 @@ class _AddMealScreenState extends State<AddMealScreen> {
                       return const Color(0xFF99163D);
                     })),
                     onPressed: () async {
-                      var newTime = await (_isIos
-                          ? DatePicker.showTimePicker(context,
-                              showSecondsColumn: false)
-                          : showTimePicker(
-                              context: context, initialTime: TimeOfDay.now()));
+                      TimeOfDay newTime;
+                      if (_isIos) {
+                        await showModalBottomSheet(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return CupertinoDatePicker(
+                                  use24hFormat: true,
+                                  mode: CupertinoDatePickerMode.time,
+                                  initialDateTime: DateTime(
+                                      today.year,
+                                      today.month,
+                                      today.day,
+                                      _time.hour,
+                                      _time.minute),
+                                  onDateTimeChanged: (picked) {
+                                    newTime = TimeOfDay.fromDateTime(picked);
+                                  });
+                            });
+                      } else {
+                        newTime = await showTimePicker(
+                            context: context, initialTime: _time);
+                      }
                       if (newTime != null) {
                         setState(() {
                           _time = newTime;
