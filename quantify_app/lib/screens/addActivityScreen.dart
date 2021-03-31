@@ -95,7 +95,6 @@ class _AddActivityScreenState extends State<AddActivityScreen>
 
   void _onItemTapped(int index) {
     setState(() {
-      print(index);
       _selectedIndex = index;
     });
   }
@@ -140,6 +139,7 @@ class _AddActivityScreenState extends State<AddActivityScreen>
     );
   }
 
+  //Placeholdermethod Is called whenever a user presses Done in add activity view
   void addActivity(context, activityData) {
     setState(() {});
   }
@@ -174,6 +174,7 @@ class _AddActivityScreenState extends State<AddActivityScreen>
             child: TextField(
               controller: _activitySearch,
               decoration: InputDecoration(
+                suffixText: 'Kg',
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.all(Radius.circular(0)),
                 ),
