@@ -35,7 +35,6 @@ class _AddMealScreenState extends State<AddMealScreen> {
 
   Widget build(BuildContext context) {
     bool _isIos;
-
     try {
       _isIos = Platform.isIOS || Platform.isMacOS;
     } catch (e) {
