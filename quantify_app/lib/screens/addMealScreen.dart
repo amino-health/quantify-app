@@ -37,7 +37,7 @@ class _AddMealScreenState extends State<AddMealScreen> {
     bool _isIos;
 
     try {
-      _isIos = true; //Platform.isIOS || Platform.isMacOS;
+      _isIos = Platform.isIOS || Platform.isMacOS;
     } catch (e) {
       _isIos = false;
     }
