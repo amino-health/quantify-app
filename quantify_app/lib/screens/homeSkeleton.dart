@@ -127,11 +127,12 @@ class _SmartButtonState extends State<SmartButton> {
                                           child: Icon(Icons.fastfood,
                                               color: Color(0xFF99163D)),
                                           backgroundColor: Colors.white,
-                                          onPressed: () => Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      AddMealScreen())),
+                                          onPressed: () =>
+                                              Navigator.pushReplacement(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                      builder: (context) =>
+                                                          AddMealScreen())),
                                         ),
                                       ),
                                     ],

@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:quantify_app/screens/homeScreen.dart';
 import 'package:quantify_app/screens/homeSkeleton.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
@@ -15,9 +16,20 @@ class AddMealScreen extends StatefulWidget {
 }
 
 class _AddMealScreenState extends State<AddMealScreen> {
+  final textController = TextEditingController();
+
   File _image;
-  DateTime _date = DateTime.now();
+  DateTime _date = new DateTime.now();
   TimeOfDay _time = TimeOfDay.now();
+  DateTime _timeStamp;
+  String _note = "";
+  @override
+  void dispose() {
+    // Clean up the controller when the widget is disposed.
+    textController.dispose();
+    super.dispose();
+  }
+
   Widget build(BuildContext context) {
     bool _isIos = Platform.isIOS || Platform.isMacOS;
     return new Scaffold(
@@ -70,6 +82,8 @@ class _AddMealScreenState extends State<AddMealScreen> {
               padding: EdgeInsets.only(top: 10, bottom: 10),
               width: MediaQuery.of(context).size.width * 0.8,
               child: TextField(
+                textInputAction: TextInputAction.go,
+                controller: textController,
                 maxLines: null,
                 decoration: InputDecoration(
                     border: OutlineInputBorder(),
@@ -100,6 +114,8 @@ class _AddMealScreenState extends State<AddMealScreen> {
                       if (newDate != null) {
                         setState(() {
                           _date = newDate;
+                          _timeStamp = DateTime(_date.year, _date.month,
+                              _date.day, _time.hour, _time.minute);
                         });
                       }
                     },
@@ -142,6 +158,8 @@ class _AddMealScreenState extends State<AddMealScreen> {
                       if (newTime != null) {
                         setState(() {
                           _time = newTime;
+                          _timeStamp = DateTime(_date.year, _date.month,
+                              _date.day, _time.hour, _time.minute);
                         });
                       }
                     },
@@ -160,9 +178,68 @@ class _AddMealScreenState extends State<AddMealScreen> {
             ]),
             Container(
                 padding: EdgeInsets.only(
-                    top: 10, bottom: MediaQuery.of(context).viewInsets.bottom),
+                    top: (MediaQuery.of(context).size.height * 0.05),
+                    bottom: MediaQuery.of(context).viewInsets.bottom),
                 child: ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    _note = textController.text;
+                    if (_note == "") {
+                      showDialog(
+                        context: context,
+                        builder: (context) {
+                          return AlertDialog(
+                            title: Center(child: Text("Hold up!")),
+                            actions: [
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  ElevatedButton(
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                    },
+                                    child: Text("No"),
+                                    style: ButtonStyle(backgroundColor:
+                                        MaterialStateProperty.resolveWith<
+                                            Color>((Set<MaterialState> states) {
+                                      return const Color(0xFF99163D);
+                                    })),
+                                  ),
+                                  ElevatedButton(
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                      Navigator.pushAndRemoveUntil(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  HomeScreen()),
+                                          (Route<dynamic> route) => false);
+                                    },
+                                    child: Text("Yes"),
+                                    style: ButtonStyle(backgroundColor:
+                                        MaterialStateProperty.resolveWith<
+                                            Color>((Set<MaterialState> states) {
+                                      return const Color(0xFF99163D);
+                                    })),
+                                  )
+                                ],
+                              )
+                            ],
+                            content: Text(
+                              "You haven't filled in any info. Are you sure that you want to add this meal?",
+                              style: TextStyle(fontFamily: "roboto-medium"),
+                              textAlign: TextAlign.center,
+                            ),
+                          );
+                        },
+                      );
+                    } else {
+                      Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(builder: (context) => HomeScreen()),
+                          (Route<dynamic> route) => false);
+                    }
+                  },
                   style: ButtonStyle(
                     backgroundColor: MaterialStateProperty.resolveWith<Color>(
                       (Set<MaterialState> states) {
@@ -184,9 +261,6 @@ class _AddMealScreenState extends State<AddMealScreen> {
           ]),
         ),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      floatingActionButton: SmartButton(),
-      bottomNavigationBar: CustomNavBar(),
     );
   }
 

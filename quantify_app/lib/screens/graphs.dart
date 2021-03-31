@@ -1,11 +1,7 @@
 import 'package:flutter/material.dart';
 
-
 import 'package:syncfusion_flutter_charts/charts.dart';
 //import 'package:bezier_chart/bezier_chart.dart';
-
-
-
 
 class GraphicalInterface extends StatefulWidget {
   GraphicalInterface({Key key});
@@ -57,19 +53,24 @@ class _GraphicalInterfaceState extends State<GraphicalInterface> {
         LineSeries<GlucoseData, String>(
             // Bind data source
             dataSource: <GlucoseData>[
-              GlucoseData('2300', 23),
-              GlucoseData('2200', 22),
-              GlucoseData('2100', 18),
-              GlucoseData('2000', 19),
-              GlucoseData('1900', 24),
-              GlucoseData('1800', 29),
-              GlucoseData('1700', 35),
-              GlucoseData('1600', 40),
-              GlucoseData('1500', 45),
-              GlucoseData('1400', 39),
-              GlucoseData('1300', 26),
-              GlucoseData('1200', 18),
-              GlucoseData('1100', 11),
+              GlucoseData('23:00', 23),
+              GlucoseData('22:00', 22),
+              GlucoseData('21:00', 18),
+              GlucoseData('20:00', 19),
+              GlucoseData('19:00', 24),
+              GlucoseData('18:00', 29),
+              GlucoseData('17:00', 35),
+              GlucoseData('16:00', 40),
+              GlucoseData('15:00', 45),
+              GlucoseData('14:00', 39),
+              GlucoseData('13:00', 26),
+              GlucoseData('12:00', 18),
+              GlucoseData('11:00', 15),
+              GlucoseData('10:00', 13),
+              GlucoseData('09:00', 17),
+              GlucoseData('08:00', 19),
+              GlucoseData('07:00', 20),
+              GlucoseData('06:00', 21),
             ],
             xValueMapper: (GlucoseData glucose, _) => glucose.time,
             yValueMapper: (GlucoseData glucose, _) => glucose.glucoseVal,
@@ -142,9 +143,6 @@ class _GraphicalInterfaceState extends State<GraphicalInterface> {
     */
 
 }
-
-
-
 
 class GlucoseData {
   GlucoseData(this.time, this.glucoseVal);
