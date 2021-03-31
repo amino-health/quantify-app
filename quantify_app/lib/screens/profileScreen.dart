@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:quantify_app/screens/change.dart';
-import 'package:quantify_app/screens/tos.dart';
 import 'package:settings_ui/settings_ui.dart';
 
 class Profile extends StatefulWidget {
@@ -9,6 +8,10 @@ class Profile extends StatefulWidget {
 }
 
 class _ProfileState extends State<Profile> {
+  String _currentEmail = 'current@email.com';
+  int _currentWeight = 85;
+  int _currentHeight = 190;
+
   @override
   Widget build(BuildContext context) {
     return SettingsList(
@@ -19,10 +22,15 @@ class _ProfileState extends State<Profile> {
           tiles: [
             SettingsTile(
               title: 'Email',
-              subtitle: 'current@email.com',
+              subtitle: _currentEmail,
               onPressed: (BuildContext context) {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => Change(toChange: "email")));
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => Change(
+                              toChange: "email",
+                              current: _currentEmail,
+                            )));
               },
             ),
           ],
@@ -32,18 +40,22 @@ class _ProfileState extends State<Profile> {
           tiles: [
             SettingsTile(
               title: 'Current height',
-              subtitle: '190cm',
+              subtitle: '$_currentHeight cm',
               onPressed: (BuildContext context) {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => Change(toChange: "height")));
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => Change(toChange: "height", current: _currentHeight,)));
               },
             ),
             SettingsTile(
               title: 'Current weight',
-              subtitle: '85 kg',
+              subtitle: '$_currentWeight kg',
               onPressed: (BuildContext context) {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => Change(toChange: "weight")));
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => Change(toChange: "weight", current: _currentWeight,)));
               },
             ),
           ],

@@ -22,7 +22,7 @@ class _CustomAppBarState extends State<CustomAppBar> {
       title: Container(
         height: MediaQuery.of(context).size.height * 0.1,
         alignment: Alignment.centerLeft,
-        child: SvgPicture.asset("lib/assets/text.svg",
+        child: SvgPicture.asset("lib/assets/quantify.svg",
             color: Colors.white,
             height: MediaQuery.of(context).size.height * 0.04),
       ),
