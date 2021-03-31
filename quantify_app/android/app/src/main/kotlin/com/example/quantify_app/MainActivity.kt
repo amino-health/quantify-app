@@ -1,4 +1,4 @@
-package bio.quantify.quantify_app
+package com.example.quantify_app
 
 import io.flutter.embedding.android.FlutterActivity
 
