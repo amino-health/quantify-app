@@ -50,7 +50,7 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
       context: context,
       initialDate: selectedDate,
       firstDate: DateTime(1900),
-      lastDate: selectedDate,
+      lastDate: selectedDate.add(Duration(minutes: 30)),
       builder: (context, child) {
         return Theme(
           data: ThemeData.light(),
