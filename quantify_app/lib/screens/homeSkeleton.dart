@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:quantify_app/screens/addActivityScreen.dart';
 import 'package:quantify_app/screens/firstScanScreen.dart';
+import 'package:quantify_app/screens/addMealScreen.dart';
 
 class CustomAppBar extends StatefulWidget implements PreferredSizeWidget {
   CustomAppBar({Key key})
@@ -135,7 +136,11 @@ class _SmartButtonState extends State<SmartButton> {
                                               color: Color(0xFF99163D)),
                                           backgroundColor: Colors.white,
                                           onPressed: () =>
-                                              Navigator.pop(context),
+                                              Navigator.pushReplacement(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                      builder: (context) =>
+                                                          AddMealScreen())),
                                         ),
                                       ),
                                     ],

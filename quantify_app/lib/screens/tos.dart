@@ -32,7 +32,7 @@ class _TosScreenState extends State<TosScreen> {
             ),
             Flexible(
               flex: 7,
-                          child: Align(
+              child: Align(
                 child: Container(
                   height: MediaQuery.of(context).size.height * 0.7,
                   width: MediaQuery.of(context).size.width * 0.9,
@@ -62,7 +62,7 @@ class _TosScreenState extends State<TosScreen> {
             ),
             Flexible(
               flex: 1,
-                          child: Align(
+              child: Align(
                 child: ElevatedButton(
                   onPressed: () {
                     if (_checked) {

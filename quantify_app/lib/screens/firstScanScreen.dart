@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:quantify_app/screens/homeSkeleton.dart';
 //import 'package:flutter_svg/flutter_svg.dart';
 
-
 class FirstScanScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -32,8 +31,6 @@ class FirstScanScreen extends StatelessWidget {
           )
         ],
       )),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      floatingActionButton: SmartButton(),
     );
   }
 }
