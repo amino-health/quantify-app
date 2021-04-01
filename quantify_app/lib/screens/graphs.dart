@@ -1,23 +1,52 @@
+import 'dart:math';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:quantify_app/screens/homeScreen.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:flutter/services.dart' show rootBundle;
+
 //import 'package:bezier_chart/bezier_chart.dart';
 
 class GraphicalInterface extends StatefulWidget {
-  GraphicalInterface({Key key});
+  final ValueChanged<MealData> update;
+  GraphicalInterface({this.update});
+  //GraphicalInterface({Key key});
 
   @override
-  _GraphicalInterfaceState createState() => _GraphicalInterfaceState();
+  _GraphicalInterfaceState createState() =>
+      _GraphicalInterfaceState(update: update);
 }
 
 class _GraphicalInterfaceState extends State<GraphicalInterface> {
   ZoomPanBehavior _zoomPanBehavior = ZoomPanBehavior(enablePanning: true);
   DateTime today = DateTime.now();
+  TooltipBehavior _tooltipBehavior;
+  final ValueChanged<MealData> update;
+  _GraphicalInterfaceState({this.update});
   @override
   void initState() {
     initializeDateFormatting();
     super.initState();
+    _tooltipBehavior = TooltipBehavior(
+        enable: true,
+        header: "Glucose level",
+        format: 'point.y mmol/L',
+        canShowMarker: false);
+  }
+
+  _createRandomData(int n) {
+    var list = <GlucoseData>[];
+    final random = new Random();
+    DateTime now = DateTime.now();
+    double rand = (10 + random.nextInt(15)).toDouble();
+    for (int i = 0; i < n; i++) {
+      list.add(GlucoseData(now.subtract(Duration(hours: i)), rand));
+      rand = ((rand - 2) + random.nextInt(5)).toDouble();
+    }
+    return list;
   }
 
   @override
@@ -26,64 +55,53 @@ class _GraphicalInterfaceState extends State<GraphicalInterface> {
       body: Center(
           child: Container(
               child: SfCartesianChart(
+        tooltipBehavior: _tooltipBehavior,
+
         zoomPanBehavior: _zoomPanBehavior,
         onPointTapped: (PointTapArgs args) {
-          print(args.pointIndex);
+          if (args.pointIndex % 5 == 0) {
+            update(new MealData(
+                "Your meal",
+                "Quick afternoon snack",
+                args.dataPoints[args.pointIndex].x,
+                Image.network(
+                    "https://www.burgerdudes.se/wp-content/uploads/2020/02/prime_mikescheese_19feb_med.jpg")));
+          }
         },
         onMarkerRender: (MarkerRenderArgs args) {
-          if (args.pointIndex == 1) {
+          if (args.pointIndex % 5 == 0) {
             args.color = Colors.red;
-            args.markerHeight = 20;
-            args.markerWidth = 20;
-            args.shape = DataMarkerType.diamond;
-            args.borderColor = Colors.green;
-            args.borderWidth = 2;
-          }
-          if (args.pointIndex == 11) {
-            args.color = Colors.blue;
             args.markerHeight = 20;
             args.markerWidth = 20;
             args.shape = DataMarkerType.diamond;
             args.borderColor = Colors.red;
             args.borderWidth = 2;
           }
+          if (args.pointIndex % 12 == 0) {
+            args.color = Colors.blue;
+            args.markerHeight = 20;
+            args.markerWidth = 20;
+            args.shape = DataMarkerType.diamond;
+            args.borderColor = Colors.blue;
+            args.borderWidth = 2;
+          }
         },
         primaryYAxis: NumericAxis(title: AxisTitle(text: "mmol/L")),
         // Initialize category axis
         primaryXAxis: DateTimeAxis(
-          autoScrollingDelta: 8,
-          //isInversed: true,
-          //maximumLabels: 8,
-        ),
+            autoScrollingDelta: 8,
+            autoScrollingDeltaType: DateTimeIntervalType.hours
+            //isInversed: true,
+            //maximumLabels: 8,
+            ),
         title: ChartTitle(text: DateFormat('EEEE, d MMM').format(today)),
 
         series: <LineSeries<GlucoseData, DateTime>>[
           LineSeries<GlucoseData, DateTime>(
+              enableTooltip: true,
+
               // Bind data source
-              dataSource: <GlucoseData>[
-                GlucoseData(DateTime.now().subtract(Duration(hours: 0)), 23),
-                GlucoseData(DateTime.now().subtract(Duration(hours: 1)), 22),
-                GlucoseData(DateTime.now().subtract(Duration(hours: 2)), 18),
-                GlucoseData(DateTime.now().subtract(Duration(hours: 3)), 17),
-                GlucoseData(DateTime.now().subtract(Duration(hours: 4)), 15),
-                GlucoseData(DateTime.now().subtract(Duration(hours: 5)), 12),
-                GlucoseData(DateTime.now().subtract(Duration(hours: 6)), 14),
-                GlucoseData(DateTime.now().subtract(Duration(hours: 7)), 15),
-                GlucoseData(DateTime.now().subtract(Duration(hours: 8)), 17),
-                GlucoseData(DateTime.now().subtract(Duration(hours: 9)), 20),
-                GlucoseData(DateTime.now().subtract(Duration(hours: 11)), 19),
-                GlucoseData(DateTime.now().subtract(Duration(hours: 12)), 16),
-                GlucoseData(DateTime.now().subtract(Duration(hours: 13)), 15),
-                GlucoseData(DateTime.now().subtract(Duration(hours: 14)), 14),
-                GlucoseData(DateTime.now().subtract(Duration(hours: 15)), 15),
-                GlucoseData(DateTime.now().subtract(Duration(hours: 16)), 17),
-                GlucoseData(DateTime.now().subtract(Duration(hours: 17)), 20),
-                GlucoseData(DateTime.now().subtract(Duration(hours: 18)), 19),
-                GlucoseData(DateTime.now().subtract(Duration(hours: 19)), 16),
-                GlucoseData(DateTime.now().subtract(Duration(hours: 20)), 15),
-                GlucoseData(DateTime.now().subtract(Duration(hours: 21)), 14),
-                GlucoseData(DateTime.now().subtract(Duration(hours: 22)), 15),
-              ],
+              dataSource: _createRandomData(100),
               xValueMapper: (GlucoseData glucose, _) => glucose.time,
               yValueMapper: (GlucoseData glucose, _) => glucose.glucoseVal,
               markerSettings: MarkerSettings(
@@ -94,6 +112,7 @@ class _GraphicalInterfaceState extends State<GraphicalInterface> {
       floatingActionButton: Align(
         alignment: Alignment(1, 0.7),
         child: FloatingActionButton(
+          heroTag: "toStartButton",
           backgroundColor: Color(0xff99163d),
           onPressed: () {
             setState(() {});
