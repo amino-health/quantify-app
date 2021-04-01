@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-
+import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
+import 'package:intl/date_symbol_data_local.dart';
 //import 'package:bezier_chart/bezier_chart.dart';
 
 class GraphicalInterface extends StatefulWidget {
@@ -12,72 +13,95 @@ class GraphicalInterface extends StatefulWidget {
 
 class _GraphicalInterfaceState extends State<GraphicalInterface> {
   ZoomPanBehavior _zoomPanBehavior = ZoomPanBehavior(enablePanning: true);
+  DateTime today = DateTime.now();
+  @override
+  void initState() {
+    initializeDateFormatting();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: Center(
-            child: Container(
-                child: SfCartesianChart(
-      zoomPanBehavior: _zoomPanBehavior,
-      onPointTapped: (PointTapArgs args) {
-        print(args.pointIndex);
-      },
-      onMarkerRender: (MarkerRenderArgs args) {
-        if (args.pointIndex == 1) {
-          args.color = Colors.red;
-          args.markerHeight = 20;
-          args.markerWidth = 20;
-          args.shape = DataMarkerType.diamond;
-          args.borderColor = Colors.green;
-          args.borderWidth = 2;
-        }
-        if (args.pointIndex == 11) {
-          args.color = Colors.blue;
-          args.markerHeight = 20;
-          args.markerWidth = 20;
-          args.shape = DataMarkerType.diamond;
-          args.borderColor = Colors.red;
-          args.borderWidth = 2;
-        }
-      },
+      body: Center(
+          child: Container(
+              child: SfCartesianChart(
+        zoomPanBehavior: _zoomPanBehavior,
+        onPointTapped: (PointTapArgs args) {
+          print(args.pointIndex);
+        },
+        onMarkerRender: (MarkerRenderArgs args) {
+          if (args.pointIndex == 1) {
+            args.color = Colors.red;
+            args.markerHeight = 20;
+            args.markerWidth = 20;
+            args.shape = DataMarkerType.diamond;
+            args.borderColor = Colors.green;
+            args.borderWidth = 2;
+          }
+          if (args.pointIndex == 11) {
+            args.color = Colors.blue;
+            args.markerHeight = 20;
+            args.markerWidth = 20;
+            args.shape = DataMarkerType.diamond;
+            args.borderColor = Colors.red;
+            args.borderWidth = 2;
+          }
+        },
+        primaryYAxis: NumericAxis(title: AxisTitle(text: "mmol/L")),
+        // Initialize category axis
+        primaryXAxis: DateTimeAxis(
+          autoScrollingDelta: 8,
+          //isInversed: true,
+          //maximumLabels: 8,
+        ),
+        title: ChartTitle(text: DateFormat('EEEE, d MMM').format(today)),
 
-      // Initialize category axis
-      primaryXAxis: CategoryAxis(
-        isInversed: true,
-        visibleMaximum: 8,
+        series: <LineSeries<GlucoseData, DateTime>>[
+          LineSeries<GlucoseData, DateTime>(
+              // Bind data source
+              dataSource: <GlucoseData>[
+                GlucoseData(DateTime.now().subtract(Duration(hours: 0)), 23),
+                GlucoseData(DateTime.now().subtract(Duration(hours: 1)), 22),
+                GlucoseData(DateTime.now().subtract(Duration(hours: 2)), 18),
+                GlucoseData(DateTime.now().subtract(Duration(hours: 3)), 17),
+                GlucoseData(DateTime.now().subtract(Duration(hours: 4)), 15),
+                GlucoseData(DateTime.now().subtract(Duration(hours: 5)), 12),
+                GlucoseData(DateTime.now().subtract(Duration(hours: 6)), 14),
+                GlucoseData(DateTime.now().subtract(Duration(hours: 7)), 15),
+                GlucoseData(DateTime.now().subtract(Duration(hours: 8)), 17),
+                GlucoseData(DateTime.now().subtract(Duration(hours: 9)), 20),
+                GlucoseData(DateTime.now().subtract(Duration(hours: 11)), 19),
+                GlucoseData(DateTime.now().subtract(Duration(hours: 12)), 16),
+                GlucoseData(DateTime.now().subtract(Duration(hours: 13)), 15),
+                GlucoseData(DateTime.now().subtract(Duration(hours: 14)), 14),
+                GlucoseData(DateTime.now().subtract(Duration(hours: 15)), 15),
+                GlucoseData(DateTime.now().subtract(Duration(hours: 16)), 17),
+                GlucoseData(DateTime.now().subtract(Duration(hours: 17)), 20),
+                GlucoseData(DateTime.now().subtract(Duration(hours: 18)), 19),
+                GlucoseData(DateTime.now().subtract(Duration(hours: 19)), 16),
+                GlucoseData(DateTime.now().subtract(Duration(hours: 20)), 15),
+                GlucoseData(DateTime.now().subtract(Duration(hours: 21)), 14),
+                GlucoseData(DateTime.now().subtract(Duration(hours: 22)), 15),
+              ],
+              xValueMapper: (GlucoseData glucose, _) => glucose.time,
+              yValueMapper: (GlucoseData glucose, _) => glucose.glucoseVal,
+              markerSettings: MarkerSettings(
+                  isVisible: true, shape: DataMarkerType.diamond))
+        ],
+      ))),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
+      floatingActionButton: Align(
+        alignment: Alignment(1, 0.7),
+        child: FloatingActionButton(
+          backgroundColor: Color(0xff99163d),
+          onPressed: () {
+            setState(() {});
+          },
+          child: Icon(Icons.arrow_forward),
+        ),
       ),
-      title: ChartTitle(text: 'Monday Dec 12'),
-
-      series: <LineSeries<GlucoseData, String>>[
-        LineSeries<GlucoseData, String>(
-            // Bind data source
-            dataSource: <GlucoseData>[
-              GlucoseData('23:00', 23),
-              GlucoseData('22:00', 22),
-              GlucoseData('21:00', 18),
-              GlucoseData('20:00', 19),
-              GlucoseData('19:00', 24),
-              GlucoseData('18:00', 29),
-              GlucoseData('17:00', 35),
-              GlucoseData('16:00', 40),
-              GlucoseData('15:00', 45),
-              GlucoseData('14:00', 39),
-              GlucoseData('13:00', 26),
-              GlucoseData('12:00', 18),
-              GlucoseData('11:00', 15),
-              GlucoseData('10:00', 13),
-              GlucoseData('09:00', 17),
-              GlucoseData('08:00', 19),
-              GlucoseData('07:00', 20),
-              GlucoseData('06:00', 21),
-            ],
-            xValueMapper: (GlucoseData glucose, _) => glucose.time,
-            yValueMapper: (GlucoseData glucose, _) => glucose.glucoseVal,
-            markerSettings:
-                MarkerSettings(isVisible: true, shape: DataMarkerType.diamond))
-      ],
-    ))));
+    );
   }
   /*
    Widget build(BuildContext context) {
@@ -146,6 +170,6 @@ class _GraphicalInterfaceState extends State<GraphicalInterface> {
 
 class GlucoseData {
   GlucoseData(this.time, this.glucoseVal);
-  final String time;
+  final DateTime time;
   final double glucoseVal;
 }
