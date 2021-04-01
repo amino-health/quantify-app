@@ -21,6 +21,7 @@ class _AddMealScreenState extends State<AddMealScreen> {
   File _image;
   DateTime _date = new DateTime.now();
   TimeOfDay _time = TimeOfDay.now();
+  // ignore: unused_field
   DateTime _timeStamp;
   String _note = "";
   @override

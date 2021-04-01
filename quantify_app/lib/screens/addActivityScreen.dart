@@ -1,6 +1,8 @@
+//import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:quantify_app/screens/homeSkeleton.dart';
+//import 'package:quantify_app/screens/homeSkeleton.dart';
 import 'package:quantify_app/screens/ActivityFormScreen.dart';
+
 //import 'package:flutter_svg/flutter_svg.dart';
 
 class AddActivityScreen extends StatefulWidget {
@@ -12,15 +14,10 @@ class AddActivityScreen extends StatefulWidget {
 
 class _AddActivityScreenState extends State<AddActivityScreen>
     with TickerProviderStateMixin {
-  final _activitySearch = TextEditingController();
+  //final _activitySearch = TextEditingController();
   int _selectedIndex = 0;
 
   TabController _tabController;
-
-  List<Widget> myActivityList = <Widget>[];
-  List<Widget> allActivityList = <Widget>[];
-  List<Widget> historyActivityList = <Widget>[];
-  List<Widget> recentActivityList = <Widget>[];
 
   final List<Tab> _activityTabs = <Tab>[
     new Tab(
@@ -36,9 +33,64 @@ class _AddActivityScreenState extends State<AddActivityScreen>
     new Tab(
       child: FittedBox(
           fit: BoxFit.fitWidth,
-          child: Text('All Activities', style: TextStyle(color: Colors.black))),
+          child:
+              Text('Basic Activities', style: TextStyle(color: Colors.black))),
     ),
   ];
+
+  //Temporary lists for activity cards
+  List<Widget> myActivityList = <Widget>[];
+  List<Widget> allActivityList = <Widget>[];
+  List<Widget> historyActivityList = <Widget>[];
+  List<Widget> recentActivityList = <Widget>[];
+
+  //
+  //Variables for search bar with Dio
+  //
+  final TextEditingController _filter = new TextEditingController();
+
+  String _searchText = "";
+
+  Icon _searchIcon = new Icon(Icons.search, size: 30);
+  Widget _appBarTitle = new Text('Add Activity');
+  //
+  //END
+  //
+
+  void _searchPressed() {
+    setState(() {
+      if (this._searchIcon.icon == Icons.search) {
+        this._searchIcon = new Icon(Icons.close);
+        this._appBarTitle = new TextField(
+          controller: _filter,
+          decoration: new InputDecoration(
+              labelStyle: (TextStyle(color: Colors.white)),
+              prefixIcon: new Icon(Icons.search),
+              hintText: 'Search...'),
+        );
+      } else {
+        this._searchIcon = new Icon(Icons.search);
+        this._appBarTitle = new Text('Add Activity');
+
+        _filter.clear();
+      }
+    });
+  }
+
+  _AddActivityScreenState() {
+    _filter.addListener(() {
+      if (_filter.text.isEmpty) {
+        setState(() {
+          _searchText = "";
+        });
+      } else {
+        setState(() {
+          _searchText = _filter.text;
+          print(_searchText);
+        });
+      }
+    });
+  }
 
   @override
   void initState() {
@@ -99,26 +151,69 @@ class _AddActivityScreenState extends State<AddActivityScreen>
     });
   }
 
+  void _removeItem(String dismissKey) {
+    setState(() {});
+    List activityList = [historyActivityList, myActivityList, allActivityList];
+    for (int j = 0; j < activityList.length; j++) {
+      for (int i = 0; i < activityList[j].length; i++) {
+        print(activityList[j][i].key.toString().toLowerCase()[0]);
+        print((dismissKey.toLowerCase()));
+        if (activityList[j][i].key.value.toString().toLowerCase() ==
+            (dismissKey.toLowerCase())) {
+          activityList[j].remove(activityList[j][i]);
+          if (j == 0 && j == _selectedIndex) {
+            myActivityList.remove(myActivityList[i]);
+            print('0');
+          }
+          if (j == 1 && j == _selectedIndex) {
+            historyActivityList.remove(historyActivityList[i]);
+            print('1');
+          }
+          if (j == 2 && j == _selectedIndex) {
+            allActivityList.remove(allActivityList[i]);
+            print('2');
+          }
+        }
+      }
+    } //Todo remove Activityitem from database
+  }
+
+  //Returns a container item with key _name and a child dismissable with key _name_subtitle
   activityItem(BuildContext context, String _name, String _subtitle) {
     return Container(
+        key: Key(_name + _subtitle),
         width: MediaQuery.of(context).size.width * 0.95,
         height: MediaQuery.of(context).size.height * 0.1,
-        child: Card(
-            child: ListTile(
-                title: Text(_name),
-                subtitle: Text(_subtitle),
-                isThreeLine: false,
-                onTap: () async {
-                  List<String> activityData = await showDialog(
-                      context: context,
-                      builder: (_) => ActivityPopup(
-                          isAdd: true, titlevalue: _name, subtitle: _subtitle));
-                  addActivity(context, activityData);
-                })));
+        child: Dismissible(
+            key: Key(_name + _subtitle),
+            onDismissed: (direction) {
+              // Remove the item from the data source.
+              _removeItem(_name + _subtitle);
+
+              ScaffoldMessenger.of(context)
+                  .showSnackBar(SnackBar(content: Text("$_name Was removed!")));
+            },
+            // Show a red background as the item is swiped away.
+            background: Container(color: Colors.red),
+            child: Card(
+                child: ListTile(
+                    title: Text(_name),
+                    subtitle: Text(_subtitle),
+                    isThreeLine: false,
+                    onTap: () async {
+                      List<String> activityData = await showDialog(
+                          context: context,
+                          builder: (_) => ActivityPopup(
+                              isAdd: true,
+                              titlevalue: _name,
+                              subtitle: _subtitle));
+                      addActivity(context, activityData);
+                    }))));
   }
 
   customScrollview(BuildContext context) {
     List<Widget> activityList = <Widget>[];
+    List<Widget> filteredActivityList = <Widget>[];
     if (_selectedIndex == 0) {
       activityList = historyActivityList;
     }
@@ -128,12 +223,25 @@ class _AddActivityScreenState extends State<AddActivityScreen>
     if (_selectedIndex == 2) {
       activityList = allActivityList;
     }
+    if (true) {
+      for (int i = 0; i < activityList.length; i++) {
+        if (activityList[i]
+            .key
+            .toString()
+            .toLowerCase()
+            .contains(_searchText.toLowerCase())) {
+          filteredActivityList.add(activityList[i]);
+        }
+      }
+    }
+    // if (activityList[i].toLowerCase().contains(_searchText.toLowerCase()))
+
     return Container(
       child: Expanded(
         child: SingleChildScrollView(
           child: Column(
               //mainAxisAlignment: MainAxisAlignment.end,
-              children: activityList),
+              children: filteredActivityList),
         ),
       ),
     );
@@ -165,27 +273,36 @@ class _AddActivityScreenState extends State<AddActivityScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      appBar: CustomAppBar(),
+      appBar: AppBar(
+        //elevation: 0.0,
+        leading: Row(
+          children: [
+            Container(
+              width: MediaQuery.of(context).size.width * 0.09,
+              child: FittedBox(
+                fit: BoxFit.fitWidth,
+                child: BackButton(),
+              ),
+            ),
+            Container(
+              width: MediaQuery.of(context).size.width * 0.06,
+              child: FittedBox(
+                fit: BoxFit.fitWidth,
+                child: IconButton(icon: _searchIcon, onPressed: _searchPressed),
+              ),
+            ),
+          ],
+        ),
+        leadingWidth: MediaQuery.of(context).size.width * 0.15,
+        title: _appBarTitle,
+        backgroundColor: Color(0xFF99163D),
+        toolbarHeight: MediaQuery.of(context).size.height * 0.1,
+      ),
       body: Center(
           child: Column(
         children: [
           Container(
-            alignment: Alignment.center,
-            child: TextField(
-              controller: _activitySearch,
-              decoration: InputDecoration(
-                suffixText: 'Kg',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(0)),
-                ),
-                labelText: 'Search for an activity',
-              ),
-            ),
-            height: MediaQuery.of(context).size.height * 0.1,
-            width: MediaQuery.of(context).size.width * 0.95,
-          ),
-          Container(
-            height: MediaQuery.of(context).size.height * 0.1,
+            height: MediaQuery.of(context).size.height * 0.075,
             width: MediaQuery.of(context).size.width * 1,
             child: new Card(
               elevation: 26.0,

@@ -36,6 +36,8 @@ dependencies:
   image_cropper: ^1.4.0
   lipsum: ^1.0.1
   path: ^1.6.4
+  flutter_search_bar: ^2.1.0
+  dio: 1.0.0
   
  
 dev_dependencies:

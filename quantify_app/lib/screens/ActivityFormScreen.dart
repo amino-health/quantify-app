@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 
 class ActivityPopup extends StatefulWidget {
   final bool isAdd;
+
   final String titlevalue;
   final String subtitle;
   ActivityPopup(
@@ -24,6 +25,12 @@ class _ActivityPopupState extends State<ActivityPopup> {
   final TextEditingController titlecontroller = TextEditingController();
   final TextEditingController descriptioncontroller = TextEditingController();
 
+  int myVar;
+  //This variable is updated in the inline else case
+  //since flutter requires an else case in the 'done'
+  //button onPressed attribute
+
+  bool _titlevalidate = false;
   bool isAdd;
   String titlevalue;
   String subtitle;
@@ -90,6 +97,7 @@ class _ActivityPopupState extends State<ActivityPopup> {
   @override
   Widget build(BuildContext context) {
     isAdd = this.isAdd;
+    _titlevalidate = this._titlevalidate;
     return AlertDialog(
         content: SingleChildScrollView(
       child: Stack(
@@ -121,11 +129,14 @@ class _ActivityPopupState extends State<ActivityPopup> {
                 Padding(
                   padding: EdgeInsets.all(8.0),
                   child: TextFormField(
-                      focusNode:
-                          isAdd ? AlwaysDisabledFocusNode() : FocusNode(),
-                      decoration:
-                          InputDecoration(labelText: isAdd ? titlevalue : ''),
-                      controller: titlecontroller),
+                    focusNode: isAdd ? AlwaysDisabledFocusNode() : FocusNode(),
+                    decoration: InputDecoration(
+                      labelText: isAdd ? titlevalue : '',
+                      errorText:
+                          _titlevalidate ? 'Value Can\'t Be Empty' : null,
+                    ),
+                    controller: titlecontroller,
+                  ),
                 ),
                 Container(
                   alignment: Alignment.bottomLeft,
@@ -216,12 +227,19 @@ class _ActivityPopupState extends State<ActivityPopup> {
                       ),
                     ),
                     onPressed: () {
-                      Navigator.pop(context, [
-                        titlecontroller.text.toString(),
-                        descriptioncontroller.text.toString(),
-                        selectedDate.toString(),
-                        _currentSliderValue.round().toString()
-                      ]);
+                      setState(() {
+                        titlecontroller.text.isEmpty
+                            ? _titlevalidate = true
+                            : _titlevalidate = false;
+                      });
+                      titlecontroller.text.isNotEmpty
+                          ? Navigator.pop(context, [
+                              titlecontroller.text.toString(),
+                              descriptioncontroller.text.toString(),
+                              selectedDate.toString(),
+                              _currentSliderValue.round().toString()
+                            ])
+                          : myVar = 0;
                     },
                   ),
                 )
