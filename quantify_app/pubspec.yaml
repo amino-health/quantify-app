@@ -24,7 +24,7 @@ dependencies:
   flutter:
     sdk: flutter
   convex_bottom_bar: "3.0.0"
-  flutter_svg: ^0.19.3
+  flutter_svg: ^0.20.0-nullsafety.3
 
   syncfusion_flutter_charts: ^19.1.54+1
   intl: ^0.17.0
@@ -37,8 +37,11 @@ dependencies:
   image_cropper: ^1.4.0
   lipsum: ^1.0.1
   path: ^1.6.4
-  
- 
+  firebase_auth: ^0.14.0+5
+  cloud_firestore: ^0.12.9+4
+  provider: ^4.0.0
+  settings_ui: ^0.6.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
