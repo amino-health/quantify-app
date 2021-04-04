@@ -5,7 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:quantify_app/screens/homeScreen.dart';
 
 class TosScreen extends StatefulWidget {
-  TosScreen({Key key}) : super(key: key);
+  TosScreen({Key key, bool showContinue}) : super(key: key);
 
   @override
   _TosScreenState createState() => _TosScreenState();

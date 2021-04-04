@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:quantify_app/models/user.dart';
 
-import 'package:quantify_app/screens/welcomeScreen.dart';
-//import 'package:quantify_app/screens/welcomeScreen.dart';
 //import 'package:quantify_app/screens/welcomeScreen.dart';
 //import 'package:quantify_app/screens/createActivityScreen.dart';
 import 'package:flutter/services.dart';
+//import 'package:quantify_app/screens/authenticate/register.dart';
 
+import 'package:quantify_app/screens/welcomeScreen.dart';
+import 'package:quantify_app/services/auth.dart';
 
 void main() {
   runApp(MyApp());
@@ -19,9 +22,11 @@ class MyApp extends StatelessWidget {
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
     ]);
-    return MaterialApp(
-        theme: ThemeData(
-            primaryColor: Color(0xFF99163D), primarySwatch: Colors.red),
-        home: WelcomeScreen());
+    return StreamProvider<User>.value(
+      value: AuthService().user,
+      child: MaterialApp(
+        home: WelcomeScreen(),
+      ),
+    );
   }
 }
