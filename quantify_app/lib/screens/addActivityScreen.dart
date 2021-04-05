@@ -39,10 +39,10 @@ class _AddActivityScreenState extends State<AddActivityScreen>
   ];
 
   //Temporary lists for activity cards
-  List<Widget> myActivityList = <Widget>[];
-  List<Widget> allActivityList = <Widget>[];
-  List<Widget> historyActivityList = <Widget>[];
-  List<Widget> recentActivityList = <Widget>[];
+  List<dynamic> myActivityList = <dynamic>[];
+  List<dynamic> allActivityList = <dynamic>[];
+  List<dynamic> historyActivityList = <dynamic>[];
+  List<dynamic> recentActivityList = <dynamic>[];
 
   //
   //Variables for search bar with Dio
@@ -86,7 +86,6 @@ class _AddActivityScreenState extends State<AddActivityScreen>
       } else {
         setState(() {
           _searchText = _filter.text;
-          print(_searchText);
         });
       }
     });
@@ -151,53 +150,106 @@ class _AddActivityScreenState extends State<AddActivityScreen>
     });
   }
 
-  void _removeItem(String dismissKey) {
+  void _removeItem(Key dismissKey) {
     setState(() {});
-    List activityList = [historyActivityList, myActivityList, allActivityList];
+    List<dynamic> activityList = [
+      historyActivityList,
+      myActivityList,
+      allActivityList
+    ];
     for (int j = 0; j < activityList.length; j++) {
       for (int i = 0; i < activityList[j].length; i++) {
-        print(activityList[j][i].key.toString().toLowerCase()[0]);
-        print((dismissKey.toLowerCase()));
-        if (activityList[j][i].key.value.toString().toLowerCase() ==
-            (dismissKey.toLowerCase())) {
-          activityList[j].remove(activityList[j][i]);
-          if (j == 0 && j == _selectedIndex) {
-            myActivityList.remove(myActivityList[i]);
-            print('0');
-          }
-          if (j == 1 && j == _selectedIndex) {
+        print(activityList[j][i][0].key.hashCode.toString().toLowerCase());
+        print(dismissKey.hashCode.toString().toLowerCase());
+        if (activityList[j][i][0].key.hashCode == (dismissKey.hashCode)) {
+          //activityList[j].remove(activityList[j][i]);
+
+          if (j == 0) {
             historyActivityList.remove(historyActivityList[i]);
-            print('1');
+          }
+          if (j == 1) {
+            myActivityList.remove(myActivityList[i]);
           }
           if (j == 2 && j == _selectedIndex) {
             allActivityList.remove(allActivityList[i]);
-            print('2');
           }
         }
       }
     } //Todo remove Activityitem from database
   }
 
+  //This method checks if the new activity item already exists in any of
+  //the lists historyActivityList, myActivityList, allActivityList.
+  bool _itemDuplicate(String newItemKey) {
+    List<dynamic> activityList = [
+      historyActivityList,
+      myActivityList,
+      allActivityList
+    ];
+
+    for (int j = 0; j < activityList.length; j++) {
+      if (activityList[j].length != 0) {
+        for (int i = 0; i < activityList[j].length; i++) {
+          //print(activityList[j][i].key.toString().toLowerCase());
+          //print((newItemKey.toLowerCase()));
+          if (activityList[j][i].key.hashCode.toString().toLowerCase() ==
+              (newItemKey.hashCode.toString().toLowerCase())) {
+            //print('was duplicate');
+            return true;
+          }
+        }
+      }
+    }
+    //print('not duplicate');
+    return false;
+  }
+
+  Key _generateKey() {
+    List<dynamic> activityList =
+        historyActivityList + myActivityList + allActivityList;
+    int topKeyIndex = 0;
+    for (int j = 0; j < activityList.length; j++) {
+      int compareVal = int.parse(activityList[j][0].key.value);
+      if (topKeyIndex <= compareVal) {
+        topKeyIndex = compareVal + 1;
+      }
+    }
+    print('generated key is $topKeyIndex');
+    return Key(topKeyIndex.toString());
+  }
+
   //Returns a container item with key _name and a child dismissable with key _name_subtitle
-  activityItem(BuildContext context, String _name, String _subtitle) {
+  activityItem(
+      BuildContext context, String name, String _subtitle, Key newKey) {
     return Container(
-        key: Key(_name + _subtitle),
+        key: newKey,
         width: MediaQuery.of(context).size.width * 0.95,
         height: MediaQuery.of(context).size.height * 0.1,
         child: Dismissible(
-            key: Key(_name + _subtitle),
+            key: newKey,
             onDismissed: (direction) {
               // Remove the item from the data source.
-              _removeItem(_name + _subtitle);
+              _removeItem(newKey);
 
               ScaffoldMessenger.of(context)
-                  .showSnackBar(SnackBar(content: Text("$_name Was removed!")));
+                  .showSnackBar(SnackBar(content: Text("$name was removed!")));
             },
             // Show a red background as the item is swiped away.
-            background: Container(color: Colors.red),
+            background: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.centerRight,
+                  end: Alignment.centerLeft,
+                  colors: [
+                    Color(0xFF99163D),
+                    Color(0xFFF0F0F0),
+                  ],
+                ),
+              ),
+            ),
             child: Card(
                 child: ListTile(
-                    title: Text(_name),
+                    title: Text(name),
                     subtitle: Text(_subtitle),
                     isThreeLine: false,
                     onTap: () async {
@@ -205,14 +257,14 @@ class _AddActivityScreenState extends State<AddActivityScreen>
                           context: context,
                           builder: (_) => ActivityPopup(
                               isAdd: true,
-                              titlevalue: _name,
+                              titlevalue: name,
                               subtitle: _subtitle));
                       addActivity(context, activityData);
                     }))));
   }
 
   customScrollview(BuildContext context) {
-    List<Widget> activityList = <Widget>[];
+    List<dynamic> activityList = <dynamic>[];
     List<Widget> filteredActivityList = <Widget>[];
     if (_selectedIndex == 0) {
       activityList = historyActivityList;
@@ -223,17 +275,16 @@ class _AddActivityScreenState extends State<AddActivityScreen>
     if (_selectedIndex == 2) {
       activityList = allActivityList;
     }
-    if (true) {
-      for (int i = 0; i < activityList.length; i++) {
-        if (activityList[i]
-            .key
-            .toString()
-            .toLowerCase()
-            .contains(_searchText.toLowerCase())) {
-          filteredActivityList.add(activityList[i]);
-        }
+
+    for (int i = 0; i < activityList.length; i++) {
+      if (activityList[i][1]
+          .toString()
+          .toLowerCase()
+          .contains(_searchText.toLowerCase())) {
+        filteredActivityList.add(activityList[i][0]);
       }
     }
+
     // if (activityList[i].toLowerCase().contains(_searchText.toLowerCase()))
 
     return Container(
@@ -254,10 +305,18 @@ class _AddActivityScreenState extends State<AddActivityScreen>
 
   void addItem(context, activityData) {
     setState(() {
-      myActivityList
-          .add(activityItem(context, activityData[0], activityData[1]));
-      historyActivityList
-          .add(activityItem(context, activityData[0], activityData[1]));
+      //if (!_itemDuplicate(
+      //   activityData[0].toString() + activityData[1].toString())) {
+      Key newkey = _generateKey();
+      myActivityList.add([
+        activityItem(context, activityData[0], activityData[1], newkey),
+        activityData[0] + activityData[1]
+      ]);
+      historyActivityList.add([
+        activityItem(context, activityData[0], activityData[1], newkey),
+        activityData[0] + activityData[1]
+      ]);
+      // }
     });
   }
 

@@ -25,6 +25,9 @@ class _ActivityPopupState extends State<ActivityPopup> {
   final TextEditingController titlecontroller = TextEditingController();
   final TextEditingController descriptioncontroller = TextEditingController();
 
+  TimeOfDay _time = TimeOfDay.now();
+  final DateTime today = DateTime.now();
+  TimeOfDay newTime;
   int myVar;
   //This variable is updated in the inline else case
   //since flutter requires an else case in the 'done'
@@ -72,26 +75,52 @@ class _ActivityPopupState extends State<ActivityPopup> {
 
   /// This builds cupertion date picker in iOS
   buildCupertinoDatePicker(BuildContext context) {
-    showModalBottomSheet(
+    showCupertinoModalPopup(
         context: context,
-        builder: (BuildContext builder) {
-          return Container(
-            height: MediaQuery.of(context).copyWith().size.height / 3,
-            color: Colors.white,
-            child: CupertinoDatePicker(
-              mode: CupertinoDatePickerMode.dateAndTime,
-              onDateTimeChanged: (picked) {
-                if (picked != null && picked != selectedDate)
-                  setState(() {
-                    selectedDate = picked;
-                  });
-              },
-              initialDateTime: selectedDate,
-              minimumYear: 1900,
-              maximumYear: 2021,
-            ),
-          );
-        });
+        builder: (BuildContext context) => Container(
+              color: Colors.white,
+              height: MediaQuery.of(context).size.height * 0.5,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Container(
+                    height: MediaQuery.of(context).size.height * 0.3,
+                    color: Colors.white,
+                    child: CupertinoDatePicker(
+                        use24hFormat: true,
+                        mode: CupertinoDatePickerMode.dateAndTime,
+                        initialDateTime: DateTime(today.year, today.month,
+                            today.day, _time.hour, _time.minute),
+                        onDateTimeChanged: (picked) {
+                          if (picked != null && picked != selectedDate)
+                            setState(() {
+                              selectedDate = picked;
+                            });
+                        }),
+                  ),
+                  CupertinoButton(
+                      child: Text(
+                        'OK',
+                        style: TextStyle(color: Colors.black),
+                      ),
+                      onPressed: () {
+                        FocusScope.of(context).unfocus();
+
+                        Navigator.of(context).pop();
+                      })
+                ],
+              ),
+            ));
+  }
+
+  TextEditingController _fillController(
+      TextEditingController contr, String fillertext) {
+    setState(() {
+      if (isAdd) {
+        contr.text = fillertext;
+      }
+    });
+    return contr;
   }
 
   @override
@@ -131,11 +160,10 @@ class _ActivityPopupState extends State<ActivityPopup> {
                   child: TextFormField(
                     focusNode: isAdd ? AlwaysDisabledFocusNode() : FocusNode(),
                     decoration: InputDecoration(
-                      labelText: isAdd ? titlevalue : '',
                       errorText:
                           _titlevalidate ? 'Value Can\'t Be Empty' : null,
                     ),
-                    controller: titlecontroller,
+                    controller: _fillController(titlecontroller, titlevalue),
                   ),
                 ),
                 Container(
@@ -152,11 +180,10 @@ class _ActivityPopupState extends State<ActivityPopup> {
                 Padding(
                   padding: EdgeInsets.all(8.0),
                   child: TextFormField(
-                      focusNode:
-                          isAdd ? AlwaysDisabledFocusNode() : FocusNode(),
-                      decoration:
-                          InputDecoration(labelText: isAdd ? subtitle : ''),
-                      controller: descriptioncontroller),
+                    focusNode: isAdd ? AlwaysDisabledFocusNode() : FocusNode(),
+                    controller:
+                        _fillController(descriptioncontroller, subtitle),
+                  ),
                 ),
                 Container(
                   alignment: Alignment.bottomLeft,
