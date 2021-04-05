@@ -151,6 +151,7 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
                 maxLength: 3,
                 decoration: InputDecoration(
                   counterText: "",
+                  suffixText: 'Kg',
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.all(Radius.circular(20)),
                   ),
@@ -174,6 +175,7 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
                 ],
                 maxLength: 3,
                 decoration: InputDecoration(
+                  suffixText: 'Cm',
                   counterText: "",
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.all(Radius.circular(20)),
