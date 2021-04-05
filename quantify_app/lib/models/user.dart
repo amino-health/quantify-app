@@ -10,7 +10,7 @@ class UserData {
   final String email;
   final bool newuser;
   final String age;
-  final String weight;
+  final weight;
   final String height;
   final bool consent;
 

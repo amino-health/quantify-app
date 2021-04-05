@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:quantify_app/loading.dart';
 import 'package:quantify_app/models/user.dart';
 import 'package:quantify_app/screens/authenticate/authenticate.dart';
 import 'package:quantify_app/screens/homeScreen.dart';
+import 'package:quantify_app/screens/userInfoScreen.dart';
+import 'package:quantify_app/services/database.dart';
 
 //Listen when we will get the user object back, listen auth changes
 class Wrapper extends StatelessWidget {
@@ -15,7 +18,20 @@ class Wrapper extends StatelessWidget {
     if (user == null) {
       return Authenticate();
     } else {
-      return HomeScreen();
+      return StreamBuilder<UserData>(
+          stream: DatabaseService(uid: user.uid).userData,
+          builder: (context, snapshot) {
+            UserData userData = snapshot.data;
+            if (snapshot.hasData) {
+              if (userData.newuser) {
+                return UserInfoScreen();
+              } else {
+                return HomeScreen();
+              }
+            } else {
+              return Loading();
+            }
+          });
     }
   }
 }

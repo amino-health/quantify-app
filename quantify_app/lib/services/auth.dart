@@ -53,7 +53,7 @@ class AuthService {
       FirebaseUser user = result.user; //Grab user from
       //skapar nytt dokument kopplat till spesifikt user with this uid
       await DatabaseService(uid: user.uid)
-          .updateUserData(user.email, true, '0', '0', '0', false);
+          .updateUserData(user.uid, user.email, true, '0', '0', '0', false);
       return _userFromFirebaseUser(user);
     } catch (error) {
       print('HEJ');

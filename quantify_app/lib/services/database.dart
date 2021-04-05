@@ -11,18 +11,29 @@ class DatabaseService {
   DatabaseService({this.uid});
 
   final CollectionReference userInfo =
-      Firestore.instance.collection('info'); //colection of info
+      Firestore.instance.collection('userData'); //colection of info
 
 //För att updaterauser information, används när register och när updateras
-  Future<void> updateUserData(String email, bool newuser, String age,
-      String weight, String height, bool consent) async {
+  Future<void> updateUserData(String uid, String email, bool newuser,
+      String age, String weight, String height, bool consent) async {
     return await userInfo.document(uid).setData({
+      'uid': uid,
       'email': email,
       'newuser': newuser, //För att kunna veta om homescreen/eller andra
       'age': age,
       'weight': weight,
       'height': height,
       'consent': consent,
+    });
+  }
+
+  Future<void> updateUserProfile(
+      String birth, String weight, String height, String gender) async {
+    return await userInfo.document(uid).setData({
+      'birth': birth,
+      'weight': weight,
+      'height': height,
+      'gender': gender,
     });
   }
 
