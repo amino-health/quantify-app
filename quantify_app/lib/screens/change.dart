@@ -1,3 +1,4 @@
+import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 import 'homeSkeleton.dart';
 
@@ -27,6 +28,9 @@ class _ChangeState extends State<Change> {
     String _current = widget.current.toString() + _unit;
 
     TextEditingController _inputController = TextEditingController();
+
+    bool _validate = false;
+    String _errorMsg = "";
 
     return Scaffold(
       appBar: CustomAppBar(),
@@ -62,10 +66,33 @@ class _ChangeState extends State<Change> {
               padding: const EdgeInsets.only(top: 12),
               child: TextFormField(
                 controller: _inputController,
+                keyboardType: _change == "email"
+                    ? TextInputType.text
+                    : TextInputType.number,
+                onEditingComplete: () {
+                  String text = _inputController.text;
+                  if (_change == "email") {
+                    EmailValidator.validate(text)
+                        ? _validate = true
+                        : _errorMsg = "Invalid email";
+                  }
+                  if (_change == "height") {
+                    double.parse(text) < 210.0 && double.parse(text) > 100.0
+                        ? _validate = true
+                        : _errorMsg = "Invalid height";
+                  }
+                  if (_change == "weight") {
+                    double.parse(text) < 150.0 && double.parse(text) > 30.0
+                        ? _validate = true
+                        : _errorMsg = "Invalid height";
+                  }
+                },
                 decoration: InputDecoration(
+                  errorText: _validate ? null : _errorMsg,
                   contentPadding: EdgeInsets.all(4),
                   isDense: true,
-                  hintText: '${_change[0].toUpperCase()}${_change.substring(1)}',
+                  hintText:
+                      '${_change[0].toUpperCase()}${_change.substring(1)}',
                   border: UnderlineInputBorder(),
                 ),
               ),

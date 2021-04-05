@@ -27,10 +27,10 @@ class MyApp extends StatelessWidget {
   };
 
   MaterialColor primaryColor = MaterialColor(0xFF99163D, color);
-    return MaterialApp(
-        theme: ThemeData(
-          primarySwatch: primaryColor
-        ),
-        home: HomeScreen());
+  return MaterialApp(
+    theme: ThemeData(
+      primarySwatch: primaryColor
+    ),
+    home: HomeScreen());
   }
 }

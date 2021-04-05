@@ -1,4 +1,6 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:quantify_app/screens/addSensor.dart';
 import 'package:quantify_app/screens/change.dart';
 import 'package:quantify_app/screens/tos.dart';
 import 'package:quantify_app/screens/welcomeScreen.dart';
@@ -20,6 +22,22 @@ class _ProfileState extends State<Profile> {
       contentPadding: const EdgeInsets.only(left: 10, right: 10, top: 20),
       sections: [
         SettingsSection(
+          title: 'Device',
+          tiles: [
+            SettingsTile(
+              title: 'Add new sensor',
+              onPressed: (BuildContext context) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => AddSensor(),
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
+        SettingsSection(
           title: 'Contact info',
           tiles: [
             SettingsTile(
@@ -27,12 +45,14 @@ class _ProfileState extends State<Profile> {
               subtitle: _currentEmail,
               onPressed: (BuildContext context) {
                 Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => Change(
-                              toChange: "email",
-                              current: _currentEmail,
-                            )));
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => Change(
+                      toChange: "email",
+                      current: _currentEmail,
+                    ),
+                  ),
+                );
               },
             ),
           ],
@@ -45,9 +65,14 @@ class _ProfileState extends State<Profile> {
               subtitle: '$_currentHeight cm',
               onPressed: (BuildContext context) {
                 Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => Change(toChange: "height", current: _currentHeight,)));
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => Change(
+                      toChange: "height",
+                      current: _currentHeight,
+                    ),
+                  ),
+                );
               },
             ),
             SettingsTile(
@@ -55,9 +80,14 @@ class _ProfileState extends State<Profile> {
               subtitle: '$_currentWeight kg',
               onPressed: (BuildContext context) {
                 Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => Change(toChange: "weight", current: _currentWeight,)));
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => Change(
+                      toChange: "weight",
+                      current: _currentWeight,
+                    ),
+                  ),
+                );
               },
             ),
           ],
@@ -68,16 +98,13 @@ class _ProfileState extends State<Profile> {
             SettingsTile(
               title: 'Sign out',
               onPressed: (BuildContext context) {
-                Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => WelcomeScreen()));
+                Navigator.pushReplacement(context,
+                    MaterialPageRoute(builder: (context) => WelcomeScreen()));
               },
             ),
             SettingsTile(
               title: 'Delete account',
-              onPressed: (BuildContext context) {
-              },
+              onPressed: (BuildContext context) {},
             ),
           ],
         ),
@@ -88,9 +115,13 @@ class _ProfileState extends State<Profile> {
               title: 'Terms & conditions',
               onPressed: (BuildContext context) {
                 Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => TosScreen(showContinue: false,)));
+                  context,
+                  CupertinoPageRoute(
+                    builder: (context) => TosScreen(
+                      showContinue: false,
+                    ),
+                  ),
+                );
               },
             ),
             SettingsTile(
