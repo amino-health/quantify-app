@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:quantify_app/screens/authenticate/register.dart';
-//import 'package:quantify_app/screens/homeScreen.dart';
 import 'package:quantify_app/services/auth.dart';
 
 class SignIn extends StatefulWidget {
@@ -115,16 +114,8 @@ class _SignInState extends State<SignIn> {
                   width: 350,
                   child: ElevatedButton(
                     //child: Text("Sign in with Google"),
-                    onPressed: () async {
-                      if (_formKey.currentState.validate()) {
-                        dynamic result = await _auth.signInWithGoogle();
-                        if (result == null) {
-                          setState(() {
-                            error = 'Could not sign in with those credentials';
-                          });
-                        }
-                      }
-                    },
+                    onPressed: () {},
+
                     style: ElevatedButton.styleFrom(
                       primary: Colors.white,
                       onPrimary: Colors.black,
@@ -140,11 +131,11 @@ class _SignInState extends State<SignIn> {
                             image: AssetImage("lib/assets/google_logo.png"),
                             height: 20.0),
                         Padding(
-                          padding: const EdgeInsets.only(left: 40, right: 25),
+                          padding: const EdgeInsets.only(left: 15, right: 20),
                           child: Text(
                             'Sign in with Google',
                             style: TextStyle(
-                              fontSize: 15,
+                              fontSize: 13,
                               color: Colors.grey,
                             ),
                           ),
@@ -187,11 +178,11 @@ class _SignInState extends State<SignIn> {
                             image: AssetImage("lib/assets/facebook_logo.png"),
                             height: 20.0),
                         Padding(
-                          padding: const EdgeInsets.only(left: 30, right: 20),
+                          padding: const EdgeInsets.only(left: 5),
                           child: Text(
                             'Sign in with FaceBook',
                             style: TextStyle(
-                              fontSize: 15,
+                              fontSize: 13,
                               color: Colors.white,
                             ),
                           ),
@@ -217,7 +208,7 @@ class _SignInState extends State<SignIn> {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.all(1.0),
+                padding: const EdgeInsets.all(4.0),
                 // ignore: missing_required_param
                 child: TextButton(
                   onPressed: () => widget.toggleView(),

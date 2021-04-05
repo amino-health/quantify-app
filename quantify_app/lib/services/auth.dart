@@ -1,11 +1,11 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:google_sign_in/google_sign_in.dart';
+
 import 'package:quantify_app/models/user.dart';
 import 'package:quantify_app/services/database.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  final GoogleSignIn googleSignIn = GoogleSignIn();
+  //final GoogleSignIn _googleSignUn = new GoogleSignIn();
 
 //Create user object based on firebase
 //Get "userid"
@@ -24,7 +24,7 @@ class AuthService {
     return _auth.onAuthStateChanged.map(_userFromFirebaseUser);
   }
 
-//Sign in email password
+//Sign in
   Future signInWithEmailAndPassword(String email, String password) async {
     try {
       AuthResult result = await _auth.signInWithEmailAndPassword(
@@ -45,14 +45,15 @@ class AuthService {
     }
   }
 
-//Register email and password
+//em
   Future registerWithEmailAndPassword(String email, String password) async {
     try {
       AuthResult result = await _auth.createUserWithEmailAndPassword(
           email: email, password: password);
       FirebaseUser user = result.user; //Grab user from
-      //crete new doc for user with this uid
-      // await DatabaseService(uid: user.uid).updateUserInfo('0', '0', '0', false);
+      //skapar nytt dokument kopplat till spesifikt user with this uid
+      await DatabaseService(uid: user.uid)
+          .updateUserData(user.email, true, '0', '0', '0', false);
       return _userFromFirebaseUser(user);
     } catch (error) {
       print('HEJ');
@@ -62,29 +63,9 @@ class AuthService {
   }
 
 //Sign in with google
-  Future<String> signInWithGoogle() async {
-    final GoogleSignInAccount googleSignInAccount = await googleSignIn.signIn();
-    final GoogleSignInAuthentication googleSignInAuthentication =
-        await googleSignInAccount.authentication;
-
-    final AuthCredential credential = GoogleAuthProvider.getCredential(
-      accessToken: googleSignInAuthentication.accessToken,
-      idToken: googleSignInAuthentication.idToken,
-    );
-
-    final AuthResult authResult = await _auth.signInWithCredential(credential);
-    final FirebaseUser user = authResult.user;
-
-    assert(!user.isAnonymous);
-    assert(await user.getIdToken() != null);
-
-    final FirebaseUser currentUser = await _auth.currentUser();
-    assert(user.uid == currentUser.uid);
-
-    return 'signInWithGoogle succeeded: $user';
-  }
 
   //Sign out
+
   Future signOut() async {
     try {
       return await _auth.signOut();
