@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 //import 'package:quantify_app/screens/firstScanScreen.dart';
 import 'package:quantify_app/screens/graphs.dart';
 import 'package:quantify_app/screens/homeSkeleton.dart';
+import 'package:quantify_app/screens/profileScreen.dart';
 
 class HomeScreen extends StatefulWidget {
   HomeScreen({Key key}) : super(key: key);
@@ -47,8 +48,8 @@ class _HomeScreenState extends State<HomeScreen>
       ],
     )),
     Text('Diarypage'),
-    Text('Profilepage'),
-    Text('Settingspage'),
+    Profile(),
+    Text('Settings'),
   ];
 
   void _onItemTapped(int index) {
