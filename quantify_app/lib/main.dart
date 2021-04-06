@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 //import 'package:quantify_app/screens/welcomeScreen.dart';
-import 'package:quantify_app/screens/HomeScreen.dart';
+import 'package:quantify_app/screens/homeScreen.dart';
 //import 'package:quantify_app/screens/welcomeScreen.dart';
 //import 'package:quantify_app/screens/addActivityScreen.dart';
 import 'package:flutter/services.dart';
