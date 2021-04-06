@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 
-import 'package:quantify_app/screens/welcomeScreen.dart';
+import 'package:quantify_app/screens/homeScreen.dart';
 //import 'package:quantify_app/screens/welcomeScreen.dart';
 //import 'package:quantify_app/screens/welcomeScreen.dart';
 //import 'package:quantify_app/screens/createActivityScreen.dart';
 import 'package:flutter/services.dart';
-
 
 void main() {
   runApp(MyApp());
@@ -22,6 +21,6 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
         theme: ThemeData(
             primaryColor: Color(0xFF99163D), primarySwatch: Colors.red),
-        home: WelcomeScreen());
+        home: HomeScreen());
   }
 }
