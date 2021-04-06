@@ -5,8 +5,6 @@ import 'package:quantify_app/screens/graphs.dart';
 import 'package:quantify_app/screens/homeSkeleton.dart';
 import 'package:quantify_app/screens/profileScreen.dart';
 
-
-
 class HomeScreen extends StatefulWidget {
   HomeScreen({Key key}) : super(key: key);
 
@@ -92,6 +90,7 @@ class _HomeScreenState extends State<HomeScreen>
                 label: 'Settings'),
           ],
         ));
+
     return scaffold;
   }
 }

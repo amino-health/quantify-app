@@ -1,8 +1,13 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="bio.quantify.quantify_app">
+    package="com.example.quantify_app">
    <application
-        android:label="quantify_app"
+        android:label="Quantify"
+        android:requestLegacyExternalStorage="true"
         android:icon="@mipmap/ic_launcher">
+        <activity
+            android:name="com.yalantis.ucrop.UCropActivity"   
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTop"

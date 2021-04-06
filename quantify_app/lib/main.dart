@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:quantify_app/screens/homeScreen.dart';
-//import 'package:quantify_app/screens/homeScreen.dart';
 //import 'package:quantify_app/screens/welcomeScreen.dart';
-
+//import 'package:quantify_app/screens/addActivityScreen.dart';
+import 'package:flutter/services.dart';
 
 void main() {
   runApp(MyApp());
@@ -27,6 +27,12 @@ class MyApp extends StatelessWidget {
   };
 
   MaterialColor primaryColor = MaterialColor(0xFF99163D, color);
+    
+  SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+  ]);
+    
   return MaterialApp(
     theme: ThemeData(
       primarySwatch: primaryColor
