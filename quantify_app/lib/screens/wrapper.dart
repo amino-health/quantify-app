@@ -4,6 +4,7 @@ import 'package:quantify_app/loading.dart';
 import 'package:quantify_app/models/user.dart';
 import 'package:quantify_app/screens/authenticate/authenticate.dart';
 import 'package:quantify_app/screens/homeScreen.dart';
+import 'package:quantify_app/screens/tos.dart';
 import 'package:quantify_app/screens/userInfoScreen.dart';
 import 'package:quantify_app/services/database.dart';
 
@@ -25,6 +26,9 @@ class Wrapper extends StatelessWidget {
             if (snapshot.hasData) {
               if (userData.newuser) {
                 return UserInfoScreen();
+              }
+              if (!userData.consent) {
+                return TosScreen();
               } else {
                 return HomeScreen();
               }

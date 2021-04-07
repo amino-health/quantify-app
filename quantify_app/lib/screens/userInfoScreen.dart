@@ -5,7 +5,6 @@ import 'package:provider/provider.dart';
 import 'package:quantify_app/loading.dart';
 import 'package:quantify_app/models/user.dart';
 import 'package:quantify_app/screens/homeSkeleton.dart';
-import 'package:quantify_app/screens/tos.dart';
 import 'package:quantify_app/services/database.dart';
 //import 'package:flutter_svg/flutter_svg.dart';
 
@@ -295,15 +294,6 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
                                           _weighttext.text.toString(),
                                           _heighttext.text.toString(),
                                           userData.consent)
-                                  : myvar = false;
-                              _weighttext.text.isNotEmpty &
-                                      _heighttext.text.isNotEmpty
-                                  ? Navigator.pushReplacement(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) => TosScreen(
-                                                showContinue: false,
-                                              )))
                                   : myvar = false;
                             }),
                       ),
