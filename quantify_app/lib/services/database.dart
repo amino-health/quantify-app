@@ -27,6 +27,8 @@ class DatabaseService {
     });
   }
 
+//Todo: Byta ut till denna i profile
+
   Future<void> updateUserProfile(
       String birth, String weight, String height, String gender) async {
     return await userInfo.document(uid).setData({
@@ -37,6 +39,13 @@ class DatabaseService {
     });
   }
 
+/*
+  Future<void> updateTos(bool consent) async {
+  return await userInfo.document(uid).setData({
+      'consent': consent,
+    });
+  }
+*/
   UserData _userDataFromSnapshot(DocumentSnapshot snapshot) {
     return UserData(
         uid: uid,

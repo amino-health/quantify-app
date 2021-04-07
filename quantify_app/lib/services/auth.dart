@@ -11,6 +11,7 @@ class AuthService {
 //Get "userid"
   User _userFromFirebaseUser(FirebaseUser user) {
     // User we take in
+    print('Bob');
     return user != null
         ? User(uid: user.uid)
         : null; //If user not null return userid
