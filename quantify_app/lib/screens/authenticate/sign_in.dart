@@ -114,7 +114,14 @@ class _SignInState extends State<SignIn> {
                   width: 350,
                   child: ElevatedButton(
                     //child: Text("Sign in with Google"),
-                    onPressed: () {},
+                    onPressed: () async {
+                      dynamic result = await _auth.signInWithGoogle();
+                      if (result == null) {
+                        setState(() {
+                          print("Could not sign in with those credentials");
+                        });
+                      }
+                    },
 
                     style: ElevatedButton.styleFrom(
                       primary: Colors.white,

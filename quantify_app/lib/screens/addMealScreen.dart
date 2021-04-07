@@ -1,14 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:quantify_app/models/userClass.dart';
 import 'package:quantify_app/screens/homeScreen.dart';
 import 'package:quantify_app/screens/homeSkeleton.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'dart:io' show Platform;
-import 'package:quantify_app/models/user.dart';
-
 import 'package:quantify_app/services/database.dart';
 
 class AddMealScreen extends StatefulWidget {
@@ -46,9 +45,9 @@ class _AddMealScreenState extends State<AddMealScreen> {
     } catch (e) {
       _isIos = false;
     }
-    final user = Provider.of<User>(context);
+    final user = Provider.of<UserClass>(context);
 
-    return StreamBuilder<User>(
+    return StreamBuilder<UserClass>(
         stream: null,
         builder: (context, snapshot) {
           return new Scaffold(
@@ -116,6 +115,7 @@ class _AddMealScreenState extends State<AddMealScreen> {
                         controller: textController,
                         maxLines: null,
                         keyboardType: TextInputType.text,
+                        maxLength: 128,
                         decoration: InputDecoration(
                             border: OutlineInputBorder(),
                             hintText: "Write something about your meal!",
@@ -343,6 +343,15 @@ class _AddMealScreenState extends State<AddMealScreen> {
                                           ),
                                           ElevatedButton(
                                             onPressed: () {
+                                              _timeStamp = DateTime(
+                                                  _date.year,
+                                                  _date.month,
+                                                  _date.day,
+                                                  _time.hour,
+                                                  _time.minute);
+                                              DatabaseService(uid: user.uid)
+                                                  .uploadImage(_image,
+                                                      _timeStamp, _note);
                                               Navigator.pop(context);
                                               Navigator.pushAndRemoveUntil(
                                                   context,
@@ -374,8 +383,10 @@ class _AddMealScreenState extends State<AddMealScreen> {
                                 },
                               );
                             } else {
+                              _timeStamp = DateTime(_date.year, _date.month,
+                                  _date.day, _time.hour, _time.minute);
                               DatabaseService(uid: user.uid)
-                                  .uploadImage(user.uid, _image);
+                                  .uploadImage(_image, _timeStamp, _note);
                               Navigator.pushAndRemoveUntil(
                                   context,
                                   MaterialPageRoute(

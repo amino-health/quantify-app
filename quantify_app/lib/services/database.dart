@@ -1,9 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 //import 'package:quantify_app/models/info.dart';
-import 'package:quantify_app/models/user.dart';
 import 'dart:io';
-import 'package:firebase_storage/firebase_storage.dart'; // For File Upload To Firestore
+import 'package:firebase_storage/firebase_storage.dart'
+    as firebase_storage; // For File Upload To Firestore
 import 'package:path/path.dart' as Path;
+import 'package:quantify_app/models/userClass.dart';
 
 //refrence
 //
@@ -13,25 +14,27 @@ class DatabaseService {
   final String uid;
   DatabaseService({this.uid});
   final CollectionReference userInfo =
-      Firestore.instance.collection('userData'); //collection of info
+      FirebaseFirestore.instance.collection('userData'); //collection of info
 
-  Future<void> uploadImage(String uid, File imageFile) async {
+  Future<void> uploadImage(File imageFile, DateTime date, String note) async {
     String fileName = Path.basename(imageFile.path).substring(14);
-    StorageReference storage = FirebaseStorage.instance
+    firebase_storage.Reference storageRef = firebase_storage
+        .FirebaseStorage.instance
         .ref()
         .child('images/users/' + uid + '/mealImages/' + fileName);
-    StorageUploadTask uploadTask = storage.putFile(imageFile);
-    await uploadTask.onComplete;
-    userInfo.document(uid).collection('mealData').document();
-    storage.getDownloadURL().then((fileURL) {
-      print(fileURL);
+    firebase_storage.UploadTask uploadTask = storageRef.putFile(imageFile);
+    await uploadTask.whenComplete(() => null);
+    await userInfo.doc(uid).collection('mealData').doc().set({
+      'imageRef': 'images/users/' + uid + 'mealImages/' + fileName,
+      'note': note,
+      'date': date.millisecondsSinceEpoch
     });
   }
 
 //För att updaterauser information, används när register och när updateras
   Future<void> updateUserData(String uid, String email, bool newuser,
       String age, String weight, String height, bool consent) async {
-    return await userInfo.document(uid).setData({
+    return await userInfo.doc(uid).set({
       'uid': uid,
       'email': email,
       'newuser': newuser, //För att kunna veta om homescreen/eller andra
@@ -42,11 +45,9 @@ class DatabaseService {
     });
   }
 
-//Todo: Byta ut till denna i profile
-
   Future<void> updateUserProfile(
       String birth, String weight, String height, String gender) async {
-    return await userInfo.document(uid).setData({
+    return await userInfo.doc(uid).set({
       'birth': birth,
       'weight': weight,
       'height': height,
@@ -54,27 +55,25 @@ class DatabaseService {
     });
   }
 
-/*
-  Future<void> updateTos(bool consent) async {
-  return await userInfo.document(uid).setData({
-      'consent': consent,
-    });
-  }
-*/
   UserData _userDataFromSnapshot(DocumentSnapshot snapshot) {
+    print("Snapshot: " + snapshot.data.toString());
     return UserData(
         uid: uid,
-        email: snapshot.data['email'],
-        newuser: snapshot.data['newuser'],
-        age: snapshot.data['age'],
-        weight: snapshot.data['weight'],
-        height: snapshot.data['height'],
-        consent: snapshot.data['consent']);
+        email: snapshot.get('email'),
+        newuser: snapshot.get('newuser'),
+        age: snapshot.get('age'),
+        weight: snapshot.get('weight'),
+        height: snapshot.get('height'),
+        consent: snapshot.get('consent'));
   }
 
   // get user doc stream
   Stream<UserData> get userData {
-    return userInfo.document(uid).snapshots().map(_userDataFromSnapshot);
+    return userInfo.doc(uid).snapshots().map(_userDataFromSnapshot);
+  }
+
+  Future<DocumentSnapshot> get userRegistered async {
+    return userInfo.doc(uid).get();
   }
 }
 
