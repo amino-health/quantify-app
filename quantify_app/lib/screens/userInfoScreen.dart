@@ -303,6 +303,7 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
             return Loading();
           }
         });
+
   }
 }
 
