@@ -1,6 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 //import 'package:quantify_app/models/info.dart';
 import 'package:quantify_app/models/user.dart';
+import 'dart:io';
+import 'package:firebase_storage/firebase_storage.dart'; // For File Upload To Firestore
+import 'package:path/path.dart' as Path;
 
 //refrence
 //
@@ -9,9 +12,21 @@ import 'package:quantify_app/models/user.dart';
 class DatabaseService {
   final String uid;
   DatabaseService({this.uid});
-
   final CollectionReference userInfo =
-      Firestore.instance.collection('userData'); //colection of info
+      Firestore.instance.collection('userData'); //collection of info
+
+  Future<void> uploadImage(String uid, File imageFile) async {
+    String fileName = Path.basename(imageFile.path).substring(14);
+    StorageReference storage = FirebaseStorage.instance
+        .ref()
+        .child('images/users/' + uid + '/mealImages/' + fileName);
+    StorageUploadTask uploadTask = storage.putFile(imageFile);
+    await uploadTask.onComplete;
+    userInfo.document(uid).collection('mealData').document();
+    storage.getDownloadURL().then((fileURL) {
+      print(fileURL);
+    });
+  }
 
 //För att updaterauser information, används när register och när updateras
   Future<void> updateUserData(String uid, String email, bool newuser,
