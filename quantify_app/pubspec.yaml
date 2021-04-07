@@ -37,7 +37,11 @@ dependencies:
   flutter_datetime_picker: ^1.5.0
   image_cropper: ^1.4.0
   lipsum: ^1.0.1
+  settings_ui: ^0.6.0
+  email_validator: ^1.0.6
   path: ^1.6.4
+  flutter_search_bar: ^2.1.0
+  dio: 1.0.0
   
  
 dev_dependencies:

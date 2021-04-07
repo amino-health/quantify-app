@@ -22,6 +22,7 @@ class _AddMealScreenState extends State<AddMealScreen> {
   File _image;
   DateTime _date = new DateTime.now();
   TimeOfDay _time = TimeOfDay.now();
+
   final DateTime today = DateTime.now();
   DateTime _timeStamp;
   String _note = "";
