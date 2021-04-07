@@ -229,6 +229,7 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
                                   color: Color(0xFF99163D),
                                 ),
                                 onChanged: (String newValue) {
+                                  FocusScope.of(context).unfocus();
                                   setState(() {
                                     dropdownValue = newValue;
                                   });

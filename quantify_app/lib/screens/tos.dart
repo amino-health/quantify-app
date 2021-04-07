@@ -8,7 +8,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:quantify_app/services/database.dart';
 
 class TosScreen extends StatefulWidget {
-  TosScreen({Key key, bool showContinue}) : super(key: key);
+  final bool showContinue;
+  TosScreen({Key key, this.showContinue}) : super(key: key);
 
   @override
   _TosScreenState createState() => _TosScreenState();

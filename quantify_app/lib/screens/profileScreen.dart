@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:quantify_app/loading.dart';
 import 'package:quantify_app/models/user.dart';
+import 'package:quantify_app/screens/addSensor.dart';
 import 'package:quantify_app/screens/change.dart';
 //import 'package:quantify_app/screens/welcomeScreen.dart';
 import 'package:quantify_app/services/auth.dart';
@@ -35,6 +36,22 @@ class _ProfileState extends State<Profile> {
               contentPadding:
                   const EdgeInsets.only(left: 10, right: 10, top: 20),
               sections: [
+                SettingsSection(
+                  title: 'Device',
+                  tiles: [
+                    SettingsTile(
+                      title: 'Add new sensor',
+                      onPressed: (BuildContext context) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => AddSensor(),
+                          ),
+                        );
+                      },
+                    ),
+                  ],
+                ),
                 SettingsSection(
                   title: 'Contact info',
                   tiles: [
