@@ -6,6 +6,7 @@ import 'package:quantify_app/screens/authenticate/authenticate.dart';
 import 'package:quantify_app/screens/homeScreen.dart';
 import 'package:quantify_app/screens/userInfoScreen.dart';
 import 'package:quantify_app/screens/welcomeScreen.dart';
+import 'package:quantify_app/screens/tos.dart';
 import 'package:quantify_app/services/database.dart';
 
 //Listen when we will get the user object back, listen auth changes
@@ -24,8 +25,6 @@ class Wrapper extends StatelessWidget {
           builder: (context, snapshot) {
             UserData userData = snapshot.data;
             if (snapshot.hasData) {
-              print(userData.uid);
-              print(userData.newuser);
               if (userData.getNewUser()) {
                 return UserInfoScreen();
               } else {
