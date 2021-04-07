@@ -6,7 +6,6 @@ import 'package:quantify_app/screens/authenticate/authenticate.dart';
 import 'package:quantify_app/screens/homeScreen.dart';
 import 'package:quantify_app/screens/userInfoScreen.dart';
 import 'package:quantify_app/screens/welcomeScreen.dart';
-import 'package:quantify_app/screens/tos.dart';
 import 'package:quantify_app/services/database.dart';
 
 //Listen when we will get the user object back, listen auth changes
