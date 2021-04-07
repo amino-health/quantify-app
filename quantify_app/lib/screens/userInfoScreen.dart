@@ -167,6 +167,7 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
             infotitle('Height', context),
             Container(
               child: TextField(
+                autofocus: false,
                 controller: _heighttext,
                 keyboardType: TextInputType.numberWithOptions(
                     signed: true, decimal: true),
@@ -196,17 +197,22 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
                 icon: const Icon(Icons.arrow_downward),
                 iconSize: 24,
                 elevation: 16,
+                itemHeight: 1000,
                 style: const TextStyle(color: Color(0xFF99163D)),
                 underline: Container(
                   height: 2,
                   color: Color(0xFF99163D),
                 ),
+                onTap: () {
+                  FocusScope.of(context).unfocus();
+                },
                 onChanged: (String newValue) {
+                  FocusScope.of(context).unfocus();
                   setState(() {
                     dropdownValue = newValue;
                   });
                 },
-                items: <String>['Male', 'Female', "Don't want to say"]
+                items: <String>['Male', 'Female', "Not Sure               "]
                     .map<DropdownMenuItem<String>>((String value) {
                   return DropdownMenuItem<String>(
                     value: value,
