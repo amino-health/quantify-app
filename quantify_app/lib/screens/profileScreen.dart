@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:quantify_app/loading.dart';
-import 'package:quantify_app/models/user.dart';
-import 'package:quantify_app/screens/addSensor.dart';
+import 'package:quantify_app/models/userClass.dart';
 import 'package:quantify_app/screens/change.dart';
+import 'package:quantify_app/screens/tos.dart';
+import 'package:quantify_app/screens/addSensor.dart';
 //import 'package:quantify_app/screens/welcomeScreen.dart';
 import 'package:quantify_app/services/auth.dart';
 import 'package:quantify_app/services/database.dart';
@@ -23,7 +24,7 @@ class _ProfileState extends State<Profile> {
 
   @override
   Widget build(BuildContext context) {
-    final user = Provider.of<User>(context);
+    final user = Provider.of<UserClass>(context);
 
     return StreamBuilder<UserData>(
         stream: DatabaseService(uid: user.uid).userData,
@@ -123,12 +124,12 @@ class _ProfileState extends State<Profile> {
                     SettingsTile(
                       title: 'Terms & conditions',
                       onPressed: (BuildContext context) {
-                        //Navigator.push(
-                        //   context,
-                        //  MaterialPageRoute(
-                        //     builder: (context) => TosScreen(
-                        //         showContinue: false,
-                        //       )));
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => TosScreen(
+                                      showContinue: false,
+                                    )));
                       },
                     ),
                     SettingsTile(

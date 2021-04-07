@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:quantify_app/loading.dart';
-import 'package:quantify_app/models/user.dart';
+import 'package:quantify_app/models/userClass.dart';
 import 'package:quantify_app/screens/homeSkeleton.dart';
 import 'package:lipsum/lipsum.dart' as lipsum;
 import 'package:google_fonts/google_fonts.dart';
@@ -22,7 +22,7 @@ class _TosScreenState extends State<TosScreen> {
 
   var _checked = false;
   Widget build(BuildContext context) {
-    final user = Provider.of<User>(context);
+    final user = Provider.of<UserClass>(context);
     return StreamBuilder<UserData>(
         stream: DatabaseService(uid: user.uid).userData,
         builder: (context, snapshot) {
