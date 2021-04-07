@@ -24,7 +24,7 @@ dependencies:
   flutter:
     sdk: flutter
   convex_bottom_bar: "3.0.0"
-  flutter_svg: ^0.19.3
+  flutter_svg: ^0.20.0-nullsafety.3
 
   syncfusion_flutter_charts: ^19.1.54+1
   intl: ^0.17.0
@@ -35,15 +35,21 @@ dependencies:
   image_picker: ^0.7.3
   path_provider: ^2.0.1
   flutter_datetime_picker: ^1.5.0
+  firebase_storage: ^8.0.2
   image_cropper: ^1.4.0
-  lipsum: ^1.0.1
-  settings_ui: ^0.6.0
+  lipsum: ^1.0.1   
   email_validator: ^1.0.6
   path: ^1.6.4
+  firebase_core: ^1.0.1
+  firebase_auth: ^1.0.1
+  cloud_firestore: ^1.0.4
+  google_sign_in: ^5.0.0
+  provider: ^4.0.0
+  settings_ui: ^0.6.0
+  flutter_spinkit: "^4.0.0"
   flutter_search_bar: ^2.1.0
   dio: 1.0.0
   
- 
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -61,6 +67,8 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - lib/assets/
+    # - lib/assets/google_logo.png
+  #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

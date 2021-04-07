@@ -180,29 +180,6 @@ class _AddActivityScreenState extends State<AddActivityScreen>
 
   //This method checks if the new activity item already exists in any of
   //the lists historyActivityList, myActivityList, allActivityList.
-  bool _itemDuplicate(String newItemKey) {
-    List<dynamic> activityList = [
-      historyActivityList,
-      myActivityList,
-      allActivityList
-    ];
-
-    for (int j = 0; j < activityList.length; j++) {
-      if (activityList[j].length != 0) {
-        for (int i = 0; i < activityList[j].length; i++) {
-          //print(activityList[j][i].key.toString().toLowerCase());
-          //print((newItemKey.toLowerCase()));
-          if (activityList[j][i].key.hashCode.toString().toLowerCase() ==
-              (newItemKey.hashCode.toString().toLowerCase())) {
-            //print('was duplicate');
-            return true;
-          }
-        }
-      }
-    }
-    //print('not duplicate');
-    return false;
-  }
 
   Key _generateKey() {
     List<dynamic> activityList =
@@ -300,13 +277,14 @@ class _AddActivityScreenState extends State<AddActivityScreen>
 
   //Placeholdermethod Is called whenever a user presses Done in add activity view
   void addActivity(context, activityData) {
-    setState(() {});
+    setState(() {
+      //print(DateTime.parse(activityData[2]).weekday);
+      print(activityData[2]);
+    });
   }
 
   void addItem(context, activityData) {
     setState(() {
-      //if (!_itemDuplicate(
-      //   activityData[0].toString() + activityData[1].toString())) {
       Key newkey = _generateKey();
       myActivityList.add([
         activityItem(context, activityData[0], activityData[1], newkey),
