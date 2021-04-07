@@ -118,7 +118,7 @@ class _SignInState extends State<SignIn> {
                       dynamic result = await _auth.signInWithGoogle();
                       if (result == null) {
                         setState(() {
-                          print("EEEEEEEEEEEEEEEEEEEEEEEEERRRRORRR");
+                          print("Could not sign in with those credentials");
                         });
                       }
                     },
