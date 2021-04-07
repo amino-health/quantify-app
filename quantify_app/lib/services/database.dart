@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 //import 'package:quantify_app/models/info.dart';
-import 'package:quantify_app/models/user.dart';
+import 'package:quantify_app/models/userClass.dart';
 
 //refrence
 //
@@ -11,12 +11,12 @@ class DatabaseService {
   DatabaseService({this.uid});
 
   final CollectionReference userInfo =
-      Firestore.instance.collection('userData'); //colection of info
+      FirebaseFirestore.instance.collection('userData'); //colection of info
 
 //För att updaterauser information, används när register och när updateras
   Future<void> updateUserData(String uid, String email, bool newuser,
       String age, String weight, String height, bool consent) async {
-    return await userInfo.document(uid).setData({
+    return await userInfo.doc(uid).set({
       'uid': uid,
       'email': email,
       'newuser': newuser, //För att kunna veta om homescreen/eller andra
@@ -29,7 +29,7 @@ class DatabaseService {
 
   Future<void> updateUserProfile(
       String birth, String weight, String height, String gender) async {
-    return await userInfo.document(uid).setData({
+    return await userInfo.doc(uid).set({
       'birth': birth,
       'weight': weight,
       'height': height,
@@ -38,19 +38,24 @@ class DatabaseService {
   }
 
   UserData _userDataFromSnapshot(DocumentSnapshot snapshot) {
+    print("Snapshot: " + snapshot.data.toString());
     return UserData(
         uid: uid,
-        email: snapshot.data['email'],
-        newuser: snapshot.data['newuser'],
-        age: snapshot.data['age'],
-        weight: snapshot.data['weight'],
-        height: snapshot.data['height'],
-        consent: snapshot.data['consent']);
+        email: snapshot.get('email'),
+        newuser: snapshot.get('newuser'),
+        age: snapshot.get('age'),
+        weight: snapshot.get('weight'),
+        height: snapshot.get('height'),
+        consent: snapshot.get('consent'));
   }
 
   // get user doc stream
   Stream<UserData> get userData {
-    return userInfo.document(uid).snapshots().map(_userDataFromSnapshot);
+    return userInfo.doc(uid).snapshots().map(_userDataFromSnapshot);
+  }
+
+  Future<DocumentSnapshot> get userRegistered async {
+    return userInfo.doc(uid).get();
   }
 }
 

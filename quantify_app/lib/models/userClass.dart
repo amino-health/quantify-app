@@ -1,8 +1,8 @@
 //DEFINE WHAT PROPERTIES USER going to have
 
-class User {
+class UserClass {
   final String uid;
-  User({this.uid}); // Turn f object
+  UserClass({this.uid}); // Turn f object
 }
 
 class UserData {
@@ -10,7 +10,7 @@ class UserData {
   final String email;
   final bool newuser;
   final String age;
-  final weight;
+  final String weight;
   final String height;
   final bool consent;
 
@@ -22,4 +22,8 @@ class UserData {
       this.weight,
       this.height,
       this.consent});
+
+  bool getNewUser() {
+    return this.newuser;
+  }
 }
