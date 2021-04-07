@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
+import 'package:quantify_app/loading.dart';
+import 'package:quantify_app/models/user.dart';
 import 'package:quantify_app/screens/homeSkeleton.dart';
-import 'package:quantify_app/screens/tos.dart';
+import 'package:quantify_app/services/database.dart';
 //import 'package:flutter_svg/flutter_svg.dart';
 
 class UserInfoScreen extends StatefulWidget {
@@ -108,153 +111,198 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        resizeToAvoidBottomInset: false,
-        appBar: CustomAppBar(),
-        body: Center(
-            child:
-                Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-          Row(
-            //Date of birth row
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              infotitle('Birth', context),
-              Container(
-                child: TextField(
-                  onTap: () {
-                    _selectDate(context);
-                  },
-                  focusNode: AlwaysDisabledFocusNode(),
-                  decoration: InputDecoration(
-                    counterText: "",
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(20)),
-                    ),
-                    labelText: "${selectedDate.toLocal()}".split(' ')[0],
-                  ),
-                ),
-                height: MediaQuery.of(context).size.height * 0.1,
-                width: MediaQuery.of(context).size.width * 0.5,
-              ),
-            ],
-          ),
-          Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-            infotitle('Weight', context),
-            Container(
-              child: TextField(
-                controller: _weighttext,
-                keyboardType: TextInputType.numberWithOptions(
-                    signed: true, decimal: true),
-                inputFormatters: <TextInputFormatter>[
-                  FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
-                ],
-                maxLength: 3,
-                decoration: InputDecoration(
-                  counterText: "",
-                  suffixText: 'Kg',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(20)),
-                  ),
-                  labelText: 'Kilograms',
-                  errorText: _weightvalidate ? 'Value Can\'t Be Empty' : null,
-                ),
-              ),
-              height: MediaQuery.of(context).size.height * 0.1,
-              width: MediaQuery.of(context).size.width * 0.5,
-            )
-          ]),
-          Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-            infotitle('Height', context),
-            Container(
-              child: TextField(
-                controller: _heighttext,
-                keyboardType: TextInputType.numberWithOptions(
-                    signed: true, decimal: true),
-                inputFormatters: <TextInputFormatter>[
-                  FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
-                ],
-                maxLength: 3,
-                decoration: InputDecoration(
-                  suffixText: 'Cm',
-                  counterText: "",
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(20)),
-                  ),
-                  labelText: 'Centimeters',
-                  errorText: _heightvalidate ? 'Value Can\'t Be Empty' : null,
-                ),
-              ),
-              height: MediaQuery.of(context).size.height * 0.1,
-              width: MediaQuery.of(context).size.width * 0.5,
-            )
-          ]),
-          Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-            infotitle('Gender', context),
-            Container(
-              child: DropdownButton<String>(
-                value: dropdownValue,
-                icon: const Icon(Icons.arrow_downward),
-                iconSize: 24,
-                elevation: 16,
-                style: const TextStyle(color: Color(0xFF99163D)),
-                underline: Container(
-                  height: 2,
-                  color: Color(0xFF99163D),
-                ),
-                onChanged: (String newValue) {
-                  setState(() {
-                    dropdownValue = newValue;
-                  });
-                },
-                items: <String>['Male', 'Female', "Don't want to say"]
-                    .map<DropdownMenuItem<String>>((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(value),
-                  );
-                }).toList(),
-              ),
-              height: MediaQuery.of(context).size.height * 0.1,
-              width: MediaQuery.of(context).size.width * 0.5,
-            ),
-          ]),
-          Padding(
-            padding: EdgeInsets.only(
-                top: (MediaQuery.of(context).size.height * 0.15)),
-            child: ElevatedButton(
-                style: ButtonStyle(
-                  backgroundColor: MaterialStateProperty.resolveWith<Color>(
-                    (Set<MaterialState> states) {
-                      if (states.contains(MaterialState.pressed))
-                        return Color(0xDD99163D);
-                      else
-                        return Color(0xFF99163D);
-                    },
-                  ),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.only(
-                      left: 45.0, right: 45.0, top: 12.0, bottom: 12.0),
-                  child: (Text('Get Started',
-                      style: TextStyle(
-                          fontFamily: 'Roboto-Medium', fontSize: 16.0))),
-                ),
-                onPressed: () {
-                  setState(() {
-                    _weighttext.text.isEmpty
-                        ? _weightvalidate = true
-                        : _weightvalidate = false;
-                    _heighttext.text.isEmpty
-                        ? _heightvalidate = true
-                        : _heightvalidate = false;
-                  });
-                  _weighttext.text.isNotEmpty & _heighttext.text.isNotEmpty
-                      ? Navigator.pushReplacement(context,
-                          MaterialPageRoute(builder: (context) => TosScreen()))
-                      : myvar = false;
-                }),
-          ),
-        ])));
+    final user = Provider.of<User>(context);
+
+    return StreamBuilder<UserData>(
+        stream: DatabaseService(uid: user.uid).userData,
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            UserData userData = snapshot.data;
+
+            return Scaffold(
+                resizeToAvoidBottomInset: false,
+                appBar: CustomAppBar(),
+                body: Center(
+                    child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                      Row(
+                        //Date of birth row
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          infotitle('Birth', context),
+                          Container(
+                            child: TextField(
+                              onTap: () {
+                                _selectDate(context);
+                              },
+                              focusNode: AlwaysDisabledFocusNode(),
+                              decoration: InputDecoration(
+                                counterText: "",
+                                border: OutlineInputBorder(
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(20)),
+                                ),
+                                labelText:
+                                    "${selectedDate.toLocal()}".split(' ')[0],
+                              ),
+                            ),
+                            height: MediaQuery.of(context).size.height * 0.1,
+                            width: MediaQuery.of(context).size.width * 0.5,
+                          ),
+                        ],
+                      ),
+                      Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            infotitle('Weight', context),
+                            Container(
+                              child: TextField(
+                                controller: _weighttext,
+                                keyboardType: TextInputType.numberWithOptions(
+                                    signed: true, decimal: true),
+                                inputFormatters: <TextInputFormatter>[
+                                  FilteringTextInputFormatter.allow(
+                                      RegExp(r'[0-9]')),
+                                ],
+                                maxLength: 3,
+                                decoration: InputDecoration(
+                                  counterText: "",
+                                  border: OutlineInputBorder(
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(20)),
+                                  ),
+                                  labelText: 'Kilograms',
+                                  errorText: _weightvalidate
+                                      ? 'Value Can\'t Be Empty'
+                                      : null,
+                                ),
+                              ),
+                              height: MediaQuery.of(context).size.height * 0.1,
+                              width: MediaQuery.of(context).size.width * 0.5,
+                            )
+                          ]),
+                      Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            infotitle('Height', context),
+                            Container(
+                              child: TextField(
+                                controller: _heighttext,
+                                keyboardType: TextInputType.numberWithOptions(
+                                    signed: true, decimal: true),
+                                inputFormatters: <TextInputFormatter>[
+                                  FilteringTextInputFormatter.allow(
+                                      RegExp(r'[0-9]')),
+                                ],
+                                maxLength: 3,
+                                decoration: InputDecoration(
+                                  counterText: "",
+                                  border: OutlineInputBorder(
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(20)),
+                                  ),
+                                  labelText: 'Centimeters',
+                                  errorText: _heightvalidate
+                                      ? 'Value Can\'t Be Empty'
+                                      : null,
+                                ),
+                              ),
+                              height: MediaQuery.of(context).size.height * 0.1,
+                              width: MediaQuery.of(context).size.width * 0.5,
+                            )
+                          ]),
+                      Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            infotitle('Gender', context),
+                            Container(
+                              child: DropdownButton<String>(
+                                value: dropdownValue,
+                                icon: const Icon(Icons.arrow_downward),
+                                iconSize: 24,
+                                elevation: 16,
+                                style:
+                                    const TextStyle(color: Color(0xFF99163D)),
+                                underline: Container(
+                                  height: 2,
+                                  color: Color(0xFF99163D),
+                                ),
+                                onChanged: (String newValue) {
+                                  FocusScope.of(context).unfocus();
+                                  setState(() {
+                                    dropdownValue = newValue;
+                                  });
+                                },
+                                items: <String>[
+                                  'Male',
+                                  'Female',
+                                  "Don't want to say"
+                                ].map<DropdownMenuItem<String>>((String value) {
+                                  return DropdownMenuItem<String>(
+                                    value: value,
+                                    child: Text(value),
+                                  );
+                                }).toList(),
+                              ),
+                              height: MediaQuery.of(context).size.height * 0.1,
+                              width: MediaQuery.of(context).size.width * 0.5,
+                            ),
+                          ]),
+                      Padding(
+                        padding: EdgeInsets.only(
+                            top: (MediaQuery.of(context).size.height * 0.15)),
+                        child: ElevatedButton(
+                            style: ButtonStyle(
+                              backgroundColor:
+                                  MaterialStateProperty.resolveWith<Color>(
+                                (Set<MaterialState> states) {
+                                  if (states.contains(MaterialState.pressed))
+                                    return Color(0xDD99163D);
+                                  else
+                                    return Color(0xFF99163D);
+                                },
+                              ),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.only(
+                                  left: 45.0,
+                                  right: 45.0,
+                                  top: 12.0,
+                                  bottom: 12.0),
+                              child: (Text('Get Started',
+                                  style: TextStyle(
+                                      fontFamily: 'Roboto-Medium',
+                                      fontSize: 16.0))),
+                            ),
+                            onPressed: () async {
+                              setState(() {
+                                _weighttext.text.isEmpty
+                                    ? _weightvalidate = true
+                                    : _weightvalidate = false;
+                                _heighttext.text.isEmpty
+                                    ? _heightvalidate = true
+                                    : _heightvalidate = false;
+                              });
+                              _weighttext.text.isNotEmpty &
+                                      _heighttext.text.isNotEmpty
+                                  ? await DatabaseService(uid: user.uid)
+                                      .updateUserData(
+                                          userData.uid,
+                                          userData.email,
+                                          false,
+                                          userData.age,
+                                          _weighttext.text.toString(),
+                                          _heighttext.text.toString(),
+                                          userData.consent)
+                                  : myvar = false;
+                            }),
+                      ),
+                    ])));
+          } else {
+            return Loading();
+          }
+        });
   }
 }
 

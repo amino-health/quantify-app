@@ -90,7 +90,6 @@ class _HomeScreenState extends State<HomeScreen>
                 label: 'Settings'),
           ],
         ));
-
     return scaffold;
   }
 }
