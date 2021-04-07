@@ -1,6 +1,7 @@
 //import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:quantify_app/screens/DiaryDetailsScreen.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 
 //import 'package:flutter_svg/flutter_svg.dart';
 
@@ -85,85 +86,69 @@ class _DiaryScreenState extends State<DiaryScreen> {
 
   diaryItem(BuildContext context, String name, String _subtitle, String date,
       String intensity, Key newKey) {
-    return Container(
-        key: newKey,
-        width: MediaQuery.of(context).size.width * 0.95,
-        height: MediaQuery.of(context).size.height * 0.15,
-        child: Dismissible(
-            key: newKey,
-            onDismissed: (direction) {
-              // Remove the item from the data source.
-              _removeItem(newKey);
-            },
-            // Show a red background as the item is swiped away.
-            background: Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.centerRight,
-                  end: Alignment.centerLeft,
-                  colors: [
-                    Color(0xFF99163D),
-                    Color(0xFFF0F0F0),
-                  ],
-                ),
-              ),
-            ),
-            child: Card(
-                child: ListTile(
-                    leading: Icon(Icons.directions_run,
-                        size: MediaQuery.of(context).size.height * 0.075),
-                    title: Text(name),
-                    subtitle: Row(
-                      children: [
-                        Expanded(
-                          child: Padding(
-                            padding:
-                                const EdgeInsets.only(bottom: 20.0, right: 10),
-                            child: Text(
-                              _subtitle,
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 2,
-                            ),
-                          ),
-                          flex: 5,
+    return Padding(
+      key: newKey,
+      padding: const EdgeInsets.only(top: 8.0),
+      child: Slidable(
+        actionPane: SlidableDrawerActionPane(),
+        actionExtentRatio: 0.25,
+        child: Container(
+            color: Colors.white,
+            child: ListTile(
+                leading: Icon(Icons.directions_run,
+                    size: MediaQuery.of(context).size.height * 0.075),
+                title: Text(name),
+                subtitle: Row(
+                  children: [
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.only(bottom: 20.0, right: 10),
+                        child: Text(
+                          _subtitle,
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 2,
                         ),
-                        Expanded(
-                          child: Column(
+                      ),
+                      flex: 5,
+                    ),
+                    Expanded(
+                      child: Column(
+                        children: [
+                          Row(
                             children: [
-                              Row(
-                                children: [
-                                  Container(
-                                      child: Icon(Icons.access_time_sharp)),
-                                  FittedBox(
-                                      fit: BoxFit.fitWidth,
-                                      child: Text(date,
-                                          textAlign: TextAlign.left)),
-                                ],
-                              ),
+                              Container(child: Icon(Icons.access_time_sharp)),
                               FittedBox(
                                   fit: BoxFit.fitWidth,
-                                  child: TextButton(
-                                      onPressed: () {},
-                                      child: Text('Show Graph')))
+                                  child: Text(date, textAlign: TextAlign.left)),
                             ],
                           ),
-                          flex: 5,
-                        )
-                      ],
-                    ),
-                    /*trailing: Column(
-                      children: [
-                        Text(date, textAlign: TextAlign.center),
-                        TextButton(onPressed: () {}, child: Text('Show Graph'))
-                      ],
-                    ),*/
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => DiaryDetailsScreen()),
-                      );
-                    }))));
+                          FittedBox(
+                              fit: BoxFit.fitWidth,
+                              child: TextButton(
+                                  onPressed: () {}, child: Text('Show Graph')))
+                        ],
+                      ),
+                      flex: 5,
+                    )
+                  ],
+                ),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => DiaryDetailsScreen()),
+                  );
+                })),
+        secondaryActions: <Widget>[
+          IconSlideAction(
+            caption: 'Delete',
+            color: Colors.red,
+            icon: Icons.delete,
+            onTap: () => _removeItem(newKey),
+          ),
+        ],
+      ),
+    );
   }
 
   customScrollview(BuildContext context) {
@@ -179,6 +164,7 @@ class _DiaryScreenState extends State<DiaryScreen> {
   @override
   Widget build(BuildContext context) {
     if (diaryList.isEmpty) {
+      addItem(context, testList);
       addItem(context, testList);
       addItem(context, testList);
       addItem(context, testList);
