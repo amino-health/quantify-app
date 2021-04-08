@@ -158,7 +158,7 @@ class _ActivityPopupState extends State<ActivityPopup> {
                 Padding(
                   padding: EdgeInsets.all(8.0),
                   child: TextFormField(
-                    focusNode: isAdd ? AlwaysDisabledFocusNode() : FocusNode(),
+                    //focusNode: isAdd ? AlwaysDisabledFocusNode() : FocusNode(),
                     decoration: InputDecoration(
                       errorText:
                           _titlevalidate ? 'Value Can\'t Be Empty' : null,
@@ -180,7 +180,7 @@ class _ActivityPopupState extends State<ActivityPopup> {
                 Padding(
                   padding: EdgeInsets.all(8.0),
                   child: TextFormField(
-                    focusNode: isAdd ? AlwaysDisabledFocusNode() : FocusNode(),
+                    //focusNode: isAdd ? AlwaysDisabledFocusNode() : FocusNode(),
                     controller:
                         _fillController(descriptioncontroller, subtitle),
                   ),
