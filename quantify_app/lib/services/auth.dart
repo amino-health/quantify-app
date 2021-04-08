@@ -114,6 +114,8 @@ class AuthService {
       //skapar nytt dokument kopplat till spesifikt user with this uid
       await DatabaseService(uid: user.uid)
           .updateUserData(user.uid, user.email, true, '0', '0', '0', false);
+      await DatabaseService(uid: user.uid)
+          .updateTrainingData('1', 'springa', 'springa med bob', 'bob', '6', 6);
     } catch (error) {
       print('HEJ');
       print(error.toString());
