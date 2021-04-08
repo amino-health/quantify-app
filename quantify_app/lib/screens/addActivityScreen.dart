@@ -1,5 +1,10 @@
 //import 'package:dio/dio.dart';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:quantify_app/loading.dart';
+import 'package:quantify_app/models/userClass.dart';
 //import 'package:quantify_app/screens/homeSkeleton.dart';
 import 'package:quantify_app/screens/ActivityFormScreen.dart';
 
@@ -306,51 +311,76 @@ class _AddActivityScreenState extends State<AddActivityScreen>
     );
   }
 
+/*
+  Stream collectionStream = FirebaseFirestore.instance
+      .collection('userData')
+      .doc(uid)
+      .collection('training')
+      .snapshots();
+      */
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      resizeToAvoidBottomInset: false,
-      appBar: AppBar(
-        //elevation: 0.0,
-        leading: Row(
-          children: [
-            Container(
-              width: MediaQuery.of(context).size.width * 0.09,
-              child: FittedBox(
-                fit: BoxFit.fitWidth,
-                child: BackButton(),
+    final user = Provider.of<UserClass>(context);
+
+    return FutureBuilder<QuerySnapshot>(
+        future: FirebaseFirestore.instance
+            .collection('userData')
+            .doc(user.uid)
+            .collection('training')
+            .get(),
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            final List<DocumentSnapshot> documents = snapshot.data.docs;
+            print('här e jag');
+            print(documents[0]['name'].toString());
+            return Scaffold(
+              resizeToAvoidBottomInset: false,
+              appBar: AppBar(
+                //elevation: 0.0,
+                leading: Row(
+                  children: [
+                    Container(
+                      width: MediaQuery.of(context).size.width * 0.09,
+                      child: FittedBox(
+                        fit: BoxFit.fitWidth,
+                        child: BackButton(),
+                      ),
+                    ),
+                    Container(
+                      width: MediaQuery.of(context).size.width * 0.06,
+                      child: FittedBox(
+                        fit: BoxFit.fitWidth,
+                        child: IconButton(
+                            icon: _searchIcon, onPressed: _searchPressed),
+                      ),
+                    ),
+                  ],
+                ),
+                leadingWidth: MediaQuery.of(context).size.width * 0.15,
+                title: _appBarTitle,
+                backgroundColor: Color(0xFF99163D),
+                toolbarHeight: MediaQuery.of(context).size.height * 0.1,
               ),
-            ),
-            Container(
-              width: MediaQuery.of(context).size.width * 0.06,
-              child: FittedBox(
-                fit: BoxFit.fitWidth,
-                child: IconButton(icon: _searchIcon, onPressed: _searchPressed),
-              ),
-            ),
-          ],
-        ),
-        leadingWidth: MediaQuery.of(context).size.width * 0.15,
-        title: _appBarTitle,
-        backgroundColor: Color(0xFF99163D),
-        toolbarHeight: MediaQuery.of(context).size.height * 0.1,
-      ),
-      body: Center(
-          child: Column(
-        children: [
-          Container(
-            height: MediaQuery.of(context).size.height * 0.075,
-            width: MediaQuery.of(context).size.width * 1,
-            child: new Card(
-              elevation: 26.0,
-              color: Color(0xFFF0F0F0),
-              child: tabBar(context),
-            ),
-          ),
-          customScrollview(context),
-        ],
-      )),
-      bottomNavigationBar: bottomButton(context, 'Create New Activity'),
-    );
+              body: Center(
+                  child: Column(
+                children: [
+                  Container(
+                    height: MediaQuery.of(context).size.height * 0.075,
+                    width: MediaQuery.of(context).size.width * 1,
+                    child: new Card(
+                      elevation: 26.0,
+                      color: Color(0xFFF0F0F0),
+                      child: tabBar(context),
+                    ),
+                  ),
+                  customScrollview(context),
+                ],
+              )),
+              bottomNavigationBar: bottomButton(context, 'Create New Activity'),
+            );
+          } else {
+            return Loading();
+          }
+        });
   }
 }

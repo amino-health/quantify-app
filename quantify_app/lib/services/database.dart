@@ -1,6 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 //import 'package:quantify_app/models/info.dart';
-import 'package:quantify_app/models/user.dart';
+import 'dart:io';
+import 'package:firebase_storage/firebase_storage.dart'
+    as firebase_storage; // For File Upload To Firestore
+import 'package:path/path.dart' as Path;
+import 'package:quantify_app/models/training.dart';
+
+import 'package:quantify_app/models/userClass.dart';
 
 //refrence
 //
@@ -11,12 +17,27 @@ class DatabaseService {
   DatabaseService({this.uid});
 
   final CollectionReference userInfo =
-      Firestore.instance.collection('userData'); //colection of info
+      FirebaseFirestore.instance.collection('userData'); //collection of info
+
+  Future<void> uploadImage(File imageFile, DateTime date, String note) async {
+    String fileName = Path.basename(imageFile.path).substring(14);
+    firebase_storage.Reference storageRef = firebase_storage
+        .FirebaseStorage.instance
+        .ref()
+        .child('images/users/' + uid + '/mealImages/' + fileName);
+    firebase_storage.UploadTask uploadTask = storageRef.putFile(imageFile);
+    await uploadTask.whenComplete(() => null);
+    await userInfo.doc(uid).collection('mealData').doc().set({
+      'imageRef': 'images/users/' + uid + 'mealImages/' + fileName,
+      'note': note,
+      'date': date.millisecondsSinceEpoch
+    });
+  }
 
 //För att updaterauser information, används när register och när updateras
   Future<void> updateUserData(String uid, String email, bool newuser,
       String age, String weight, String height, bool consent) async {
-    return await userInfo.document(uid).setData({
+    return await userInfo.doc(uid).set({
       'uid': uid,
       'email': email,
       'newuser': newuser, //För att kunna veta om homescreen/eller andra
@@ -27,11 +48,9 @@ class DatabaseService {
     });
   }
 
-//Todo: Byta ut till denna i profile
-
   Future<void> updateUserProfile(
       String birth, String weight, String height, String gender) async {
-    return await userInfo.document(uid).setData({
+    return await userInfo.doc(uid).set({
       'birth': birth,
       'weight': weight,
       'height': height,
@@ -39,75 +58,81 @@ class DatabaseService {
     });
   }
 
-/*
-  Future<void> updateTos(bool consent) async {
-  return await userInfo.document(uid).setData({
-      'consent': consent,
-    });
-  }
-*/
-  UserData _userDataFromSnapshot(DocumentSnapshot snapshot) {
-    return UserData(
-        uid: uid,
-        email: snapshot.data['email'],
-        newuser: snapshot.data['newuser'],
-        age: snapshot.data['age'],
-        weight: snapshot.data['weight'],
-        height: snapshot.data['height'],
-        consent: snapshot.data['consent']);
+  Future<DocumentSnapshot> get userRegistered async {
+    return userInfo.doc(uid).get();
   }
 
-  // get user doc stream
+  UserData _userDataFromSnapshot(DocumentSnapshot snapshot) {
+    print("Snapshot: " + snapshot.data.toString());
+    return UserData(
+        uid: uid,
+        email: snapshot.get('email'),
+        newuser: snapshot.get('newuser'),
+        age: snapshot.get('age'),
+        weight: snapshot.get('weight'),
+        height: snapshot.get('height'),
+        consent: snapshot.get('consent'));
+  }
+
   Stream<UserData> get userData {
-    return userInfo.document(uid).snapshots().map(_userDataFromSnapshot);
+    return userInfo.doc(uid).snapshots().map(_userDataFromSnapshot);
+  }
+
+  final CollectionReference trainingData =
+      FirebaseFirestore.instance.collection('training');
+
+  Future<void> updateTrainingData(String trainingid, String name,
+      String description, String date, String intensity, int listtype) async {
+    return await userInfo.doc(uid).collection('training').doc(trainingid).set({
+      'trainingid': trainingid,
+      'name': name,
+      'description': description,
+      'date': date,
+      'intensity': intensity,
+      'listtype': listtype,
+    });
+  }
+
+  Stream<TrainingData> get trainingDatasave {
+    return userInfo.doc(uid).snapshots().map(_trainingDataFromSnapshot);
+  }
+
+  TrainingData _trainingDataFromSnapshot(DocumentSnapshot snapshot) {
+    return TrainingData(
+        trainingid: snapshot.get('trainingid'),
+        name: snapshot.get('name'),
+        description: snapshot.get('description'),
+        date: snapshot.get('date'),
+        intensity: snapshot.get('date'),
+        listtype: snapshot.get('listtype'));
   }
 }
 
 /*
+FirebaseFirestore.instance.collection
+  List<TrainingData> _trainingListFromSnapshot(QuerySnapshot snapshot) {
+    return snapshot.docs.map((trainingid) {
+      return TrainingData(
+          trainingid: trainingid.get('trainingid') ?? '',
+          name: trainingid.get('name') ?? '',
+          description: trainingid.get('description') ?? '',
+          date: trainingid.get('date') ?? '',
+          intensity: trainingid.get('intensity') ?? '');
+    }).toList();
+  }
+  
 
-------------------
- final String uid;
-  DatabaseService({this.uid});
-
-  final CollectionReference profileList =
-      Firestore.instance.collection('profileInfo');
-
-//Denna används för att skapa userdatan!
-  Future<void> createUserData(bool newuser, String age, String weight,
-      String height, bool consent) async {
-    return await profileList.document(uid).setData({
-      'newuser': newuser,
-      'age': age,
-      'weight': weight,
-      'height': height,
-      'consent': consent
-    });
+  Stream<List<TrainingData>> get trainings {
+    return userInfo.snapshots().map(_trainingListFromSnapshot);
   }
 
-  Future updateUserList(bool newuser, String age, String weight, String height,
-      bool consent) async {
-    return await profileList.document(uid).updateData({
-      'newuser': newuser,
-      'age': age,
-      'weight': weight,
-      'height': height,
-      'consent': consent
-    });
+  // get user doc stream
+  Stream<UserData> get userData {
+    return userInfo.doc(uid).snapshots().map(_userDataFromSnapshot);
   }
 
-  Future getUsersList() async {
-    List itemsList = [];
-    try {
-      await profileList.getDocuments().then((querySnapshot) {
-        querySnapshot.documents.forEach((element) {
-          itemsList.add(element.data);
-        });
-      });
-      return itemsList;
-    } catch (e) {
-      print(e.toString());
-      return null;
-    }
+  Future<DocumentSnapshot> get userRegistered async {
+    return userInfo.doc(uid).get();
   }
 }
 */
