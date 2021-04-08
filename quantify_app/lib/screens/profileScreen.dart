@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:quantify_app/loading.dart';
 import 'package:quantify_app/models/userClass.dart';
+import 'package:quantify_app/screens/ActivityFormScreen.dart';
 import 'package:quantify_app/screens/change.dart';
+import 'package:quantify_app/screens/deleteAccount.dart';
 import 'package:quantify_app/screens/tos.dart';
 import 'package:quantify_app/screens/addSensor.dart';
 //import 'package:quantify_app/screens/welcomeScreen.dart';
@@ -25,6 +27,7 @@ class _ProfileState extends State<Profile> {
   @override
   Widget build(BuildContext context) {
     final user = Provider.of<UserClass>(context);
+    final AuthService _auth = AuthService();
 
     return StreamBuilder<UserData>(
         stream: DatabaseService(uid: user.uid).userData,
@@ -114,7 +117,13 @@ class _ProfileState extends State<Profile> {
                     ),
                     SettingsTile(
                       title: 'Delete account',
-                      onPressed: (BuildContext context) {},
+                      onPressed: (BuildContext context) async {
+                        bool result = await showDialog(
+                            context: context, builder: (_) => DeleteAccount());
+                        if (result) {
+                          await _auth.deleteAccount();
+                        }
+                      },
                     ),
                   ],
                 ),
