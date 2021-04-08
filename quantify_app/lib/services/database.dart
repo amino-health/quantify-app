@@ -17,15 +17,22 @@ class DatabaseService {
       FirebaseFirestore.instance.collection('userData'); //collection of info
 
   Future<void> uploadImage(File imageFile, DateTime date, String note) async {
-    String fileName = Path.basename(imageFile.path).substring(14);
-    firebase_storage.Reference storageRef = firebase_storage
-        .FirebaseStorage.instance
-        .ref()
-        .child('images/users/' + uid + '/mealImages/' + fileName);
-    firebase_storage.UploadTask uploadTask = storageRef.putFile(imageFile);
-    await uploadTask.whenComplete(() => null);
+    String downloadURL;
+
+    if (imageFile != null) {
+      String fileName = Path.basename(imageFile.path).substring(14);
+      firebase_storage.Reference storageRef = firebase_storage
+          .FirebaseStorage.instance
+          .ref()
+          .child('images/users/' + uid + '/mealImages/' + fileName);
+      firebase_storage.UploadTask uploadTask = storageRef.putFile(imageFile);
+      await uploadTask.whenComplete(() async {
+        downloadURL = await storageRef.getDownloadURL();
+      });
+    }
+
     await userInfo.doc(uid).collection('mealData').doc().set({
-      'imageRef': 'images/users/' + uid + 'mealImages/' + fileName,
+      'imageRef': downloadURL,
       'note': note,
       'date': date.millisecondsSinceEpoch
     });
@@ -43,6 +50,11 @@ class DatabaseService {
       'height': height,
       'consent': consent,
     });
+  }
+
+  Future<dynamic> getUserImages() async {
+    QuerySnapshot data = await userInfo.doc(uid).collection('mealData').get();
+    return data.docs.toList();
   }
 
   Future<void> updateUserProfile(
