@@ -2,11 +2,13 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:provider/provider.dart';
-import 'package:quantify_app/loading.dart';
+//import 'package:quantify_app/loading.dart';
 import 'package:quantify_app/models/userClass.dart';
 //import 'package:quantify_app/screens/homeSkeleton.dart';
 import 'package:quantify_app/screens/ActivityFormScreen.dart';
+import 'package:quantify_app/services/database.dart';
 
 //import 'package:flutter_svg/flutter_svg.dart';
 
@@ -19,7 +21,6 @@ class AddActivityScreen extends StatefulWidget {
 
 class _AddActivityScreenState extends State<AddActivityScreen>
     with TickerProviderStateMixin {
-  //final _activitySearch = TextEditingController();
   int _selectedIndex = 0;
 
   TabController _tabController;
@@ -53,9 +54,7 @@ class _AddActivityScreenState extends State<AddActivityScreen>
   //Variables for search bar with Dio
   //
   final TextEditingController _filter = new TextEditingController();
-
   String _searchText = "";
-
   Icon _searchIcon = new Icon(Icons.search, size: 30);
   Widget _appBarTitle = new Text('Add Activity');
   //
@@ -144,7 +143,10 @@ class _AddActivityScreenState extends State<AddActivityScreen>
                       List<String> activityData = await showDialog(
                           context: context,
                           builder: (_) => ActivityPopup(
-                              isAdd: false, titlevalue: '', subtitle: ''));
+                              keyval: '',
+                              isAdd: false,
+                              titlevalue: '',
+                              subtitle: ''));
                       addItem(context, activityData);
                     }))));
   }
@@ -155,8 +157,9 @@ class _AddActivityScreenState extends State<AddActivityScreen>
     });
   }
 
-  void _removeItem(Key dismissKey) {
+  void _removeItem(ValueKey dismissKey) {
     setState(() {});
+
     List<dynamic> activityList = [
       historyActivityList,
       myActivityList,
@@ -164,11 +167,7 @@ class _AddActivityScreenState extends State<AddActivityScreen>
     ];
     for (int j = 0; j < activityList.length; j++) {
       for (int i = 0; i < activityList[j].length; i++) {
-        print(activityList[j][i][0].key.hashCode.toString().toLowerCase());
-        print(dismissKey.hashCode.toString().toLowerCase());
         if (activityList[j][i][0].key.hashCode == (dismissKey.hashCode)) {
-          //activityList[j].remove(activityList[j][i]);
-
           if (j == 0) {
             historyActivityList.remove(historyActivityList[i]);
           }
@@ -180,16 +179,19 @@ class _AddActivityScreenState extends State<AddActivityScreen>
           }
         }
       }
-    } //Todo remove Activityitem from database
+    }
+    final user = Provider.of<UserClass>(context, listen: false);
+    DatabaseService(uid: user.uid).removeActivity(dismissKey.value);
+    print('value for key is');
+    print(dismissKey.value);
   }
 
-  //This method checks if the new activity item already exists in any of
-  //the lists historyActivityList, myActivityList, allActivityList.
-
-  Key _generateKey() {
+  //This method returns a string converted integer higher than the highest
+  //existing key integer.
+  String _generateKey() {
     List<dynamic> activityList =
         historyActivityList + myActivityList + allActivityList;
-    int topKeyIndex = 0;
+    int topKeyIndex = 1;
     for (int j = 0; j < activityList.length; j++) {
       int compareVal = int.parse(activityList[j][0].key.value);
       if (topKeyIndex <= compareVal) {
@@ -197,54 +199,49 @@ class _AddActivityScreenState extends State<AddActivityScreen>
       }
     }
     print('generated key is $topKeyIndex');
-    return Key(topKeyIndex.toString());
+    return topKeyIndex.toString();
   }
 
-  //Returns a container item with key _name and a child dismissable with key _name_subtitle
+  //Returns a container item with key _name and a child slider with a numbered key
   activityItem(
-      BuildContext context, String name, String _subtitle, Key newKey) {
+      BuildContext context, String name, String _subtitle, ValueKey newKey) {
     return Container(
         key: newKey,
         width: MediaQuery.of(context).size.width * 0.95,
         height: MediaQuery.of(context).size.height * 0.1,
-        child: Dismissible(
-            key: newKey,
-            onDismissed: (direction) {
-              // Remove the item from the data source.
-              _removeItem(newKey);
+        child: Slidable(
+          actionPane: SlidableDrawerActionPane(),
+          actionExtentRatio: 0.25,
+          //_removeItem(newKey);
 
-              ScaffoldMessenger.of(context)
-                  .showSnackBar(SnackBar(content: Text("$name was removed!")));
-            },
-            // Show a red background as the item is swiped away.
-            background: Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.centerRight,
-                  end: Alignment.centerLeft,
-                  colors: [
-                    Color(0xFF99163D),
-                    Color(0xFFF0F0F0),
-                  ],
-                ),
-              ),
+          child: Card(
+            child: ListTile(
+                title: Text(name),
+                subtitle: Text(_subtitle),
+                isThreeLine: false,
+                onTap: () async {
+                  List<String> activityData = await showDialog(
+                      context: context,
+                      builder: (_) => ActivityPopup(
+                          keyval: newKey.value.toString(),
+                          isAdd: true,
+                          titlevalue: name,
+                          subtitle: _subtitle));
+                  addActivity(context, activityData);
+                }),
+          ),
+          secondaryActions: <Widget>[
+            IconSlideAction(
+              caption: 'Delete',
+              color: Colors.red,
+              icon: Icons.delete,
+              onTap: () => _removeItem(newKey),
             ),
-            child: Card(
-                child: ListTile(
-                    title: Text(name),
-                    subtitle: Text(_subtitle),
-                    isThreeLine: false,
-                    onTap: () async {
-                      List<String> activityData = await showDialog(
-                          context: context,
-                          builder: (_) => ActivityPopup(
-                              isAdd: true,
-                              titlevalue: name,
-                              subtitle: _subtitle));
-                      addActivity(context, activityData);
-                    }))));
+          ],
+        ));
   }
 
+  //This function controls which content list is displayed
   customScrollview(BuildContext context) {
     List<dynamic> activityList = <dynamic>[];
     List<Widget> filteredActivityList = <Widget>[];
@@ -267,8 +264,6 @@ class _AddActivityScreenState extends State<AddActivityScreen>
       }
     }
 
-    // if (activityList[i].toLowerCase().contains(_searchText.toLowerCase()))
-
     return Container(
       child: Expanded(
         child: SingleChildScrollView(
@@ -281,14 +276,89 @@ class _AddActivityScreenState extends State<AddActivityScreen>
   }
 
   //Placeholdermethod Is called whenever a user presses Done in add activity view
-  void addActivity(context, activityData) {
-    setState(() {
-      //print(DateTime.parse(activityData[2]).weekday);
-      print(activityData[2]);
-    });
+  Future addActivity(context, activityData) async {
+    //Explanation:
+    //in order to separate entries in history and MyActivies one has
+    //negative keys and one has positive. When a created acitivty with
+    //a negative key is added, a duplicate with a positive key is created.
+    //The code below asserts we only creates the duplicate if the user
+    //added the acitvity from 'My activites'.
+    int reverse;
+    if (int.parse(activityData[4]) < 0) {
+      reverse = -1;
+    } else {
+      reverse = 1;
+    }
+
+    final user = Provider.of<UserClass>(context, listen: false);
+    await DatabaseService(uid: user.uid).updateTrainingData(
+        ((int.parse(activityData[4]) * reverse).toString()),
+        activityData[0],
+        activityData[1],
+        activityData[2],
+        activityData[3],
+        1);
   }
 
-  void addItem(context, activityData) {
+  /*
+  The database returns a list of each user activity no matter what 
+  menu header its supposed to show up in (historyact, myact, allact). 
+  This part looks at the 'listtype' attribute and splits the database
+  return data into 3 separate lists for the 3 different menus.
+  */
+  void structureData(context, databaseData) {
+    historyActivityList.clear();
+    myActivityList.clear();
+    allActivityList.clear();
+    for (DocumentSnapshot entry in databaseData) {
+      if (entry['listtype'] == 1) {
+        //1 = MyHistoryData
+
+        historyActivityList.insert(0, [
+          activityItem(context, entry['name'], entry['description'],
+              ValueKey(entry['trainingid'])),
+          entry['name'] + entry['description']
+        ]);
+      } else if (entry['listtype'] == 2) {
+        //1 = MyactivityData
+
+        myActivityList.insert(0, [
+          activityItem(context, entry['name'], entry['description'],
+              ValueKey(entry['trainingid'])),
+          entry['name'] + entry['description']
+        ]);
+      } else if (entry['listtype'] == 3) {
+        //1 = basicActivitiesData
+
+        allActivityList.insert(0, [
+          activityItem(context, entry['name'], entry['description'],
+              Key(entry['trainingid'])),
+          entry['name'] + entry['description']
+        ]);
+      }
+    }
+  }
+
+  void addItem(context, activityData) async {
+    setState(() {});
+    print('TRYING TO UPDATE');
+    print(activityData);
+    final user = Provider.of<UserClass>(context, listen: false);
+    await DatabaseService(uid: user.uid).updateTrainingData(
+        _generateKey().toString(),
+        activityData[0],
+        activityData[1],
+        activityData[2],
+        activityData[3],
+        1);
+    await DatabaseService(uid: user.uid).updateTrainingData(
+        (int.parse(_generateKey()) * -1).toString(),
+        activityData[0],
+        activityData[1],
+        activityData[2],
+        activityData[3],
+        2);
+    /*
     setState(() {
       Key newkey = _generateKey();
       myActivityList.add([
@@ -301,6 +371,7 @@ class _AddActivityScreenState extends State<AddActivityScreen>
       ]);
       // }
     });
+    */
   }
 
   tabBar(BuildContext context) {
@@ -320,7 +391,7 @@ class _AddActivityScreenState extends State<AddActivityScreen>
       */
   @override
   Widget build(BuildContext context) {
-    final user = Provider.of<UserClass>(context);
+    final user = Provider.of<UserClass>(context, listen: false);
 
     return FutureBuilder<QuerySnapshot>(
         future: FirebaseFirestore.instance
@@ -329,58 +400,57 @@ class _AddActivityScreenState extends State<AddActivityScreen>
             .collection('training')
             .get(),
         builder: (context, snapshot) {
-          if (snapshot.hasData) {
+          if (snapshot.data != null) {
             final List<DocumentSnapshot> documents = snapshot.data.docs;
-            print('här e jag');
-            print(documents[0]['name'].toString());
-            return Scaffold(
-              resizeToAvoidBottomInset: false,
-              appBar: AppBar(
-                //elevation: 0.0,
-                leading: Row(
-                  children: [
-                    Container(
-                      width: MediaQuery.of(context).size.width * 0.09,
-                      child: FittedBox(
-                        fit: BoxFit.fitWidth,
-                        child: BackButton(),
-                      ),
-                    ),
-                    Container(
-                      width: MediaQuery.of(context).size.width * 0.06,
-                      child: FittedBox(
-                        fit: BoxFit.fitWidth,
-                        child: IconButton(
-                            icon: _searchIcon, onPressed: _searchPressed),
-                      ),
-                    ),
-                  ],
-                ),
-                leadingWidth: MediaQuery.of(context).size.width * 0.15,
-                title: _appBarTitle,
-                backgroundColor: Color(0xFF99163D),
-                toolbarHeight: MediaQuery.of(context).size.height * 0.1,
-              ),
-              body: Center(
-                  child: Column(
+            structureData(context, documents);
+          } else {
+            print('No training data found for user');
+          }
+          return Scaffold(
+            resizeToAvoidBottomInset: false,
+            appBar: AppBar(
+              //elevation: 0.0,
+              leading: Row(
                 children: [
                   Container(
-                    height: MediaQuery.of(context).size.height * 0.075,
-                    width: MediaQuery.of(context).size.width * 1,
-                    child: new Card(
-                      elevation: 26.0,
-                      color: Color(0xFFF0F0F0),
-                      child: tabBar(context),
+                    width: MediaQuery.of(context).size.width * 0.09,
+                    child: FittedBox(
+                      fit: BoxFit.fitWidth,
+                      child: BackButton(),
                     ),
                   ),
-                  customScrollview(context),
+                  Container(
+                    width: MediaQuery.of(context).size.width * 0.06,
+                    child: FittedBox(
+                      fit: BoxFit.fitWidth,
+                      child: IconButton(
+                          icon: _searchIcon, onPressed: _searchPressed),
+                    ),
+                  ),
                 ],
-              )),
-              bottomNavigationBar: bottomButton(context, 'Create New Activity'),
-            );
-          } else {
-            return Loading();
-          }
+              ),
+              leadingWidth: MediaQuery.of(context).size.width * 0.15,
+              title: _appBarTitle,
+              backgroundColor: Color(0xFF99163D),
+              toolbarHeight: MediaQuery.of(context).size.height * 0.1,
+            ),
+            body: Center(
+                child: Column(
+              children: [
+                Container(
+                  height: MediaQuery.of(context).size.height * 0.075,
+                  width: MediaQuery.of(context).size.width * 1,
+                  child: new Card(
+                    elevation: 26.0,
+                    color: Color(0xFFF0F0F0),
+                    child: tabBar(context),
+                  ),
+                ),
+                customScrollview(context),
+              ],
+            )),
+            bottomNavigationBar: bottomButton(context, 'Create New Activity'),
+          );
         });
   }
 }

@@ -93,6 +93,14 @@ class DatabaseService {
     });
   }
 
+  Future<void> removeActivity(String trainingid) async {
+    return await userInfo
+        .doc(uid)
+        .collection('training')
+        .doc(trainingid)
+        .delete();
+  }
+
   Stream<TrainingData> get trainingDatasave {
     return userInfo.doc(uid).snapshots().map(_trainingDataFromSnapshot);
   }

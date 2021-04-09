@@ -7,8 +7,11 @@ class ActivityPopup extends StatefulWidget {
 
   final String titlevalue;
   final String subtitle;
+
+  final keyval;
   ActivityPopup(
-      {Key key,
+      {ValueKey key,
+      @required this.keyval,
       @required this.isAdd,
       @required this.titlevalue,
       @required this.subtitle})
@@ -16,7 +19,7 @@ class ActivityPopup extends StatefulWidget {
 
   @override
   _ActivityPopupState createState() =>
-      _ActivityPopupState(isAdd, titlevalue, subtitle);
+      _ActivityPopupState(keyval, isAdd, titlevalue, subtitle);
 }
 
 class _ActivityPopupState extends State<ActivityPopup> {
@@ -35,9 +38,10 @@ class _ActivityPopupState extends State<ActivityPopup> {
 
   bool _titlevalidate = false;
   bool isAdd;
+  String keyval;
   String titlevalue;
   String subtitle;
-  _ActivityPopupState(this.isAdd, this.titlevalue, this.subtitle);
+  _ActivityPopupState(this.keyval, this.isAdd, this.titlevalue, this.subtitle);
 
   _selectDate(BuildContext context) async {
     final ThemeData theme = Theme.of(context);
@@ -264,7 +268,8 @@ class _ActivityPopupState extends State<ActivityPopup> {
                               titlecontroller.text.toString(),
                               descriptioncontroller.text.toString(),
                               selectedDate.toString(),
-                              _currentSliderValue.round().toString()
+                              _currentSliderValue.round().toString(),
+                              keyval.toString()
                             ])
                           : myVar = 0;
                     },
