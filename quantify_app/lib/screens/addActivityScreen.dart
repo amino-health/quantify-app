@@ -358,20 +358,6 @@ class _AddActivityScreenState extends State<AddActivityScreen>
         activityData[2],
         activityData[3],
         2);
-    /*
-    setState(() {
-      Key newkey = _generateKey();
-      myActivityList.add([
-        activityItem(context, activityData[0], activityData[1], newkey),
-        activityData[0] + activityData[1]
-      ]);
-      historyActivityList.add([
-        activityItem(context, activityData[0], activityData[1], newkey),
-        activityData[0] + activityData[1]
-      ]);
-      // }
-    });
-    */
   }
 
   tabBar(BuildContext context) {
@@ -382,13 +368,6 @@ class _AddActivityScreenState extends State<AddActivityScreen>
     );
   }
 
-/*
-  Stream collectionStream = FirebaseFirestore.instance
-      .collection('userData')
-      .doc(uid)
-      .collection('training')
-      .snapshots();
-      */
   @override
   Widget build(BuildContext context) {
     final user = Provider.of<UserClass>(context, listen: false);
