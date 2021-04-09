@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:quantify_app/loading.dart';
 //import 'package:flutter_svg/flutter_svg.dart';
@@ -9,6 +12,7 @@ import 'package:intl/intl.dart';
 import 'package:quantify_app/screens/profileScreen.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:quantify_app/services/database.dart';
 
 class HomeScreen extends StatefulWidget {
   HomeScreen({Key key}) : super(key: key);
@@ -22,6 +26,7 @@ class MealData {
   String mealDescription = "";
   DateTime mealDate;
   String mealImageUrl;
+  String docId;
 }
 
 GlobalKey mealKey = new GlobalKey();
@@ -30,6 +35,7 @@ class _HomeScreenState extends State<HomeScreen>
     with SingleTickerProviderStateMixin {
   int _selectedIndex = 0;
   MealData _mealData = new MealData("", DateTime.now(), null);
+
   bool showPic = false;
   setMealData(MealData mealData) {
     mealKey.currentState.setState(() {
@@ -60,7 +66,10 @@ class _HomeScreenState extends State<HomeScreen>
                     })),
                   ),
                   ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () async {
+                      DatabaseService().removeMeal(_mealData);
+                      Navigator.pop(context);
+                    },
                     child: Text("Yes"),
                     style: ButtonStyle(backgroundColor:
                         MaterialStateProperty.resolveWith<Color>(
@@ -82,6 +91,12 @@ class _HomeScreenState extends State<HomeScreen>
 
   @override
   Widget build(BuildContext context) {
+    bool _isIos;
+    try {
+      _isIos = Platform.isIOS || Platform.isMacOS;
+    } catch (e) {
+      _isIos = false;
+    }
     final List<Widget> _children = [
       Center(
         child: Column(
@@ -176,13 +191,17 @@ class _HomeScreenState extends State<HomeScreen>
                                                                     .progress),
                                                     imageUrl:
                                                         _mealData.mealImageUrl,
-                                                    errorWidget:
-                                                        (context, url, error) =>
-                                                            Icon(Icons.error),
+                                                    errorWidget: (context, url,
+                                                            error) =>
+                                                        Icon(_isIos
+                                                            ? CupertinoIcons
+                                                                .exclamationmark_triangle_fill
+                                                            : Icons.error),
                                                   )
                                                 : Container(
                                                     child: Icon(
                                                       Icons.image_not_supported,
+                                                      size: 100,
                                                     ),
                                                   ),
                                           ),
@@ -224,13 +243,19 @@ class _HomeScreenState extends State<HomeScreen>
                                       MediaQuery.of(context).size.height * 0.1,
                                   child: Row(
                                     children: [
-                                      IconButton(
-                                          color: Colors.white,
-                                          iconSize: 30,
-                                          onPressed: () {
-                                            delete();
-                                          },
-                                          icon: Icon(Icons.delete)),
+                                      Padding(
+                                        padding:
+                                            const EdgeInsets.only(left: 32),
+                                        child: IconButton(
+                                            color: Colors.white,
+                                            iconSize: 30,
+                                            onPressed: () {
+                                              delete();
+                                            },
+                                            icon: Icon(_isIos
+                                                ? CupertinoIcons.trash
+                                                : Icons.delete)),
+                                      ),
                                       IconButton(
                                           color: Colors.white,
                                           iconSize: 30,

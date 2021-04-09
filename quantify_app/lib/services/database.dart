@@ -5,6 +5,7 @@ import 'package:firebase_storage/firebase_storage.dart'
     as firebase_storage; // For File Upload To Firestore
 import 'package:path/path.dart' as Path;
 import 'package:quantify_app/models/userClass.dart';
+import 'package:quantify_app/screens/homeScreen.dart';
 
 //refrence
 //
@@ -65,6 +66,23 @@ class DatabaseService {
       'height': height,
       'gender': gender,
     });
+  }
+
+  Future<void> removeMeal(MealData mealData) async {
+    await userInfo
+        .doc(uid)
+        .collection('mealData')
+        .doc(mealData.docId)
+        .delete()
+        .then((value) => print("doc deleted"))
+        .catchError((error) => print(error));
+    if (mealData.mealImageUrl != null) {
+      firebase_storage.Reference storageRef = firebase_storage
+          .FirebaseStorage.instance
+          .refFromURL(mealData.mealImageUrl);
+      //print(storageRef);
+      await storageRef.delete().catchError((error) => print(error));
+    }
   }
 
   UserData _userDataFromSnapshot(DocumentSnapshot snapshot) {

@@ -71,8 +71,13 @@ class _GraphicalInterfaceState extends State<GraphicalInterface> {
                   return Loading();
                 }
                 List imageData = snapshot.data;
+                List idList = imageData.map((e) => e.id).toList();
                 imageData = imageData.map((e) => e.data()).toList();
-
+                int i = 0;
+                for (var item in imageData) {
+                  item['docId'] = idList[i];
+                  i++;
+                }
                 for (var item in imageData) {
                   item['gluc'] = list.firstWhere((element) {
                     if (element.time != null &&
