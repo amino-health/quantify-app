@@ -46,6 +46,7 @@ class _SmartButtonState extends State<SmartButton> {
     return FloatingActionButton(
         backgroundColor: Colors.transparent,
         elevation: 0.0,
+        heroTag: 'btn0',
         child: Container(
             height: 70,
             width: 70,
@@ -94,6 +95,7 @@ class _SmartButtonState extends State<SmartButton> {
                                             child: Icon(Icons.nfc,
                                                 color: Color(0xFF99163D)),
                                             backgroundColor: Colors.white,
+                                            heroTag: 'btn3',
                                             onPressed: () {
                                               Navigator.pop(context);
                                               Navigator.push(
@@ -117,6 +119,7 @@ class _SmartButtonState extends State<SmartButton> {
                                           child: Icon(Icons.directions_run,
                                               color: Color(0xFF99163D)),
                                           backgroundColor: Colors.white,
+                                          heroTag: 'btn1',
                                           onPressed: () {
                                             Navigator.pop(context);
                                             Navigator.push(
@@ -134,6 +137,7 @@ class _SmartButtonState extends State<SmartButton> {
                                         child: FloatingActionButton(
                                           child: Icon(Icons.fastfood,
                                               color: Color(0xFF99163D)),
+                                          heroTag: 'btn2',
                                           backgroundColor: Colors.white,
                                           onPressed: () =>
                                               Navigator.pushReplacement(
@@ -156,6 +160,7 @@ class _SmartButtonState extends State<SmartButton> {
                                           child: FloatingActionButton(
                                             child: Icon(Icons.cancel,
                                                 color: Color(0xFF99163D)),
+                                            heroTag: 'btn4',
                                             backgroundColor: Colors.white,
                                             onPressed: () =>
                                                 Navigator.pop(context),

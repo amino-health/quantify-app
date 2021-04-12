@@ -4,6 +4,8 @@ import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart'
     as firebase_storage; // For File Upload To Firestore
 import 'package:path/path.dart' as Path;
+import 'package:quantify_app/models/training.dart';
+
 import 'package:quantify_app/models/userClass.dart';
 
 //refrence
@@ -13,6 +15,7 @@ import 'package:quantify_app/models/userClass.dart';
 class DatabaseService {
   final String uid;
   DatabaseService({this.uid});
+
   final CollectionReference userInfo =
       FirebaseFirestore.instance.collection('userData'); //collection of info
 
@@ -55,6 +58,10 @@ class DatabaseService {
     });
   }
 
+  Future<DocumentSnapshot> get userRegistered async {
+    return userInfo.doc(uid).get();
+  }
+
   UserData _userDataFromSnapshot(DocumentSnapshot snapshot) {
     print("Snapshot: " + snapshot.data.toString());
     return UserData(
@@ -67,6 +74,92 @@ class DatabaseService {
         consent: snapshot.get('consent'));
   }
 
+  Stream<UserData> get userData {
+    return userInfo.doc(uid).snapshots().map(_userDataFromSnapshot);
+  }
+
+  final CollectionReference trainingData =
+      FirebaseFirestore.instance.collection('training');
+
+  Future<void> createTrainingData(
+      String trainingid,
+      String name,
+      String description,
+      String date,
+      String intensity,
+      int listtype,
+      bool inHistory) async {
+    return await userInfo.doc(uid).collection('training').doc(trainingid).set({
+      'trainingid': trainingid,
+      'name': name,
+      'description': description,
+      'date': date,
+      'intensity': intensity,
+      'listtype': listtype,
+      'inHistory': inHistory,
+    });
+  }
+
+  Future<void> updateTrainingData(
+      String trainingid,
+      String name,
+      String description,
+      String date,
+      String intensity,
+      int listtype,
+      bool inHistory) async {
+    return await userInfo
+        .doc(uid)
+        .collection('training')
+        .doc(trainingid)
+        .update({
+      'trainingid': trainingid,
+      'date': date,
+      'inHistory': inHistory,
+    });
+  }
+
+  Future<void> removeActivity(String trainingid) async {
+    return await userInfo
+        .doc(uid)
+        .collection('training')
+        .doc(trainingid)
+        .delete();
+  }
+
+  Stream<TrainingData> get trainingDatasave {
+    return userInfo.doc(uid).snapshots().map(_trainingDataFromSnapshot);
+  }
+
+  TrainingData _trainingDataFromSnapshot(DocumentSnapshot snapshot) {
+    return TrainingData(
+        trainingid: snapshot.get('trainingid'),
+        name: snapshot.get('name'),
+        description: snapshot.get('description'),
+        date: snapshot.get('date'),
+        intensity: snapshot.get('date'),
+        listtype: snapshot.get('listtype'));
+  }
+}
+
+/*
+FirebaseFirestore.instance.collection
+  List<TrainingData> _trainingListFromSnapshot(QuerySnapshot snapshot) {
+    return snapshot.docs.map((trainingid) {
+      return TrainingData(
+          trainingid: trainingid.get('trainingid') ?? '',
+          name: trainingid.get('name') ?? '',
+          description: trainingid.get('description') ?? '',
+          date: trainingid.get('date') ?? '',
+          intensity: trainingid.get('intensity') ?? '');
+    }).toList();
+  }
+  
+
+  Stream<List<TrainingData>> get trainings {
+    return userInfo.snapshots().map(_trainingListFromSnapshot);
+  }
+
   // get user doc stream
   Stream<UserData> get userData {
     return userInfo.doc(uid).snapshots().map(_userDataFromSnapshot);
@@ -74,54 +167,6 @@ class DatabaseService {
 
   Future<DocumentSnapshot> get userRegistered async {
     return userInfo.doc(uid).get();
-  }
-}
-
-/*
-
-------------------
- final String uid;
-  DatabaseService({this.uid});
-
-  final CollectionReference profileList =
-      Firestore.instance.collection('profileInfo');
-
-//Denna används för att skapa userdatan!
-  Future<void> createUserData(bool newuser, String age, String weight,
-      String height, bool consent) async {
-    return await profileList.document(uid).setData({
-      'newuser': newuser,
-      'age': age,
-      'weight': weight,
-      'height': height,
-      'consent': consent
-    });
-  }
-
-  Future updateUserList(bool newuser, String age, String weight, String height,
-      bool consent) async {
-    return await profileList.document(uid).updateData({
-      'newuser': newuser,
-      'age': age,
-      'weight': weight,
-      'height': height,
-      'consent': consent
-    });
-  }
-
-  Future getUsersList() async {
-    List itemsList = [];
-    try {
-      await profileList.getDocuments().then((querySnapshot) {
-        querySnapshot.documents.forEach((element) {
-          itemsList.add(element.data);
-        });
-      });
-      return itemsList;
-    } catch (e) {
-      print(e.toString());
-      return null;
-    }
   }
 }
 */
