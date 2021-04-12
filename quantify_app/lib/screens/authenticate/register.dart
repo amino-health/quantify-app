@@ -1,6 +1,7 @@
 //import 'package:quantify_app/screens/authenticate/sign_in.dart';
 import 'package:quantify_app/services/auth.dart';
 import 'package:flutter/material.dart';
+import 'package:email_validator/email_validator.dart';
 
 class Register extends StatefulWidget {
   final Function toggleView;
@@ -17,6 +18,9 @@ class _RegisterState extends State<Register> {
   String email = '';
   String password = '';
   String error = '';
+
+  TextEditingController _password = TextEditingController();
+  TextEditingController _passwordConf = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -52,9 +56,11 @@ class _RegisterState extends State<Register> {
               Padding(
                 padding: const EdgeInsets.all(10.0),
                 child: TextFormField(
-                    validator: (val) => val.isEmpty
-                        ? 'Enter an email'
-                        : null, //Valid if not empto, return help tect
+                    validator: (val) {
+                      return EmailValidator.validate(val)
+                          ? null
+                          : "Invalid email";
+                    }, //Valid if not empto, return help tect
                     decoration: InputDecoration(
                       hintText: 'Email',
                       contentPadding:
@@ -69,8 +75,20 @@ class _RegisterState extends State<Register> {
               Padding(
                 padding: const EdgeInsets.all(10.0),
                 child: TextFormField(
-                    validator: (val) =>
-                        val.length < 8 ? 'Enter password 8+ chars' : null,
+                    controller: _password,
+                    validator: (val) {
+                      String result = '';
+
+                      val.length < 8
+                          ? result = 'Enter password 8+ chars'
+                          : result = null;
+
+                      val == _passwordConf.text
+                          ? result = null
+                          : result = 'Password does not match';
+
+                      return result;
+                    },
                     decoration: InputDecoration(
                       hintText: 'Password',
                       contentPadding:
@@ -86,6 +104,7 @@ class _RegisterState extends State<Register> {
               Padding(
                 padding: const EdgeInsets.all(10.0),
                 child: TextFormField(
+                    controller: _passwordConf,
                     decoration: InputDecoration(
                       hintText: 'Re-enter Password',
                       contentPadding:
@@ -94,7 +113,19 @@ class _RegisterState extends State<Register> {
                           borderRadius: BorderRadius.circular(32.0)),
                     ),
                     obscureText: true,
-                    onChanged: (val) {}),
+                    onChanged: (val) {
+                      String result = '';
+
+                      val.length < 8
+                          ? result = 'Enter password 8+ chars'
+                          : result = null;
+
+                      val == _password.text
+                          ? result = null
+                          : result = 'Password does not match';
+
+                      return result;
+                    }),
               ),
               Padding(
                 padding: EdgeInsets.symmetric(vertical: 16.0),
