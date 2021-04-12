@@ -1,3 +1,4 @@
+import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:quantify_app/screens/authenticate/register.dart';
 import 'package:quantify_app/services/auth.dart';
@@ -39,7 +40,11 @@ class _SignInState extends State<SignIn> {
               Padding(
                 padding: const EdgeInsets.all(10.0),
                 child: TextFormField(
-                    validator: (val) => val.isEmpty ? "Enter a email" : null,
+                    validator: (val) {
+                      return EmailValidator.validate(val)
+                          ? null
+                          : "Invalid email";
+                    },
                     decoration: InputDecoration(
                       hintText: 'Email:',
                       contentPadding:
