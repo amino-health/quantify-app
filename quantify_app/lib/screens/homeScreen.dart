@@ -2,7 +2,9 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:quantify_app/loading.dart';
+import 'package:quantify_app/models/userClass.dart';
 //import 'package:flutter_svg/flutter_svg.dart';
 //import 'package:quantify_app/screens/firstScanScreen.dart';
 import 'package:quantify_app/screens/graphs.dart';
@@ -22,11 +24,13 @@ class HomeScreen extends StatefulWidget {
 }
 
 class MealData {
-  MealData(this.mealDescription, this.mealDate, this.mealImageUrl);
+  MealData(this.mealDescription, this.mealDate, this.mealImageUrl, this.docId,
+      this.localPath);
   String mealDescription = "";
   DateTime mealDate;
   String mealImageUrl;
   String docId;
+  String localPath;
 }
 
 GlobalKey mealKey = new GlobalKey();
@@ -34,7 +38,7 @@ GlobalKey mealKey = new GlobalKey();
 class _HomeScreenState extends State<HomeScreen>
     with SingleTickerProviderStateMixin {
   int _selectedIndex = 0;
-  MealData _mealData = new MealData("", DateTime.now(), null);
+  MealData _mealData = new MealData("", DateTime.now(), null, null, null);
 
   bool showPic = false;
   setMealData(MealData mealData) {
@@ -67,7 +71,13 @@ class _HomeScreenState extends State<HomeScreen>
                   ),
                   ElevatedButton(
                     onPressed: () async {
-                      DatabaseService().removeMeal(_mealData);
+                      final user =
+                          Provider.of<UserClass>(context, listen: false);
+
+                      DatabaseService(uid: user.uid).removeMeal(_mealData);
+                      setState(() {
+                        showPic = false;
+                      });
                       Navigator.pop(context);
                     },
                     child: Text("Yes"),
@@ -87,6 +97,30 @@ class _HomeScreenState extends State<HomeScreen>
             ),
           );
         });
+  }
+
+  Widget displayImage(bool _isIos) {
+    if (_mealData.localPath != null) {
+      try {
+        return Image.file(File(_mealData.localPath));
+      } catch (e) {}
+    }
+    return _mealData.mealImageUrl != null
+        ? CachedNetworkImage(
+            progressIndicatorBuilder: (context, url, downProg) =>
+                CircularProgressIndicator(
+                    color: Colors.white, value: downProg.progress),
+            imageUrl: _mealData.mealImageUrl,
+            errorWidget: (context, url, error) => Icon(_isIos
+                ? CupertinoIcons.exclamationmark_triangle_fill
+                : Icons.error),
+          )
+        : Container(
+            child: Icon(
+              Icons.image_not_supported,
+              size: 100,
+            ),
+          );
   }
 
   @override
@@ -177,34 +211,8 @@ class _HomeScreenState extends State<HomeScreen>
                                           padding: const EdgeInsets.only(
                                               left: 0, right: 0),
                                           child: Container(
-                                            //height: MediaQuery.of(context).size.height * 0.2,
-                                            child: _mealData.mealImageUrl !=
-                                                    null
-                                                ? CachedNetworkImage(
-                                                    progressIndicatorBuilder:
-                                                        (context, url,
-                                                                downProg) =>
-                                                            CircularProgressIndicator(
-                                                                color: Colors
-                                                                    .white,
-                                                                value: downProg
-                                                                    .progress),
-                                                    imageUrl:
-                                                        _mealData.mealImageUrl,
-                                                    errorWidget: (context, url,
-                                                            error) =>
-                                                        Icon(_isIos
-                                                            ? CupertinoIcons
-                                                                .exclamationmark_triangle_fill
-                                                            : Icons.error),
-                                                  )
-                                                : Container(
-                                                    child: Icon(
-                                                      Icons.image_not_supported,
-                                                      size: 100,
-                                                    ),
-                                                  ),
-                                          ),
+                                              //height: MediaQuery.of(context).size.height * 0.2,
+                                              child: displayImage(_isIos)),
                                         )),
                                     Container(
                                       height:

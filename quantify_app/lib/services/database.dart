@@ -19,7 +19,7 @@ class DatabaseService {
 
   Future<void> uploadImage(File imageFile, DateTime date, String note) async {
     String downloadURL;
-
+    DocumentReference doc = userInfo.doc(uid).collection('mealData').doc();
     if (imageFile != null) {
       String fileName = Path.basename(imageFile.path).substring(14);
       firebase_storage.Reference storageRef = firebase_storage
@@ -27,13 +27,19 @@ class DatabaseService {
           .ref()
           .child('images/users/' + uid + '/mealImages/' + fileName);
       firebase_storage.UploadTask uploadTask = storageRef.putFile(imageFile);
-      await uploadTask.whenComplete(() async {
+      uploadTask.whenComplete(() async {
         downloadURL = await storageRef.getDownloadURL();
+        await doc.set({
+          'imageRef': downloadURL,
+          'localPath': imageFile.path,
+          'note': note,
+          'date': date.millisecondsSinceEpoch
+        });
       });
     }
-
-    await userInfo.doc(uid).collection('mealData').doc().set({
+    await doc.set({
       'imageRef': downloadURL,
+      'localPath': imageFile.path,
       'note': note,
       'date': date.millisecondsSinceEpoch
     });
@@ -69,20 +75,19 @@ class DatabaseService {
   }
 
   Future<void> removeMeal(MealData mealData) async {
-    await userInfo
-        .doc(uid)
-        .collection('mealData')
-        .doc(mealData.docId)
-        .delete()
-        .then((value) => print("doc deleted"))
-        .catchError((error) => print(error));
+    print(mealData.docId);
+
     if (mealData.mealImageUrl != null) {
       firebase_storage.Reference storageRef = firebase_storage
           .FirebaseStorage.instance
           .refFromURL(mealData.mealImageUrl);
-      //print(storageRef);
       await storageRef.delete().catchError((error) => print(error));
     }
+    return await userInfo
+        .doc(uid)
+        .collection('mealData')
+        .doc(mealData.docId)
+        .delete();
   }
 
   UserData _userDataFromSnapshot(DocumentSnapshot snapshot) {
@@ -97,9 +102,21 @@ class DatabaseService {
         consent: snapshot.get('consent'));
   }
 
+  List _userMealsFromSnapshot(QuerySnapshot snapshot) {
+    return snapshot.docs.toList();
+  }
+
   // get user doc stream
   Stream<UserData> get userData {
     return userInfo.doc(uid).snapshots().map(_userDataFromSnapshot);
+  }
+
+  Stream get userMeals {
+    return userInfo
+        .doc(uid)
+        .collection('mealData')
+        .snapshots()
+        .map(_userMealsFromSnapshot);
   }
 
   Future<DocumentSnapshot> get userRegistered async {
