@@ -165,23 +165,38 @@ class _AddActivityScreenState extends State<AddActivityScreen>
       myActivityList,
       allActivityList
     ];
+    final user = Provider.of<UserClass>(context, listen: false);
     for (int j = 0; j < activityList.length; j++) {
       for (int i = 0; i < activityList[j].length; i++) {
         if (activityList[j][i][0].key.hashCode == (dismissKey.hashCode)) {
           if (j == 0) {
+            print('list item is');
+            print(historyActivityList[i][1]);
+            DatabaseService(uid: user.uid).updateTrainingData(
+                (dismissKey.value.toString()),
+                '',
+                '',
+                historyActivityList[i][2],
+                '',
+                0,
+                false);
             historyActivityList.remove(historyActivityList[i]);
+            j += 1;
           }
-          if (j == 1) {
-            myActivityList.remove(myActivityList[i]);
-          }
-          if (j == 2 && j == _selectedIndex) {
+          if (j == 1 && j == _selectedIndex) {
+            print(' J == 1');
+            myActivityList.remove(myActivityList[i][2]);
+            DatabaseService(uid: user.uid).removeActivity(dismissKey.value);
+          } else if (j == 2 && j == _selectedIndex) {
+            print(' J == 2');
             allActivityList.remove(allActivityList[i]);
+            DatabaseService(uid: user.uid).removeActivity(dismissKey.value);
           }
         }
       }
     }
-    final user = Provider.of<UserClass>(context, listen: false);
-    DatabaseService(uid: user.uid).removeActivity(dismissKey.value);
+
+    //DatabaseService(uid: user.uid).removeActivity(dismissKey.value);
     print('value for key is');
     print(dismissKey.value);
   }
@@ -246,7 +261,10 @@ class _AddActivityScreenState extends State<AddActivityScreen>
     List<dynamic> activityList = <dynamic>[];
     List<Widget> filteredActivityList = <Widget>[];
     if (_selectedIndex == 0) {
+      historyActivityList.sort((b, a) => a[2].compareTo(b[2]));
       activityList = historyActivityList;
+
+      print(historyActivityList);
     }
     if (_selectedIndex == 1) {
       activityList = myActivityList;
@@ -275,29 +293,17 @@ class _AddActivityScreenState extends State<AddActivityScreen>
     );
   }
 
-  //Placeholdermethod Is called whenever a user presses Done in add activity view
+  //Is called whenever a user presses Done in add activity view
   Future addActivity(context, activityData) async {
-    //Explanation:
-    //in order to separate entries in history and MyActivies one has
-    //negative keys and one has positive. When a created acitivty with
-    //a negative key is added, a duplicate with a positive key is created.
-    //The code below asserts we only creates the duplicate if the user
-    //added the acitvity from 'My activites'.
-    int reverse;
-    if (int.parse(activityData[4]) < 0) {
-      reverse = -1;
-    } else {
-      reverse = 1;
-    }
-
     final user = Provider.of<UserClass>(context, listen: false);
     await DatabaseService(uid: user.uid).updateTrainingData(
-        ((int.parse(activityData[4]) * reverse).toString()),
+        ((int.parse(activityData[4])).toString()),
         activityData[0],
         activityData[1],
         activityData[2],
         activityData[3],
-        1);
+        _selectedIndex + 1,
+        true);
   }
 
   /*
@@ -311,15 +317,17 @@ class _AddActivityScreenState extends State<AddActivityScreen>
     myActivityList.clear();
     allActivityList.clear();
     for (DocumentSnapshot entry in databaseData) {
-      if (entry['listtype'] == 1) {
+      if (entry['inHistory']) {
         //1 = MyHistoryData
 
         historyActivityList.insert(0, [
           activityItem(context, entry['name'], entry['description'],
               ValueKey(entry['trainingid'])),
-          entry['name'] + entry['description']
+          entry['name'] + entry['description'],
+          entry['date']
         ]);
-      } else if (entry['listtype'] == 2) {
+      }
+      if (entry['listtype'] == 2) {
         //1 = MyactivityData
 
         myActivityList.insert(0, [
@@ -344,20 +352,14 @@ class _AddActivityScreenState extends State<AddActivityScreen>
     print('TRYING TO UPDATE');
     print(activityData);
     final user = Provider.of<UserClass>(context, listen: false);
-    await DatabaseService(uid: user.uid).updateTrainingData(
-        _generateKey().toString(),
+    await DatabaseService(uid: user.uid).createTrainingData(
+        (int.parse(_generateKey())).toString(),
         activityData[0],
         activityData[1],
         activityData[2],
         activityData[3],
-        1);
-    await DatabaseService(uid: user.uid).updateTrainingData(
-        (int.parse(_generateKey()) * -1).toString(),
-        activityData[0],
-        activityData[1],
-        activityData[2],
-        activityData[3],
-        2);
+        2,
+        true);
   }
 
   tabBar(BuildContext context) {

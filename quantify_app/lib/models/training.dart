@@ -10,6 +10,7 @@ class TrainingData {
   String date;
   int intensity;
   int listtype;
+  bool inHistory;
 
   TrainingData(
       {this.trainingid,
@@ -17,5 +18,6 @@ class TrainingData {
       this.description,
       this.date,
       this.intensity,
-      this.listtype});
+      this.listtype,
+      this.inHistory});
 }

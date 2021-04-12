@@ -81,8 +81,14 @@ class DatabaseService {
   final CollectionReference trainingData =
       FirebaseFirestore.instance.collection('training');
 
-  Future<void> updateTrainingData(String trainingid, String name,
-      String description, String date, String intensity, int listtype) async {
+  Future<void> createTrainingData(
+      String trainingid,
+      String name,
+      String description,
+      String date,
+      String intensity,
+      int listtype,
+      bool inHistory) async {
     return await userInfo.doc(uid).collection('training').doc(trainingid).set({
       'trainingid': trainingid,
       'name': name,
@@ -90,6 +96,26 @@ class DatabaseService {
       'date': date,
       'intensity': intensity,
       'listtype': listtype,
+      'inHistory': inHistory,
+    });
+  }
+
+  Future<void> updateTrainingData(
+      String trainingid,
+      String name,
+      String description,
+      String date,
+      String intensity,
+      int listtype,
+      bool inHistory) async {
+    return await userInfo
+        .doc(uid)
+        .collection('training')
+        .doc(trainingid)
+        .update({
+      'trainingid': trainingid,
+      'date': date,
+      'inHistory': inHistory,
     });
   }
 

@@ -115,7 +115,7 @@ class AuthService {
       await DatabaseService(uid: user.uid)
           .updateUserData(user.uid, user.email, true, '0', '0', '0', false);
       await DatabaseService(uid: user.uid)
-          .updateTrainingData('0', 'Running', 'Sprint', '', '', 3);
+          .createTrainingData('0', 'Running', 'Sprint', '', '', 3, false);
     } catch (error) {
       print('HEJ');
       print(error.toString());

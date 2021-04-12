@@ -39,8 +39,7 @@ dependencies:
 
   lipsum: ^1.0.1
   flutter_slidable: ^0.5.7
-
-
+  flutter_duration_picker: "^1.0.4"
   email_validator: ^1.0.6
   path: ^1.6.4
   firebase_core: ^1.0.1
@@ -52,7 +51,7 @@ dependencies:
   flutter_spinkit: "^4.0.0"
   flutter_search_bar: ^2.1.0
   dio: 1.0.0
-  
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
