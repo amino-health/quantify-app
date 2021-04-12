@@ -139,8 +139,20 @@ class AuthService {
     }
   }
 
+  // Delete account and all the images
   Future deleteAccount() async {
     try {
+      await firebase_storage.FirebaseStorage.instance
+          .ref()
+          .child(
+              'images/users/VqFaeyP6LVWrhBtI3S4PGgCtzTz1/mealImages/slkjdfkls/hello-world.txt')
+          .delete();
+      print("Done");
+    } catch (e) {
+      print(e);
+    }
+
+    /*try {
       await _firestore
           .collection("userData")
           .doc(_auth.currentUser.uid)
@@ -152,6 +164,6 @@ class AuthService {
             'The user must reauthenticate before this operation can be executed.');
         return await signOut();
       }
-    }
+    }*/
   }
 }
