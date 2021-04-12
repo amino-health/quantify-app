@@ -3,6 +3,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:quantify_app/loading.dart';
 import 'package:quantify_app/models/userClass.dart';
 import 'package:flutter/services.dart';
 //import 'package:quantify_app/screens/authenticate/register.dart';
@@ -61,7 +62,7 @@ class MyApp extends StatelessWidget {
         }
         return MaterialApp(
           home: Container(
-            child: Text("WAITING"),
+            child: Loading(),
           ),
         );
       },
