@@ -139,6 +139,22 @@ class AuthService {
     }
   }
 
+  Future<void> listExample() async {
+    firebase_storage.ListResult result = await firebase_storage
+        .FirebaseStorage.instance
+        .ref()
+        .child('images/users')
+        .listAll();
+
+    result.items.forEach((firebase_storage.Reference ref) {
+      print('Found file: $ref');
+    });
+
+    result.prefixes.forEach((firebase_storage.Reference ref) {
+      print('Found directory: $ref');
+    });
+  }
+
   // Delete account and all the images
   Future deleteAccount() async {
     try {

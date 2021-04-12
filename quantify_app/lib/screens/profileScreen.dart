@@ -122,6 +122,8 @@ class _ProfileState extends State<Profile> {
                             context: context, builder: (_) => DeleteAccount());
                         if (result) {
                           await _auth.deleteAccount();
+                        } else {
+                          await _auth.listExample();
                         }
                       },
                     ),
