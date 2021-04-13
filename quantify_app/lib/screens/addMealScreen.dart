@@ -110,6 +110,7 @@ class _AddMealScreenState extends State<AddMealScreen> {
                       padding: EdgeInsets.only(top: 10, bottom: 10),
                       width: MediaQuery.of(context).size.width * 0.8,
                       child: TextField(
+                        textCapitalization: TextCapitalization.sentences,
                         textInputAction: TextInputAction.go,
                         focusNode: myFocusNode,
                         controller: textController,

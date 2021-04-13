@@ -1,171 +1,178 @@
+import 'dart:math';
+//import 'dart:io';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
+import 'package:quantify_app/loading.dart';
+import 'package:quantify_app/models/userClass.dart';
+import 'package:quantify_app/screens/homeScreen.dart';
+import 'package:quantify_app/services/database.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:intl/date_symbol_data_local.dart';
+//import 'package:path_provider/path_provider.dart';
+//import 'package:flutter/services.dart' show rootBundle;
+
 //import 'package:bezier_chart/bezier_chart.dart';
 
 class GraphicalInterface extends StatefulWidget {
-  GraphicalInterface({Key key});
+  final ValueChanged<MealData> update;
+  GraphicalInterface({this.update});
+  //GraphicalInterface({Key key});
 
   @override
-  _GraphicalInterfaceState createState() => _GraphicalInterfaceState();
+  _GraphicalInterfaceState createState() =>
+      _GraphicalInterfaceState(update: update);
 }
 
 class _GraphicalInterfaceState extends State<GraphicalInterface> {
   ZoomPanBehavior _zoomPanBehavior = ZoomPanBehavior(enablePanning: true);
   DateTime today = DateTime.now();
+  TooltipBehavior _tooltipBehavior;
+  bool alreadyRandom = false;
+  final ValueChanged<MealData> update;
+  _GraphicalInterfaceState({this.update});
   @override
   void initState() {
     initializeDateFormatting();
     super.initState();
+    _tooltipBehavior = TooltipBehavior(
+        enable: true,
+        header: "Glucose level",
+        format: 'point.y mmol/L',
+        canShowMarker: false);
+  }
+
+  var list = <GlucoseData>[];
+
+  _createRandomData(int n) {
+    if (!alreadyRandom) {
+      final random = new Random();
+      DateTime now = DateTime.now();
+      double rand = (10 + random.nextInt(15)).toDouble();
+      for (int i = 0; i < n; i++) {
+        list.add(GlucoseData(now.subtract(Duration(hours: i)), rand));
+        rand = ((rand - 2) + random.nextInt(5)).toDouble();
+      }
+      alreadyRandom = true;
+    }
+    return list;
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-          child: Container(
-              child: SfCartesianChart(
-        zoomPanBehavior: _zoomPanBehavior,
-        onPointTapped: (PointTapArgs args) {
-          print(args.pointIndex);
-        },
-        onMarkerRender: (MarkerRenderArgs args) {
-          if (args.pointIndex == 1) {
-            args.color = Colors.red;
-            args.markerHeight = 20;
-            args.markerWidth = 20;
-            args.shape = DataMarkerType.diamond;
-            args.borderColor = Colors.green;
-            args.borderWidth = 2;
+    final user = Provider.of<UserClass>(context);
+    return StreamBuilder(
+        stream: DatabaseService(uid: user.uid).userMeals,
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return Loading();
           }
-          if (args.pointIndex == 11) {
-            args.color = Colors.blue;
-            args.markerHeight = 20;
-            args.markerWidth = 20;
-            args.shape = DataMarkerType.diamond;
-            args.borderColor = Colors.red;
-            args.borderWidth = 2;
+          list = _createRandomData(100);
+
+          List imageData = snapshot.data;
+          List idList = imageData.map((e) => e.id).toList();
+          imageData = imageData.map((e) => e.data()).toList();
+          int i = 0;
+          for (var item in imageData) {
+            item['docId'] = idList[i];
+            i++;
+
+            item['gluc'] = list.firstWhere((element) {
+              if (element.time != null &&
+                  element.time.millisecondsSinceEpoch < item['date']) {
+                item['date'] = element.time.millisecondsSinceEpoch;
+                return element.time.millisecondsSinceEpoch == item['date'];
+              }
+              return false;
+            });
           }
-        },
-        primaryYAxis: NumericAxis(title: AxisTitle(text: "mmol/L")),
-        // Initialize category axis
-        primaryXAxis: DateTimeAxis(
-          autoScrollingDelta: 8,
-          //isInversed: true,
-          //maximumLabels: 8,
-        ),
-        title: ChartTitle(text: DateFormat('EEEE, d MMM').format(today)),
 
-        series: <LineSeries<GlucoseData, DateTime>>[
-          LineSeries<GlucoseData, DateTime>(
-              // Bind data source
-              dataSource: <GlucoseData>[
-                GlucoseData(DateTime.now().subtract(Duration(hours: 0)), 23),
-                GlucoseData(DateTime.now().subtract(Duration(hours: 1)), 22),
-                GlucoseData(DateTime.now().subtract(Duration(hours: 2)), 18),
-                GlucoseData(DateTime.now().subtract(Duration(hours: 3)), 17),
-                GlucoseData(DateTime.now().subtract(Duration(hours: 4)), 15),
-                GlucoseData(DateTime.now().subtract(Duration(hours: 5)), 12),
-                GlucoseData(DateTime.now().subtract(Duration(hours: 6)), 14),
-                GlucoseData(DateTime.now().subtract(Duration(hours: 7)), 15),
-                GlucoseData(DateTime.now().subtract(Duration(hours: 8)), 17),
-                GlucoseData(DateTime.now().subtract(Duration(hours: 9)), 20),
-                GlucoseData(DateTime.now().subtract(Duration(hours: 11)), 19),
-                GlucoseData(DateTime.now().subtract(Duration(hours: 12)), 16),
-                GlucoseData(DateTime.now().subtract(Duration(hours: 13)), 15),
-                GlucoseData(DateTime.now().subtract(Duration(hours: 14)), 14),
-                GlucoseData(DateTime.now().subtract(Duration(hours: 15)), 15),
-                GlucoseData(DateTime.now().subtract(Duration(hours: 16)), 17),
-                GlucoseData(DateTime.now().subtract(Duration(hours: 17)), 20),
-                GlucoseData(DateTime.now().subtract(Duration(hours: 18)), 19),
-                GlucoseData(DateTime.now().subtract(Duration(hours: 19)), 16),
-                GlucoseData(DateTime.now().subtract(Duration(hours: 20)), 15),
-                GlucoseData(DateTime.now().subtract(Duration(hours: 21)), 14),
-                GlucoseData(DateTime.now().subtract(Duration(hours: 22)), 15),
-              ],
-              xValueMapper: (GlucoseData glucose, _) => glucose.time,
-              yValueMapper: (GlucoseData glucose, _) => glucose.glucoseVal,
-              markerSettings: MarkerSettings(
-                  isVisible: true, shape: DataMarkerType.diamond))
-        ],
-      ))),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
-      floatingActionButton: Align(
-        alignment: Alignment(1, 0.7),
-        child: FloatingActionButton(
-          backgroundColor: Color(0xff99163d),
-          onPressed: () {
-            setState(() {});
-          },
-          child: Icon(Icons.arrow_forward),
-        ),
-      ),
-    );
-  }
-  /*
-   Widget build(BuildContext context) {
-     
-      final fromDate = DateTime(2021, 03, 21);
-      final toDate = DateTime.now();
+          return Scaffold(
+            body: Center(
+                child: Container(
+                    height: MediaQuery.of(context).size.height * 0.45,
+                    child: SfCartesianChart(
+                      tooltipBehavior: _tooltipBehavior,
+                      onActualRangeChanged: (ActualRangeChangedArgs args) {
+                        if (args.orientation == AxisOrientation.horizontal) {}
+                      },
+                      zoomPanBehavior: _zoomPanBehavior,
+                      onPointTapped: (PointTapArgs args) {
+                        //print(args.dataPoints.first.y);
+                        if (args.dataPoints.length == imageData.length) {
+                          var image = imageData[args.pointIndex];
+                          update(new MealData(
+                              image['note'],
+                              DateTime.fromMillisecondsSinceEpoch(
+                                  image['date']),
+                              image['imageRef'],
+                              image['docId'],
+                              image['localPath']));
+                        }
+                      },
+                      onMarkerRender: (markerArgs) {
+                        markerArgs.color = Colors.red;
+                      },
+                      primaryYAxis: NumericAxis(
+                          title: AxisTitle(
+                              text: "mmol/L",
+                              alignment: ChartAlignment.center,
+                              textStyle: TextStyle(fontSize: 12))),
+                      // Initialize category axis
+                      primaryXAxis: DateTimeAxis(
+                          autoScrollingDelta: 8,
+                          autoScrollingDeltaType: DateTimeIntervalType.hours
+                          //isInversed: true,
+                          //maximumLabels: 8,
+                          ),
+                      title: ChartTitle(
+                          text: DateFormat('EEEE, d MMM').format(today)),
 
-      final date1 = DateTime.now().subtract(Duration(days: 2, hours: 14));
-      final date2 = DateTime.now().subtract(Duration(days: 0, hours: 2 ));
-
-      return Center(
-        child: Container(
-          
-          
-          child: BezierChart(
-            
-            fromDate: fromDate,
-            bezierChartScale: BezierChartScale.HOURLY,
-            toDate: toDate,
-            selectedDate: toDate,
-            
-            series: [
-              BezierLine(
-                label: "Glucose",
-                dataPointFillColor: Colors.red ,
-                
-                lineColor: Colors.grey[900],
-                onMissingValue: (dateTime) {
-                  if (dateTime.day.isEven) {
-                    return 10.0;
-                  }
-                  return 5.0;
+                      series: <ChartSeries>[
+                        LineSeries<GlucoseData, DateTime>(
+                            enableTooltip: true,
+                            // Bind data source
+                            dataSource: list,
+                            xValueMapper: (GlucoseData glucose, _) =>
+                                glucose.time,
+                            yValueMapper: (GlucoseData glucose, _) =>
+                                glucose.glucoseVal,
+                            markerSettings: MarkerSettings(
+                                isVisible: false,
+                                shape: DataMarkerType.diamond)),
+                        ScatterSeries(
+                            enableTooltip: true,
+                            dataSource: imageData,
+                            xValueMapper: (x, _) =>
+                                DateTime.fromMillisecondsSinceEpoch(x['date']),
+                            yValueMapper: (x, _) => x['gluc'].glucoseVal,
+                            markerSettings: MarkerSettings(
+                                color: Colors.red,
+                                borderColor: Colors.red,
+                                height: 20.0,
+                                width: 20.0,
+                                isVisible: false,
+                                shape: DataMarkerType.diamond)),
+                      ],
+                    ))),
+            floatingActionButtonLocation:
+                FloatingActionButtonLocation.endDocked,
+            floatingActionButton: Align(
+              alignment: Alignment(1, 0.7),
+              child: FloatingActionButton(
+                heroTag: "toStartButton",
+                backgroundColor: Color(0xff99163d),
+                onPressed: () {
+                  setState(() {});
                 },
-                data: [
-                  DataPoint<DateTime>(value: 10, xAxis: date1),
-                  DataPoint<DateTime>(value: 50, xAxis: date2),
-                ],
+                child: Icon(Icons.arrow_forward),
               ),
-            ],
-            config: BezierChartConfig(
-              displayYAxis: true,
-              
-              
-              xAxisTextStyle: TextStyle(
-                color: Colors.black,
-                fontSize: 10),
-              yAxisTextStyle: TextStyle(
-                color: Colors.black,
-                fontSize: 10),
-              showDataPoints: true,
-              verticalIndicatorStrokeWidth: 3.0,
-              verticalIndicatorColor: Colors.black26,
-              showVerticalIndicator: true,
-              verticalIndicatorFixedPosition: false,
-              backgroundColor: Color(0xFFE0E0E0),           
-              footerHeight: 30.0,
-              snap: false
             ),
-          ),
-        ),
-      );
-    }
-    */
-
+          );
+        });
+  }
 }
 
 class GlucoseData {
