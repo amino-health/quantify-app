@@ -35,8 +35,15 @@ class DatabaseService {
   }
 
 //För att updaterauser information, används när register och när updateras
-  Future<void> updateUserData(String uid, String email, bool newuser,
-      String age, String weight, String height, bool consent) async {
+  Future<void> updateUserData(
+      String uid,
+      String email,
+      bool newuser,
+      String age,
+      String weight,
+      String height,
+      bool consent,
+      String gender) async {
     return await userInfo.doc(uid).set({
       'uid': uid,
       'email': email,
@@ -45,6 +52,7 @@ class DatabaseService {
       'weight': weight,
       'height': height,
       'consent': consent,
+      'gender': gender,
     });
   }
 
@@ -71,7 +79,8 @@ class DatabaseService {
         age: snapshot.get('age'),
         weight: snapshot.get('weight'),
         height: snapshot.get('height'),
-        consent: snapshot.get('consent'));
+        consent: snapshot.get('consent'),
+        gender: snapshot.get('gender'));
   }
 
   Stream<UserData> get userData {

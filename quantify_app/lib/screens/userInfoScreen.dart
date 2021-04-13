@@ -5,8 +5,9 @@ import 'package:provider/provider.dart';
 import 'package:quantify_app/loading.dart';
 import 'package:quantify_app/models/userClass.dart';
 import 'package:quantify_app/screens/homeSkeleton.dart';
-import 'package:quantify_app/screens/tos.dart';
 import 'package:quantify_app/services/database.dart';
+
+import 'tos.dart';
 //import 'package:flutter_svg/flutter_svg.dart';
 
 class UserInfoScreen extends StatefulWidget {
@@ -295,9 +296,9 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
                                           userData.age,
                                           _weighttext.text.toString(),
                                           _heighttext.text.toString(),
-                                          userData.consent)
+                                          userData.consent,
+                                          dropdownValue)
                                   : myvar = false;
-
                               _weighttext.text.isNotEmpty &
                                       _heighttext.text.isNotEmpty
                                   ? Navigator.pushReplacement(
