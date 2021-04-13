@@ -2,7 +2,37 @@ import 'package:flutter/material.dart';
 import 'package:quantify_app/screens/homeSkeleton.dart';
 //import 'package:flutter_svg/flutter_svg.dart';
 
-class DiaryDetailsScreen extends StatelessWidget {
+class DiaryDetailsScreen extends StatefulWidget {
+  final String titlevalue;
+  final String subtitle;
+  final String dateTime;
+  final String duration;
+  final String intensity;
+
+  const DiaryDetailsScreen({
+    Key key,
+    @required this.titlevalue,
+    @required this.subtitle,
+    @required this.dateTime,
+    @required this.duration,
+    @required this.intensity,
+  }) : super(key: key);
+
+  @override
+  _DiaryDetailsState createState() =>
+      _DiaryDetailsState(titlevalue, subtitle, dateTime, duration, intensity);
+}
+
+class _DiaryDetailsState extends State<DiaryDetailsScreen> {
+  String titlevalue;
+  String subtitle;
+  String dateTime;
+  String duration;
+  String intensity;
+  _DiaryDetailsState(this.titlevalue, this.subtitle, this.dateTime,
+      this.duration, this.intensity);
+
+//class DiaryDetailsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -28,8 +58,29 @@ class DiaryDetailsScreen extends StatelessWidget {
                         child: Container(
                           alignment: Alignment.bottomLeft,
                           child: FittedBox(
+                              fit: BoxFit.fitWidth, child: Text(dateTime)),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 20.0),
+                        child: Container(
+                          alignment: Alignment.bottomLeft,
+                          child: FittedBox(
                               fit: BoxFit.fitWidth,
-                              child: Text('14:22 \n Tue 6 Jun')),
+                              child: Text(('Duration: ' +
+                                  (duration[0]) +
+                                  'Hrs' +
+                                  (duration[2] + duration[3]) +
+                                  'Mins'))),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 20.0),
+                        child: Container(
+                          alignment: Alignment.bottomLeft,
+                          child: FittedBox(
+                              fit: BoxFit.fitWidth,
+                              child: Text('Intensity: ' + intensity)),
                         ),
                       ),
                     ],
@@ -46,7 +97,7 @@ class DiaryDetailsScreen extends StatelessWidget {
               child: Container(
                 alignment: Alignment.topLeft,
                 child: Text(
-                  'Sample text',
+                  titlevalue,
                   style: TextStyle(fontWeight: FontWeight.bold),
                   textScaleFactor: 2,
                 ),
@@ -58,7 +109,7 @@ class DiaryDetailsScreen extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.all(12.0),
               child: Container(
-                child: Text('Sample Description'),
+                child: Text(subtitle),
                 alignment: Alignment.topLeft,
               ),
             ),

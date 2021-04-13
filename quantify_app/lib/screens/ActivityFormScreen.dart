@@ -34,7 +34,7 @@ class _ActivityPopupState extends State<ActivityPopup> {
   final DateTime today = DateTime.now();
   TimeOfDay newTime;
   int myVar;
-  //This variable is updated in the inline else case
+  //^^^^This variable is updated in the inline else case
   //since flutter requires an else case in the 'done'
   //button onPressed attribute
 
