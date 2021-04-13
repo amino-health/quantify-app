@@ -117,8 +117,6 @@ class AuthService {
       //skapar nytt dokument kopplat till spesifikt user with this uid
       await DatabaseService(uid: user.uid)
           .updateUserData(user.uid, user.email, true, '0', '0', '0', false);
-      await DatabaseService(uid: user.uid)
-          .createTrainingData('0', 'Running', 'Sprint', '', '', 3, false);
     } catch (error) {
       print('HEJ');
       print(error.toString());
@@ -139,36 +137,33 @@ class AuthService {
     }
   }
 
-  Future<void> listExample() async {
-    firebase_storage.ListResult result = await firebase_storage
-        .FirebaseStorage.instance
-        .ref()
-        .child('images/users')
-        .listAll();
-
-    result.items.forEach((firebase_storage.Reference ref) {
-      print('Found file: $ref');
-    });
-
-    result.prefixes.forEach((firebase_storage.Reference ref) {
-      print('Found directory: $ref');
-    });
-  }
-
   // Delete account and all the images
   Future deleteAccount() async {
     try {
-      await firebase_storage.FirebaseStorage.instance
-          .ref()
-          .child(
-              'images/users/VqFaeyP6LVWrhBtI3S4PGgCtzTz1/mealImages/slkjdfkls/hello-world.txt')
-          .delete();
-      print("Done");
-    } catch (e) {
-      print(e);
-    }
-
-    /*try {
+      await _firestore
+          .collection("userData")
+          .doc(_auth.currentUser.uid)
+          .collection("traning")
+          .get()
+          .then(
+        (snapshot) {
+          for (DocumentSnapshot doc in snapshot.docs) {
+            doc.reference.delete();
+          }
+        },
+      );
+      await _firestore
+          .collection("userData")
+          .doc(_auth.currentUser.uid)
+          .collection("mealData")
+          .get()
+          .then(
+        (snapshot) {
+          for (DocumentSnapshot doc in snapshot.docs) {
+            doc.reference.delete();
+          }
+        },
+      );
       await _firestore
           .collection("userData")
           .doc(_auth.currentUser.uid)
@@ -180,6 +175,6 @@ class AuthService {
             'The user must reauthenticate before this operation can be executed.');
         return await signOut();
       }
-    }*/
+    }
   }
 }

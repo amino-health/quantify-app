@@ -31,7 +31,7 @@ class Wrapper extends StatelessWidget {
               }
             } else if (snapshot.hasError) {
               print(snapshot.error);
-              return WelcomeScreen();
+              return Authenticate();
             } else {
               return Loading();
             }

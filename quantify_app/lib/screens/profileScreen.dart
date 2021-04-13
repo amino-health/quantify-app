@@ -7,6 +7,7 @@ import 'package:quantify_app/screens/change.dart';
 import 'package:quantify_app/screens/deleteAccount.dart';
 import 'package:quantify_app/screens/tos.dart';
 import 'package:quantify_app/screens/addSensor.dart';
+import 'package:quantify_app/screens/wrapper.dart';
 //import 'package:quantify_app/screens/welcomeScreen.dart';
 import 'package:quantify_app/services/auth.dart';
 import 'package:quantify_app/services/database.dart';
@@ -18,8 +19,6 @@ class Profile extends StatefulWidget {
 }
 
 class _ProfileState extends State<Profile> {
-  final AuthService _auth = AuthService();
-
   String _currentEmail = 'current@email.com';
   int _currentWeight = 85;
   //int _currentHeight = 190;
@@ -121,10 +120,13 @@ class _ProfileState extends State<Profile> {
                         bool result = await showDialog(
                             context: context, builder: (_) => DeleteAccount());
                         if (result) {
-                          await _auth.deleteAccount();
-                        } else {
-                          await _auth.listExample();
-                        }
+                          await DatabaseService(uid: user.uid).removeDir();
+                          _auth.deleteAccount();
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => Wrapper()));
+                        } else {}
                       },
                     ),
                   ],
@@ -151,6 +153,9 @@ class _ProfileState extends State<Profile> {
                 ),
               ],
             );
+          } else if (snapshot.hasError) {
+            print(snapshot.error);
+            return Loading();
           } else {
             return Loading();
           }
