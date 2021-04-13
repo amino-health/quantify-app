@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:quantify_app/loading.dart';
 import 'package:quantify_app/models/userClass.dart';
+import 'package:quantify_app/screens/diaryScreen.dart';
 //import 'package:flutter_svg/flutter_svg.dart';
 //import 'package:quantify_app/screens/firstScanScreen.dart';
 import 'package:quantify_app/screens/graphs.dart';

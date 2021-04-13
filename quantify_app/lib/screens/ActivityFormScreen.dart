@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 //import 'package:quantify_app/screens/addActivityScreen.dart';
+import 'package:flutter_duration_picker/flutter_duration_picker.dart';
 
 class ActivityPopup extends StatefulWidget {
   final bool isAdd;
 
   final String titlevalue;
   final String subtitle;
+
+  final keyval;
   ActivityPopup(
-      {Key key,
+      {ValueKey key,
+      @required this.keyval,
       @required this.isAdd,
       @required this.titlevalue,
       @required this.subtitle})
@@ -16,11 +20,12 @@ class ActivityPopup extends StatefulWidget {
 
   @override
   _ActivityPopupState createState() =>
-      _ActivityPopupState(isAdd, titlevalue, subtitle);
+      _ActivityPopupState(keyval, isAdd, titlevalue, subtitle);
 }
 
 class _ActivityPopupState extends State<ActivityPopup> {
   DateTime selectedDate = DateTime.now();
+  Duration selectedTime = Duration(minutes: 30);
   double _currentSliderValue = 1;
   final TextEditingController titlecontroller = TextEditingController();
   final TextEditingController descriptioncontroller = TextEditingController();
@@ -35,9 +40,25 @@ class _ActivityPopupState extends State<ActivityPopup> {
 
   bool _titlevalidate = false;
   bool isAdd;
+  String keyval;
   String titlevalue;
   String subtitle;
-  _ActivityPopupState(this.isAdd, this.titlevalue, this.subtitle);
+  _ActivityPopupState(this.keyval, this.isAdd, this.titlevalue, this.subtitle);
+
+  _selectTime(BuildContext context) async {
+    final ThemeData theme = Theme.of(context);
+    assert(theme.platform != null);
+    switch (theme.platform) {
+      case TargetPlatform.android:
+      case TargetPlatform.fuchsia:
+      case TargetPlatform.windows:
+      case TargetPlatform.linux:
+        return buildMaterialTimePicker(context);
+      case TargetPlatform.iOS:
+      case TargetPlatform.macOS:
+        return buildCupertinoTimePicker(context);
+    }
+  }
 
   _selectDate(BuildContext context) async {
     final ThemeData theme = Theme.of(context);
@@ -52,6 +73,54 @@ class _ActivityPopupState extends State<ActivityPopup> {
       case TargetPlatform.macOS:
         return buildCupertinoDatePicker(context);
     }
+  }
+
+  buildMaterialTimePicker(BuildContext context) async {
+    final Duration picked = await showDurationPicker(
+      context: context,
+      initialTime: new Duration(minutes: 30),
+    );
+    if (picked != null && picked != selectedTime)
+      setState(() {
+        selectedTime = picked;
+      });
+  }
+
+  /// This builds cupertion date picker in iOS
+  buildCupertinoTimePicker(BuildContext context) {
+    showCupertinoModalPopup(
+        context: context,
+        builder: (BuildContext context) => Container(
+              color: Colors.white,
+              height: MediaQuery.of(context).size.height * 0.5,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Container(
+                    height: MediaQuery.of(context).size.height * 0.3,
+                    color: Colors.white,
+                    child: CupertinoTimerPicker(
+                        mode: CupertinoTimerPickerMode.hm,
+                        onTimerDurationChanged: (picked) {
+                          if (picked != null && picked != selectedTime)
+                            setState(() {
+                              selectedTime = picked;
+                            });
+                        }),
+                  ),
+                  CupertinoButton(
+                      child: Text(
+                        'OK',
+                        style: TextStyle(color: Colors.black),
+                      ),
+                      onPressed: () {
+                        FocusScope.of(context).unfocus();
+
+                        Navigator.of(context).pop();
+                      })
+                ],
+              ),
+            ));
   }
 
   buildMaterialDatePicker(BuildContext context) async {
@@ -126,6 +195,7 @@ class _ActivityPopupState extends State<ActivityPopup> {
   @override
   Widget build(BuildContext context) {
     isAdd = this.isAdd;
+    selectedTime = this.selectedTime;
     _titlevalidate = this._titlevalidate;
     return AlertDialog(
         content: SingleChildScrollView(
@@ -155,21 +225,10 @@ class _ActivityPopupState extends State<ActivityPopup> {
                   padding: EdgeInsets.all(8.0),
                   child: Text(isAdd ? 'Add activity' : 'Create Activity'),
                 ),
-                Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child: TextFormField(
-                    focusNode: isAdd ? AlwaysDisabledFocusNode() : FocusNode(),
-                    decoration: InputDecoration(
-                      errorText:
-                          _titlevalidate ? 'Value Can\'t Be Empty' : null,
-                    ),
-                    controller: _fillController(titlecontroller, titlevalue),
-                  ),
-                ),
                 Container(
-                  alignment: Alignment.bottomLeft,
+                  alignment: Alignment.topLeft,
                   child: Padding(
-                    padding: EdgeInsets.all(8.0),
+                    padding: EdgeInsets.only(top: 14, left: 8, right: 8),
                     child: Text(
                       'Activity name',
                       textAlign: TextAlign.left,
@@ -180,17 +239,40 @@ class _ActivityPopupState extends State<ActivityPopup> {
                 Padding(
                   padding: EdgeInsets.all(8.0),
                   child: TextFormField(
-                    focusNode: isAdd ? AlwaysDisabledFocusNode() : FocusNode(),
-                    controller:
-                        _fillController(descriptioncontroller, subtitle),
+                    //focusNode: isAdd ? AlwaysDisabledFocusNode() : FocusNode(),
+                    decoration: InputDecoration(
+                      errorText:
+                          _titlevalidate ? 'Value Can\'t Be Empty' : null,
+                    ),
+                    controller: _fillController(titlecontroller, titlevalue),
                   ),
                 ),
                 Container(
                   alignment: Alignment.bottomLeft,
                   child: Padding(
-                    padding: EdgeInsets.all(8.0),
+                    padding: EdgeInsets.only(top: 8, left: 8, right: 8),
                     child: Text(
                       'Short Description',
+                      textAlign: TextAlign.left,
+                      style: TextStyle(),
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: TextFormField(
+                    //focusNode: isAdd ? AlwaysDisabledFocusNode() : FocusNode(),
+                    controller:
+                        _fillController(descriptioncontroller, subtitle),
+                  ),
+                ),
+                Container(
+                  alignment: Alignment.topLeft,
+                  child: Padding(
+                    padding: EdgeInsets.only(
+                        top: 20.0, bottom: 8, left: 8, right: 8),
+                    child: Text(
+                      'Start time',
                       textAlign: TextAlign.left,
                       style: TextStyle(),
                     ),
@@ -214,6 +296,34 @@ class _ActivityPopupState extends State<ActivityPopup> {
                           "${selectedDate.toLocal()}".split(' ')[1][2] +
                           "${selectedDate.toLocal()}".split(' ')[1][3] +
                           "${selectedDate.toLocal()}".split(' ')[1][4],
+                    ),
+                  ),
+                  height: MediaQuery.of(context).size.height * 0.1,
+                  width: MediaQuery.of(context).size.width * 0.5,
+                ),
+                Container(
+                  alignment: Alignment.bottomLeft,
+                  child: Padding(
+                    padding: EdgeInsets.only(bottom: 8, left: 8, right: 8),
+                    child: Text(
+                      'Duration',
+                      textAlign: TextAlign.left,
+                      style: TextStyle(),
+                    ),
+                  ),
+                ),
+                Container(
+                  child: TextField(
+                    onTap: () {
+                      _selectTime(context);
+                    },
+                    focusNode: AlwaysDisabledFocusNode(),
+                    decoration: InputDecoration(
+                      counterText: "",
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(20)),
+                      ),
+                      labelText: selectedTime.toString().substring(0, 4),
                     ),
                   ),
                   height: MediaQuery.of(context).size.height * 0.1,
@@ -264,7 +374,8 @@ class _ActivityPopupState extends State<ActivityPopup> {
                               titlecontroller.text.toString(),
                               descriptioncontroller.text.toString(),
                               selectedDate.toString(),
-                              _currentSliderValue.round().toString()
+                              _currentSliderValue.round().toString(),
+                              keyval.toString()
                             ])
                           : myVar = 0;
                     },
