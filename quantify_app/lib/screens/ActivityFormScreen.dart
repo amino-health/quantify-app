@@ -374,6 +374,7 @@ class _ActivityPopupState extends State<ActivityPopup> {
                               titlecontroller.text.toString(),
                               descriptioncontroller.text.toString(),
                               selectedDate.toString(),
+                              selectedTime.toString(),
                               _currentSliderValue.round().toString(),
                               keyval.toString()
                             ])
