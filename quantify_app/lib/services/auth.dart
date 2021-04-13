@@ -151,7 +151,9 @@ class AuthService {
             doc.reference.delete();
           }
         },
-      );
+      ).catchError((e) {
+        print("Training: " + e);
+      });
       await _firestore
           .collection("userData")
           .doc(_auth.currentUser.uid)
@@ -163,7 +165,23 @@ class AuthService {
             doc.reference.delete();
           }
         },
-      );
+      ).catchError((e) {
+        print("Mealdata: " + e);
+      });
+      await _firestore
+          .collection("userData")
+          .doc(_auth.currentUser.uid)
+          .collection("trainingDiary")
+          .get()
+          .then(
+        (snapshot) {
+          for (DocumentSnapshot doc in snapshot.docs) {
+            doc.reference.delete();
+          }
+        },
+      ).catchError((e) {
+        print("TrainingDiary: " + e);
+      });
       await _firestore
           .collection("userData")
           .doc(_auth.currentUser.uid)
@@ -175,6 +193,9 @@ class AuthService {
             'The user must reauthenticate before this operation can be executed.');
         return await signOut();
       }
+    } catch (e) {
+      print("NÅGOT annat fel");
+      return await signOut();
     }
   }
 }

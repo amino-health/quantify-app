@@ -46,7 +46,7 @@ class _SignInState extends State<SignIn> {
                           : "Invalid email";
                     },
                     decoration: InputDecoration(
-                      hintText: 'Email:',
+                      hintText: 'Email',
                       contentPadding:
                           EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
                       border: OutlineInputBorder(
