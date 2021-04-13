@@ -5,7 +5,7 @@ import 'package:firebase_storage/firebase_storage.dart'
     as firebase_storage; // For File Upload To Firestore
 import 'package:path/path.dart' as Path;
 import 'package:quantify_app/models/training.dart';
-
+import 'package:quantify_app/models/activityDiary.dart';
 import 'package:quantify_app/models/userClass.dart';
 import 'package:quantify_app/screens/homeScreen.dart';
 
@@ -124,6 +124,9 @@ class DatabaseService {
   final CollectionReference trainingData =
       FirebaseFirestore.instance.collection('training');
 
+  final CollectionReference trainingDiaryData =
+      FirebaseFirestore.instance.collection('activityDiary');
+
   Future<void> createTrainingData(
       String trainingid,
       String name,
@@ -182,6 +185,38 @@ class DatabaseService {
         date: snapshot.get('date'),
         intensity: snapshot.get('date'),
         listtype: snapshot.get('listtype'));
+  }
+
+  Stream<TrainingDiaryData> get activityDiaryDatasave {
+    return userInfo.doc(uid).snapshots().map(_activityDiaryDataFromSnapshot);
+  }
+
+  TrainingDiaryData _activityDiaryDataFromSnapshot(DocumentSnapshot snapshot) {
+    return TrainingDiaryData(
+        trainingid: snapshot.get('trainingid'),
+        name: snapshot.get('name'),
+        description: snapshot.get('description'),
+        date: snapshot.get('date'),
+        duration: snapshot.get('duration'),
+        intensity: snapshot.get('intensity'));
+  }
+  //String key = firebase_storage.FirebaseStorage.instance.ref().child('users').child().push().getKey();
+
+  Future<void> createTrainingDiaryData(
+    String trainingid,
+    String name,
+    String description,
+    String date,
+    String duration,
+    String intensity,
+  ) async {
+    return await userInfo.doc(uid).collection('trainingDiary').doc().set({
+      'name': name,
+      'description': description,
+      'date': date,
+      'duration': duration,
+      'intensity': intensity,
+    });
   }
 }
 
