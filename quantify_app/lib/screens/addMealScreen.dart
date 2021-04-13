@@ -71,7 +71,7 @@ class _AddMealScreenState extends State<AddMealScreen> {
   Widget build(BuildContext context) {
     bool _isIos;
     try {
-      _isIos = Platform.isIOS || Platform.isMacOS;
+      _isIos = true; //Platform.isIOS || Platform.isMacOS;
     } catch (e) {
       _isIos = false;
     }
@@ -482,10 +482,5 @@ class _AddMealScreenState extends State<AddMealScreen> {
     while (Navigator.canPop(context)) {
       Navigator.pop(context, _edit);
     }
-
-    /*Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (context) => HomeScreen()),
-        (Route<dynamic> route) => false);*/
   }
 }

@@ -245,6 +245,14 @@ class DatabaseService {
       'intensity': intensity,
     });
   }
+
+  Future<void> removeDiaryItem(String diaryid) async {
+    return await userInfo
+        .doc(uid)
+        .collection('trainingDiary')
+        .doc(diaryid)
+        .delete();
+  }
 }
 
 /*

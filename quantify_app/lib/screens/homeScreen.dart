@@ -129,8 +129,7 @@ class _HomeScreenState extends State<HomeScreen>
     return _mealData.mealImageUrl != null
         ? CachedNetworkImage(
             progressIndicatorBuilder: (context, url, downProg) =>
-                CircularProgressIndicator(
-                    color: Colors.white, value: downProg.progress),
+                CircularProgressIndicator(value: downProg.progress),
             imageUrl: _mealData.mealImageUrl,
             errorWidget: (context, url, error) => Icon(_isIos
                 ? CupertinoIcons.exclamationmark_triangle_fill
