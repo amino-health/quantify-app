@@ -185,7 +185,7 @@ class _AddActivityScreenState extends State<AddActivityScreen>
           }
           if (j == 1 && j == _selectedIndex) {
             print(' J == 1');
-            myActivityList.remove(myActivityList[i][2]);
+            myActivityList.remove(myActivityList[i][1]);
             DatabaseService(uid: user.uid).removeActivity(dismissKey.value);
           } else if (j == 2 && j == _selectedIndex) {
             print(' J == 2');
@@ -297,13 +297,21 @@ class _AddActivityScreenState extends State<AddActivityScreen>
   Future addActivity(context, activityData) async {
     final user = Provider.of<UserClass>(context, listen: false);
     await DatabaseService(uid: user.uid).updateTrainingData(
-        ((int.parse(activityData[4])).toString()),
-        activityData[0],
-        activityData[1],
-        activityData[2],
-        activityData[3],
+        ((int.parse(activityData[5])).toString()),
+        activityData[0], //name
+        activityData[1], //description
+        activityData[2], //date
+        activityData[4], //Intensity
         _selectedIndex + 1,
         true);
+    await DatabaseService(uid: user.uid).createTrainingDiaryData(
+      _generateKey(),
+      activityData[0], //name
+      activityData[1], //description
+      activityData[2], //date
+      activityData[3], //duration
+      activityData[4], //Intensity
+    );
   }
 
   /*
