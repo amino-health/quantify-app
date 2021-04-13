@@ -140,7 +140,7 @@ class _AddActivityScreenState extends State<AddActivityScreen>
                       ),
                     ),
                     onPressed: () async {
-                      List<String> activityData = await showDialog(
+                      List<Object> activityData = await showDialog(
                           context: context,
                           builder: (_) => ActivityPopup(
                               keyval: '',
@@ -235,7 +235,7 @@ class _AddActivityScreenState extends State<AddActivityScreen>
                 subtitle: Text(_subtitle),
                 isThreeLine: false,
                 onTap: () async {
-                  List<String> activityData = await showDialog(
+                  List<Object> activityData = await showDialog(
                       context: context,
                       builder: (_) => ActivityPopup(
                           keyval: newKey.value.toString(),
@@ -261,7 +261,8 @@ class _AddActivityScreenState extends State<AddActivityScreen>
     List<dynamic> activityList = <dynamic>[];
     List<Widget> filteredActivityList = <Widget>[];
     if (_selectedIndex == 0) {
-      historyActivityList.sort((b, a) => a[2].compareTo(b[2]));
+      historyActivityList
+          .sort((b, a) => a[2].toString().compareTo(b[2].toString()));
       activityList = historyActivityList;
 
       print(historyActivityList);
@@ -327,8 +328,6 @@ class _AddActivityScreenState extends State<AddActivityScreen>
     allActivityList.clear();
     for (DocumentSnapshot entry in databaseData) {
       if (entry['inHistory']) {
-        //1 = MyHistoryData
-
         historyActivityList.insert(0, [
           activityItem(context, entry['name'], entry['description'],
               ValueKey(entry['trainingid'])),
@@ -337,7 +336,7 @@ class _AddActivityScreenState extends State<AddActivityScreen>
         ]);
       }
       if (entry['listtype'] == 2) {
-        //1 = MyactivityData
+        //2 = MyactivityData
 
         myActivityList.insert(0, [
           activityItem(context, entry['name'], entry['description'],
@@ -363,10 +362,10 @@ class _AddActivityScreenState extends State<AddActivityScreen>
     final user = Provider.of<UserClass>(context, listen: false);
     await DatabaseService(uid: user.uid).createTrainingData(
         (int.parse(_generateKey())).toString(),
-        activityData[0],
-        activityData[1],
-        activityData[2],
-        activityData[3],
+        activityData[0], //name
+        activityData[1], //desc
+        activityData[2], //date
+        activityData[4], //intensity
         2,
         true);
   }

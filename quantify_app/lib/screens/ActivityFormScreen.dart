@@ -373,8 +373,8 @@ class _ActivityPopupState extends State<ActivityPopup> {
                           ? Navigator.pop(context, [
                               titlecontroller.text.toString(),
                               descriptioncontroller.text.toString(),
-                              selectedDate.toString(),
-                              selectedTime.toString(),
+                              selectedDate,
+                              selectedTime,
                               _currentSliderValue.round().toString(),
                               keyval.toString()
                             ])
