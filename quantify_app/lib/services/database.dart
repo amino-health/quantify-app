@@ -66,6 +66,12 @@ class DatabaseService {
     });
   }
 
+  Future<void> updateUserweight(String weight) async {
+    return await userInfo.doc(uid).set({
+      'weight': weight,
+    });
+  }
+
   Future<DocumentSnapshot> get userRegistered async {
     return userInfo.doc(uid).get();
   }

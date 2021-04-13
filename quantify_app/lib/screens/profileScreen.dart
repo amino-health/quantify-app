@@ -61,12 +61,13 @@ class _ProfileState extends State<Profile> {
                       subtitle: userData.email,
                       onPressed: (BuildContext context) {
                         Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => Change(
-                                      toChange: "email",
-                                      current: _currentEmail,
-                                    )));
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => Change(
+                                    toChange: "email",
+                                    current: userData.email,
+                                  )),
+                        );
                       },
                     ),
                   ],
@@ -96,7 +97,7 @@ class _ProfileState extends State<Profile> {
                             MaterialPageRoute(
                                 builder: (context) => Change(
                                       toChange: "weight",
-                                      current: _currentWeight,
+                                      current: userData.weight,
                                     )));
                       },
                     ),

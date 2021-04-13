@@ -7,7 +7,6 @@ import 'package:quantify_app/models/userClass.dart';
 import 'package:quantify_app/screens/homeSkeleton.dart';
 import 'package:quantify_app/services/database.dart';
 
-import 'tos.dart';
 //import 'package:flutter_svg/flutter_svg.dart';
 
 class UserInfoScreen extends StatefulWidget {
@@ -298,15 +297,6 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
                                           _heighttext.text.toString(),
                                           userData.consent,
                                           dropdownValue)
-                                  : myvar = false;
-                              _weighttext.text.isNotEmpty &
-                                      _heighttext.text.isNotEmpty
-                                  ? Navigator.pushReplacement(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) => TosScreen(
-                                                showContinue: false,
-                                              )))
                                   : myvar = false;
                             }),
                       ),
