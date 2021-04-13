@@ -295,6 +295,7 @@ class _AddActivityScreenState extends State<AddActivityScreen>
 
   //Is called whenever a user presses Done in add activity view
   Future addActivity(context, activityData) async {
+    setState(() {});
     final user = Provider.of<UserClass>(context, listen: false);
     await DatabaseService(uid: user.uid).updateTrainingData(
         ((int.parse(activityData[5])).toString()),
