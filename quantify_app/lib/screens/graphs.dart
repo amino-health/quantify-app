@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:quantify_app/loading.dart';
+import 'package:quantify_app/models/training.dart';
 import 'package:quantify_app/models/userClass.dart';
 import 'package:quantify_app/screens/homeScreen.dart';
 import 'package:quantify_app/services/database.dart';
@@ -15,7 +16,7 @@ import 'package:intl/date_symbol_data_local.dart';
 //import 'package:bezier_chart/bezier_chart.dart';
 
 class GraphicalInterface extends StatefulWidget {
-  final ValueChanged<MealData> update;
+  final ValueChanged update;
   GraphicalInterface({this.update});
   //GraphicalInterface({Key key});
 
@@ -29,7 +30,7 @@ class _GraphicalInterfaceState extends State<GraphicalInterface> {
   DateTime today = DateTime.now();
   TooltipBehavior _tooltipBehavior;
   bool alreadyRandom = false;
-  final ValueChanged<MealData> update;
+  final ValueChanged<List<dynamic>> update;
   _GraphicalInterfaceState({this.update});
   @override
   void initState() {
@@ -62,21 +63,28 @@ class _GraphicalInterfaceState extends State<GraphicalInterface> {
   Widget build(BuildContext context) {
     final user = Provider.of<UserClass>(context);
     return StreamBuilder(
-        stream: DatabaseService(uid: user.uid).userMeals,
+        stream: DatabaseService(uid: user.uid).userDiary,
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
             return Loading();
           }
           list = _createRandomData(1000);
+          List graphData = snapshot.data;
+          List imageData = graphData[1];
+          List activityData = graphData[0];
 
-          List imageData = snapshot.data;
-          List idList = imageData.map((e) => e.id).toList();
-          imageData = imageData.map((e) => e.data()).toList();
-          int i = 0;
-          for (var item in imageData) {
-            item['docId'] = idList[i];
-            i++;
+          imageData = imageData.map((e) {
+            var data = e.data();
+            data['docId'] = e.id;
+            return data;
+          }).toList();
 
+          activityData = activityData.map((e) {
+            var data = e.data();
+            data['docId'] = e.id;
+            return data;
+          }).toList();
+          for (var item in imageData + activityData) {
             item['gluc'] = list.firstWhere((element) {
               if (element.time != null &&
                   element.time.millisecondsSinceEpoch < item['date']) {
@@ -89,7 +97,6 @@ class _GraphicalInterfaceState extends State<GraphicalInterface> {
                   DateTime.fromMillisecondsSinceEpoch(item['date']), 10.0);
             });
           }
-
           return Scaffold(
             body: Center(
                 child: Container(
@@ -101,19 +108,36 @@ class _GraphicalInterfaceState extends State<GraphicalInterface> {
                       },
                       zoomPanBehavior: _zoomPanBehavior,
                       onPointTapped: (PointTapArgs args) {
-                        //print(args.dataPoints.first.y);
-                        if (args.dataPoints.length == imageData.length) {
+                        if (args.seriesIndex == 1) {
                           var meal = imageData[args.pointIndex];
-                          update(new MealData(
-                              meal['note'],
-                              DateTime.fromMillisecondsSinceEpoch(meal['date']),
-                              meal['imageRef'],
-                              meal['docId'],
-                              meal['localPath']));
+                          update([
+                            new MealData(
+                                meal['note'],
+                                DateTime.fromMillisecondsSinceEpoch(
+                                    meal['date']),
+                                meal['imageRef'],
+                                meal['docId'],
+                                meal['localPath']),
+                            false
+                          ]);
+                        } else if (args.seriesIndex == 2) {
+                          var activity = activityData[args.pointIndex];
+                          update([
+                            new TrainingData(
+                                trainingid: activity['docId'],
+                                name: activity['name'],
+                                description: activity['description'],
+                                date: DateTime.fromMillisecondsSinceEpoch(
+                                    activity['date']),
+                                intensity: activity['intesity'],
+                                listtype: null,
+                                inHistory: null),
+                            true
+                          ]);
                         }
                       },
                       onMarkerRender: (markerArgs) {
-                        markerArgs.color = Colors.red;
+                        //markerArgs.color = Colors;
                       },
                       primaryYAxis: NumericAxis(
                           title: AxisTitle(
@@ -143,24 +167,35 @@ class _GraphicalInterfaceState extends State<GraphicalInterface> {
                                 isVisible: false,
                                 shape: DataMarkerType.diamond)),
                         ScatterSeries(
+                            color: Colors.red,
                             enableTooltip: true,
                             dataSource: imageData,
                             xValueMapper: (x, _) =>
                                 DateTime.fromMillisecondsSinceEpoch(x['date']),
                             yValueMapper: (x, _) => x['gluc'].glucoseVal,
                             markerSettings: MarkerSettings(
-                                color: Colors.red,
-                                borderColor: Colors.red,
-                                height: 20.0,
-                                width: 20.0,
-                                isVisible: false,
-                                shape: DataMarkerType.diamond)),
+                                height: 25.0,
+                                width: 25.0,
+                                shape: DataMarkerType.circle)),
+                        ScatterSeries(
+                          color: Colors.blue,
+                          enableTooltip: true,
+                          dataSource: activityData,
+                          xValueMapper: (x, _) =>
+                              DateTime.fromMillisecondsSinceEpoch(x['date']),
+                          yValueMapper: (x, _) => x['gluc'].glucoseVal,
+                          markerSettings: MarkerSettings(
+                              height: 25.0,
+                              width: 25.0,
+                              shape: DataMarkerType.circle),
+                        )
                       ],
                     ))),
             floatingActionButtonLocation:
                 FloatingActionButtonLocation.endDocked,
             floatingActionButton: Align(
-              alignment: Alignment(1, 0.7),
+              alignment: Alignment.topRight,
+              //alignment: Alignment(1, 0.7),
               child: FloatingActionButton(
                 heroTag: "toStartButton",
                 backgroundColor: Color(0xff99163d),
