@@ -276,6 +276,35 @@ class DatabaseService {
       'intensity': intensity,
     });
   }
+  
+  Future<void> removeDir({String ref = ""}) async {
+    print("Hello: " + ref);
+    firebase_storage.ListResult result;
+    if (ref == "") {
+      result = await firebase_storage.FirebaseStorage.instance
+          .ref('images/users/' + uid)
+          .listAll();
+    } else {
+      result = await firebase_storage.FirebaseStorage.instance
+          .ref()
+          .child(ref)
+          .listAll();
+    }
+
+    result.items.forEach((firebase_storage.Reference ref) async {
+      print('Found file: ${ref.fullPath}');
+      await firebase_storage.FirebaseStorage.instance
+          .ref()
+          .child(ref.fullPath)
+          .delete();
+    });
+
+    result.prefixes.forEach((firebase_storage.Reference ref) async {
+      await removeDir(ref: ref.fullPath);
+    });
+    print("endddd");
+  }
+
 
   Future<void> removeDiaryItem(String diaryid) async {
     return await userInfo
