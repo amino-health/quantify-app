@@ -32,17 +32,12 @@ class DatabaseService {
       firebase_storage.UploadTask uploadTask = storageRef.putFile(imageFile);
       uploadTask.whenComplete(() async {
         downloadURL = await storageRef.getDownloadURL();
-        await doc.set({
-          'imageRef': downloadURL,
-          'localPath': imageFile.path,
-          'note': note,
-          'date': date.millisecondsSinceEpoch
-        });
+        await doc.update({'imageRef': downloadURL});
       });
     }
     await doc.set({
       'imageRef': downloadURL,
-      'localPath': imageFile.path,
+      'localPath': imageFile != null ? imageFile.path : null,
       'note': note,
       'date': date.millisecondsSinceEpoch
     });
@@ -70,6 +65,40 @@ class DatabaseService {
     });
   }
 
+  Future<void> editMeal(
+      docId, newImage, DateTime newDate, newNote, imageChanged) async {
+    String downloadURL;
+    if (imageChanged && newImage != null) {
+      DocumentSnapshot mealDoc =
+          await userInfo.doc(uid).collection('mealData').doc(docId).get();
+      String url = mealDoc.get('imageRef');
+
+      if (url != null) {
+        firebase_storage.Reference storageRef =
+            firebase_storage.FirebaseStorage.instance.refFromURL(url);
+        await storageRef.delete().catchError((error) => print(error));
+      }
+      DocumentReference doc =
+          userInfo.doc(uid).collection('mealData').doc(docId);
+      String fileName = Path.basename(newImage.path).substring(14);
+      firebase_storage.Reference storageRef = firebase_storage
+          .FirebaseStorage.instance
+          .ref()
+          .child('images/users/' + uid + '/mealImages/' + fileName);
+      firebase_storage.UploadTask uploadTask = storageRef.putFile(newImage);
+      uploadTask.whenComplete(() async {
+        downloadURL = await storageRef.getDownloadURL();
+        await doc.update({'imageRef': downloadURL});
+      });
+    }
+    await userInfo.doc(uid).collection('mealData').doc(docId).update({
+      'imageRef': downloadURL,
+      'localPath': newImage != null ? newImage.path : null,
+      'note': newNote,
+      'date': newDate.millisecondsSinceEpoch
+    });
+  }
+
   Future<void> updateUserProfile(
       String birth, String weight, String height, String gender) async {
     return await userInfo.doc(uid).set({
@@ -83,8 +112,6 @@ class DatabaseService {
 
 
   Future<void> removeMeal(MealData mealData) async {
-    print(mealData.docId);
-
     if (mealData.mealImageUrl != null) {
       firebase_storage.Reference storageRef = firebase_storage
           .FirebaseStorage.instance

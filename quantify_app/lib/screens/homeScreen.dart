@@ -3,9 +3,8 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:quantify_app/loading.dart';
 import 'package:quantify_app/models/userClass.dart';
-import 'package:quantify_app/screens/diaryScreen.dart';
+import 'package:quantify_app/screens/addMealScreen.dart';
 //import 'package:flutter_svg/flutter_svg.dart';
 //import 'package:quantify_app/screens/firstScanScreen.dart';
 import 'package:quantify_app/screens/graphs.dart';
@@ -76,7 +75,7 @@ class _HomeScreenState extends State<HomeScreen>
                           Provider.of<UserClass>(context, listen: false);
 
                       DatabaseService(uid: user.uid).removeMeal(_mealData);
-                      setState(() {
+                      mealKey.currentState.setState(() {
                         showPic = false;
                       });
                       Navigator.pop(context);
@@ -100,6 +99,27 @@ class _HomeScreenState extends State<HomeScreen>
         });
   }
 
+  editMeal() {
+    File file;
+    if (_mealData.localPath != null) {
+      try {
+        file = File(_mealData.localPath);
+      } catch (e) {}
+    }
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => AddMealScreen.edit(
+                file,
+                _mealData.mealDate,
+                TimeOfDay.fromDateTime(_mealData.mealDate),
+                _mealData.mealDescription,
+                _mealData.mealImageUrl,
+                true,
+                _mealData.docId)));
+    //;
+  }
+
   Widget displayImage(bool _isIos) {
     if (_mealData.localPath != null) {
       try {
@@ -118,7 +138,7 @@ class _HomeScreenState extends State<HomeScreen>
         : Container(
             child: Icon(
               Icons.image_not_supported,
-              size: 100,
+              size: MediaQuery.of(context).size.height * 0.1,
             ),
           );
   }
@@ -188,7 +208,7 @@ class _HomeScreenState extends State<HomeScreen>
                                       child: IconButton(
                                           color: Colors.white,
                                           onPressed: () {
-                                            setState(() {
+                                            mealKey.currentState.setState(() {
                                               showPic = false;
                                             });
                                           },
@@ -202,22 +222,16 @@ class _HomeScreenState extends State<HomeScreen>
                                   children: [
                                     Container(
                                         height:
-                                            MediaQuery.of(context).size.width *
-                                                0.45,
+                                            MediaQuery.of(context).size.height *
+                                                0.2,
                                         width:
                                             MediaQuery.of(context).size.width *
                                                 0.45,
-                                        child: Padding(
-                                          padding: const EdgeInsets.only(
-                                              left: 0, right: 0),
-                                          child: Container(
-                                              //height: MediaQuery.of(context).size.height * 0.2,
-                                              child: displayImage(_isIos)),
-                                        )),
+                                        child: displayImage(_isIos)),
                                     Container(
                                       height:
-                                          MediaQuery.of(context).size.width *
-                                              0.45,
+                                          MediaQuery.of(context).size.height *
+                                              0.2,
                                       width: MediaQuery.of(context).size.width *
                                           0.45,
                                       child: Column(
@@ -256,7 +270,10 @@ class _HomeScreenState extends State<HomeScreen>
                                             const EdgeInsets.only(left: 32),
                                         child: IconButton(
                                             color: Colors.white,
-                                            iconSize: 30,
+                                            iconSize: MediaQuery.of(context)
+                                                    .size
+                                                    .height *
+                                                0.04,
                                             onPressed: () {
                                               delete();
                                             },
@@ -266,8 +283,13 @@ class _HomeScreenState extends State<HomeScreen>
                                       ),
                                       IconButton(
                                           color: Colors.white,
-                                          iconSize: 30,
-                                          onPressed: () {},
+                                          iconSize: MediaQuery.of(context)
+                                                  .size
+                                                  .height *
+                                              0.04,
+                                          onPressed: () {
+                                            editMeal();
+                                          },
                                           icon: Icon(Icons.edit))
                                     ],
                                   ),
