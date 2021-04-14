@@ -4,7 +4,6 @@ import 'package:flutter/cupertino.dart';
 //import 'package:quantify_app/screens/addActivityScreen.dart';
 import 'package:duration_picker/duration_picker.dart';
 
-
 class ActivityPopup extends StatefulWidget {
   final bool isAdd;
 

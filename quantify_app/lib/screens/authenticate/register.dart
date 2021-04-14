@@ -45,7 +45,7 @@ class _RegisterState extends State<Register> {
                 child: TextFormField(
                     validator: (val) => val.isEmpty ? "Ente a name" : null,
                     decoration: InputDecoration(
-                      hintText: 'Full name:',
+                      hintText: 'Full name',
                       contentPadding:
                           EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
                       border: OutlineInputBorder(

@@ -1,6 +1,5 @@
 //import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:quantify_app/screens/diaryDetailsScreen.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:provider/provider.dart';
 import 'package:quantify_app/models/userClass.dart';

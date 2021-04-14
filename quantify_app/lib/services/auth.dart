@@ -1,11 +1,14 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:quantify_app/models/userClass.dart';
 import 'package:quantify_app/services/database.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   //final GoogleSignIn _googleSignUn = new GoogleSignIn();
 
 //Create user object based on firebase
@@ -133,6 +136,68 @@ class AuthService {
     } catch (e) {
       print(e.toString());
       return null;
+    }
+  }
+
+  // Delete account and all the images
+  Future deleteAccount() async {
+    try {
+      await _firestore
+          .collection("userData")
+          .doc(_auth.currentUser.uid)
+          .collection("traning")
+          .get()
+          .then(
+        (snapshot) {
+          for (DocumentSnapshot doc in snapshot.docs) {
+            doc.reference.delete();
+          }
+        },
+      ).catchError((e) {
+        print("Training: " + e);
+      });
+      await _firestore
+          .collection("userData")
+          .doc(_auth.currentUser.uid)
+          .collection("mealData")
+          .get()
+          .then(
+        (snapshot) {
+          for (DocumentSnapshot doc in snapshot.docs) {
+            doc.reference.delete();
+          }
+        },
+      ).catchError((e) {
+        print("Mealdata: " + e);
+      });
+      await _firestore
+          .collection("userData")
+          .doc(_auth.currentUser.uid)
+          .collection("trainingDiary")
+          .get()
+          .then(
+        (snapshot) {
+          for (DocumentSnapshot doc in snapshot.docs) {
+            doc.reference.delete();
+          }
+        },
+      ).catchError((e) {
+        print("TrainingDiary: " + e);
+      });
+      await _firestore
+          .collection("userData")
+          .doc(_auth.currentUser.uid)
+          .delete();
+      return await _auth.currentUser.delete();
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'requires-recent-login') {
+        print(
+            'The user must reauthenticate before this operation can be executed.');
+        return await signOut();
+      }
+    } catch (e) {
+      print("NÅGOT annat fel");
+      return await signOut();
     }
   }
 }
