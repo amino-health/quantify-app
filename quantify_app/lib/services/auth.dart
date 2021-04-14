@@ -98,7 +98,7 @@ class AuthService {
 
     if (snapShot == null || !snapShot.exists) {
       await DatabaseService(uid: user.uid)
-          .updateUserData(user.uid, user.email, true, '0', '0', '0', false);
+          .updateUserData(user.uid, user.email, true, '0', '0', '0', false, '');
       return _userFromFirebaseUser(user);
     }
 
@@ -113,7 +113,7 @@ class AuthService {
       User user = result.user; //Grab user from
       //skapar nytt dokument kopplat till spesifikt user with this uid
       await DatabaseService(uid: user.uid)
-          .updateUserData(user.uid, user.email, true, '0', '0', '0', false);
+          .updateUserData(user.uid, user.email, true, '0', '0', '0', false, '');
       await DatabaseService(uid: user.uid)
           .createTrainingData('0', 'Running', 'Sprint', '', '', 3, false);
     } catch (error) {

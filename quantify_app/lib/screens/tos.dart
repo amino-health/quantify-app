@@ -84,7 +84,8 @@ class _TosScreenState extends State<TosScreen> {
                                       userData.age,
                                       userData.weight,
                                       userData.height,
-                                      true);
+                                      true,
+                                      userData.gender);
                             }
                           },
                           style: ButtonStyle(backgroundColor:

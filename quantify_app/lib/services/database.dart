@@ -49,8 +49,15 @@ class DatabaseService {
   }
 
 //För att updaterauser information, används när register och när updateras
-  Future<void> updateUserData(String uid, String email, bool newuser,
-      String age, String weight, String height, bool consent) async {
+  Future<void> updateUserData(
+      String uid,
+      String email,
+      bool newuser,
+      String age,
+      String weight,
+      String height,
+      bool consent,
+      String gender) async {
     return await userInfo.doc(uid).set({
       'uid': uid,
       'email': email,
@@ -59,6 +66,7 @@ class DatabaseService {
       'weight': weight,
       'height': height,
       'consent': consent,
+      'gender': gender,
     });
   }
 
@@ -71,6 +79,8 @@ class DatabaseService {
       'gender': gender,
     });
   }
+
+
 
   Future<void> removeMeal(MealData mealData) async {
     print(mealData.docId);
@@ -86,6 +96,7 @@ class DatabaseService {
         .collection('mealData')
         .doc(mealData.docId)
         .delete();
+
   }
 
   Future<DocumentSnapshot> get userRegistered async {
@@ -101,7 +112,8 @@ class DatabaseService {
         age: snapshot.get('age'),
         weight: snapshot.get('weight'),
         height: snapshot.get('height'),
-        consent: snapshot.get('consent'));
+        consent: snapshot.get('consent'),
+        gender: snapshot.get('gender'));
   }
 
   List _userMealsFromSnapshot(QuerySnapshot snapshot) {
@@ -228,31 +240,3 @@ class DatabaseService {
   }
 }
 
-/*
-FirebaseFirestore.instance.collection
-  List<TrainingData> _trainingListFromSnapshot(QuerySnapshot snapshot) {
-    return snapshot.docs.map((trainingid) {
-      return TrainingData(
-          trainingid: trainingid.get('trainingid') ?? '',
-          name: trainingid.get('name') ?? '',
-          description: trainingid.get('description') ?? '',
-          date: trainingid.get('date') ?? '',
-          intensity: trainingid.get('intensity') ?? '');
-    }).toList();
-  }
-  
-
-  Stream<List<TrainingData>> get trainings {
-    return userInfo.snapshots().map(_trainingListFromSnapshot);
-  }
-
-  // get user doc stream
-  Stream<UserData> get userData {
-    return userInfo.doc(uid).snapshots().map(_userDataFromSnapshot);
-  }
-
-  Future<DocumentSnapshot> get userRegistered async {
-    return userInfo.doc(uid).get();
-  }
-}
-*/
