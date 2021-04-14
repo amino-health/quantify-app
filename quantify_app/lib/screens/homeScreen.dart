@@ -16,6 +16,8 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:quantify_app/services/database.dart';
 
+import 'diaryScreen.dart';
+
 class HomeScreen extends StatefulWidget {
   HomeScreen({Key key}) : super(key: key);
 
@@ -307,7 +309,7 @@ class _HomeScreenState extends State<HomeScreen>
           ],
         ),
       ),
-      Text('Diarypage'),
+      DiaryScreen(),
       Profile(),
       Text('Settingspage'),
     ];

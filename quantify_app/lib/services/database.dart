@@ -8,6 +8,7 @@ import 'package:quantify_app/models/training.dart';
 import 'package:quantify_app/models/activityDiary.dart';
 import 'package:quantify_app/models/userClass.dart';
 import 'package:quantify_app/screens/homeScreen.dart';
+import 'package:async/async.dart';
 
 //refrence
 //
@@ -109,8 +110,6 @@ class DatabaseService {
     });
   }
 
-
-
   Future<void> removeMeal(MealData mealData) async {
     if (mealData.mealImageUrl != null) {
       firebase_storage.Reference storageRef = firebase_storage
@@ -123,7 +122,6 @@ class DatabaseService {
         .collection('mealData')
         .doc(mealData.docId)
         .delete();
-
   }
 
   Future<DocumentSnapshot> get userRegistered async {
@@ -160,6 +158,25 @@ class DatabaseService {
         .map(_userMealsFromSnapshot);
   }
 
+  List _userActivityFromSnapshot(QuerySnapshot snapshot) {
+    return snapshot.docs.toList();
+  }
+
+  Stream get userDiary {
+    Stream mealData = userInfo
+        .doc(uid)
+        .collection('mealData')
+        .snapshots()
+        .map(_userMealsFromSnapshot);
+    Stream activityData = userInfo
+        .doc(uid)
+        .collection('trainingDiary')
+        .snapshots()
+        .map(_userActivityFromSnapshot);
+
+    return StreamZip([activityData, mealData]);
+  }
+
   final CollectionReference trainingData =
       FirebaseFirestore.instance.collection('training');
 
@@ -170,7 +187,7 @@ class DatabaseService {
       String trainingid,
       String name,
       String description,
-      String date,
+      DateTime date,
       String intensity,
       int listtype,
       bool inHistory) async {
@@ -178,7 +195,7 @@ class DatabaseService {
       'trainingid': trainingid,
       'name': name,
       'description': description,
-      'date': date,
+      'date': date.millisecondsSinceEpoch,
       'intensity': intensity,
       'listtype': listtype,
       'inHistory': inHistory,
@@ -189,7 +206,7 @@ class DatabaseService {
       String trainingid,
       String name,
       String description,
-      String date,
+      DateTime date,
       String intensity,
       int listtype,
       bool inHistory) async {
@@ -199,7 +216,7 @@ class DatabaseService {
         .doc(trainingid)
         .update({
       'trainingid': trainingid,
-      'date': date,
+      'date': date.millisecondsSinceEpoch,
       'inHistory': inHistory,
     });
   }
@@ -245,15 +262,15 @@ class DatabaseService {
     String trainingid,
     String name,
     String description,
-    String date,
-    String duration,
+    DateTime date,
+    Duration duration,
     String intensity,
   ) async {
     return await userInfo.doc(uid).collection('trainingDiary').doc().set({
       'name': name,
       'description': description,
-      'date': date,
-      'duration': duration,
+      'date': date.millisecondsSinceEpoch,
+      'duration': duration.inMilliseconds,
       'intensity': intensity,
     });
   }
@@ -266,4 +283,3 @@ class DatabaseService {
         .delete();
   }
 }
-
