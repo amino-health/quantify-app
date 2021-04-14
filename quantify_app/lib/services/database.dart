@@ -32,25 +32,27 @@ class DatabaseService {
       firebase_storage.UploadTask uploadTask = storageRef.putFile(imageFile);
       uploadTask.whenComplete(() async {
         downloadURL = await storageRef.getDownloadURL();
-        await doc.set({
-          'imageRef': downloadURL,
-          'localPath': imageFile.path,
-          'note': note,
-          'date': date.millisecondsSinceEpoch
-        });
+        await doc.update({'imageRef': downloadURL});
       });
     }
     await doc.set({
       'imageRef': downloadURL,
-      'localPath': imageFile.path,
+      'localPath': imageFile != null ? imageFile.path : null,
       'note': note,
       'date': date.millisecondsSinceEpoch
     });
   }
 
 //För att updaterauser information, används när register och när updateras
-  Future<void> updateUserData(String uid, String email, bool newuser,
-      String age, String weight, String height, bool consent) async {
+  Future<void> updateUserData(
+      String uid,
+      String email,
+      bool newuser,
+      String age,
+      String weight,
+      String height,
+      bool consent,
+      String gender) async {
     return await userInfo.doc(uid).set({
       'uid': uid,
       'email': email,
@@ -59,6 +61,41 @@ class DatabaseService {
       'weight': weight,
       'height': height,
       'consent': consent,
+      'gender': gender,
+    });
+  }
+
+  Future<void> editMeal(
+      docId, newImage, DateTime newDate, newNote, imageChanged) async {
+    String downloadURL;
+    if (imageChanged && newImage != null) {
+      DocumentSnapshot mealDoc =
+          await userInfo.doc(uid).collection('mealData').doc(docId).get();
+      String url = mealDoc.get('imageRef');
+
+      if (url != null) {
+        firebase_storage.Reference storageRef =
+            firebase_storage.FirebaseStorage.instance.refFromURL(url);
+        await storageRef.delete().catchError((error) => print(error));
+      }
+      DocumentReference doc =
+          userInfo.doc(uid).collection('mealData').doc(docId);
+      String fileName = Path.basename(newImage.path).substring(14);
+      firebase_storage.Reference storageRef = firebase_storage
+          .FirebaseStorage.instance
+          .ref()
+          .child('images/users/' + uid + '/mealImages/' + fileName);
+      firebase_storage.UploadTask uploadTask = storageRef.putFile(newImage);
+      uploadTask.whenComplete(() async {
+        downloadURL = await storageRef.getDownloadURL();
+        await doc.update({'imageRef': downloadURL});
+      });
+    }
+    await userInfo.doc(uid).collection('mealData').doc(docId).update({
+      'imageRef': downloadURL,
+      'localPath': newImage != null ? newImage.path : null,
+      'note': newNote,
+      'date': newDate.millisecondsSinceEpoch
     });
   }
 
@@ -72,9 +109,9 @@ class DatabaseService {
     });
   }
 
-  Future<void> removeMeal(MealData mealData) async {
-    print(mealData.docId);
 
+
+  Future<void> removeMeal(MealData mealData) async {
     if (mealData.mealImageUrl != null) {
       firebase_storage.Reference storageRef = firebase_storage
           .FirebaseStorage.instance
@@ -86,6 +123,7 @@ class DatabaseService {
         .collection('mealData')
         .doc(mealData.docId)
         .delete();
+
   }
 
   Future<DocumentSnapshot> get userRegistered async {
@@ -101,7 +139,8 @@ class DatabaseService {
         age: snapshot.get('age'),
         weight: snapshot.get('weight'),
         height: snapshot.get('height'),
-        consent: snapshot.get('consent'));
+        consent: snapshot.get('consent'),
+        gender: snapshot.get('gender'));
   }
 
   List _userMealsFromSnapshot(QuerySnapshot snapshot) {
@@ -218,7 +257,7 @@ class DatabaseService {
       'intensity': intensity,
     });
   }
-
+  
   Future<void> removeDir({String ref = ""}) async {
     print("Hello: " + ref);
     firebase_storage.ListResult result;
@@ -246,33 +285,14 @@ class DatabaseService {
     });
     print("endddd");
   }
-}
 
-/*
-FirebaseFirestore.instance.collection
-  List<TrainingData> _trainingListFromSnapshot(QuerySnapshot snapshot) {
-    return snapshot.docs.map((trainingid) {
-      return TrainingData(
-          trainingid: trainingid.get('trainingid') ?? '',
-          name: trainingid.get('name') ?? '',
-          description: trainingid.get('description') ?? '',
-          date: trainingid.get('date') ?? '',
-          intensity: trainingid.get('intensity') ?? '');
-    }).toList();
-  }
-  
 
-  Stream<List<TrainingData>> get trainings {
-    return userInfo.snapshots().map(_trainingListFromSnapshot);
-  }
-
-  // get user doc stream
-  Stream<UserData> get userData {
-    return userInfo.doc(uid).snapshots().map(_userDataFromSnapshot);
-  }
-
-  Future<DocumentSnapshot> get userRegistered async {
-    return userInfo.doc(uid).get();
+  Future<void> removeDiaryItem(String diaryid) async {
+    return await userInfo
+        .doc(uid)
+        .collection('trainingDiary')
+        .doc(diaryid)
+        .delete();
   }
 }
-*/
+

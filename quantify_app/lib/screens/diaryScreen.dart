@@ -1,12 +1,14 @@
 //import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:quantify_app/screens/diaryDetailsScreen.dart';
-
+import 'package:provider/provider.dart';
+import 'package:quantify_app/models/userClass.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:quantify_app/services/database.dart';
 //import 'package:flutter_svg/flutter_svg.dart';
 
 class DiaryScreen extends StatefulWidget {
-  DiaryScreen({Key key});
+  DiaryScreen({ValueKey key});
 
   @override
   _DiaryScreenState createState() => _DiaryScreenState();
@@ -41,22 +43,26 @@ class _DiaryScreenState extends State<DiaryScreen> {
     'intensity'
   ];
 
-  void _removeItem(Key dismissKey) {
-    setState(() {});
-
+  void _removeItem(ValueKey dismissKey) {
+    setState(() {
+      final user = Provider.of<UserClass>(context, listen: false);
+      DatabaseService(uid: user.uid).removeDiaryItem(dismissKey.value);
+    });
+/*
     for (int j = 0; j < diaryList.length; j++) {
-      print(diaryList[j].key.hashCode.toString().toLowerCase());
-      print(diaryList.hashCode.toString().toLowerCase());
-      if (diaryList[j].key.hashCode == (dismissKey.hashCode)) {
+      
+     
+      if (diaryList[j].key == (dismissKey.value)) {
         print('List before $diaryList');
         diaryList.remove(diaryList[j]);
         print('List after $diaryList');
         print('removed item with key $j from data source');
       }
     } //Todo remove Activityitem from database
+    */
   }
-
-  Key _generateKey() {
+/*
+  ValueKey _generateKey() {
     int topKeyIndex = 0;
 
     for (int j = 0; j < diaryList.length; j++) {
@@ -72,20 +78,20 @@ class _DiaryScreenState extends State<DiaryScreen> {
     print('generated key is $topKeyIndex');
     return Key(topKeyIndex.toString());
   }
-
+*/
   //activityData is list with String title, String subtitle, String, date, String intesity
-  void addItem(context, activityData) {
-    setState(() {
-      Key newkey = _generateKey();
-      diaryList.add(diaryItem(context, activityData[0], activityData[1],
-          activityData[2], activityData[3], newkey));
+  /*void addItem(context, activityData) {
+    List<Widget> diaryList = [];
 
-      // }
-    });
-  }
+    ValueKey newkey = _generateKey();
+    diaryList.add(diaryItem(context, activityData[0], activityData[1],
+        activityData[2], activityData[3], newkey));
+
+    // }
+  }*/
 
   diaryItem(BuildContext context, String name, String _subtitle, String date,
-      String intensity, Key newKey) {
+      String duration, String intensity, ValueKey newKey) {
     return Padding(
       key: newKey,
       padding: const EdgeInsets.only(top: 8.0),
@@ -119,7 +125,12 @@ class _DiaryScreenState extends State<DiaryScreen> {
                               Container(child: Icon(Icons.access_time_sharp)),
                               FittedBox(
                                   fit: BoxFit.fitWidth,
-                                  child: Text(date, textAlign: TextAlign.left)),
+                                  child: Text(
+                                      (date.substring(0, 10) +
+                                              '\n' +
+                                              date.substring(11, date.length))
+                                          .toString(),
+                                      textAlign: TextAlign.left)),
                             ],
                           ),
                           FittedBox(
@@ -136,7 +147,15 @@ class _DiaryScreenState extends State<DiaryScreen> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => DiaryDetailsScreen()),
+                        builder: (context) => DiaryDetailsScreen(
+                            titlevalue: name,
+                            subtitle: _subtitle,
+                            dateTime: (date.substring(0, 10) +
+                                    '\n' +
+                                    date.substring(11, date.length))
+                                .toString(),
+                            duration: duration,
+                            intensity: intensity)),
                   );
                 })),
         secondaryActions: <Widget>[
@@ -151,6 +170,20 @@ class _DiaryScreenState extends State<DiaryScreen> {
     );
   }
 
+  void structureData(context, databaseData) {
+    diaryList.clear();
+    for (DocumentSnapshot entry in databaseData) {
+      //ValueKey newkey = _generateKey();
+      String date = entry['date'];
+      date = date.substring(0, date.length - 7);
+      //String duration = entry['duration'].substring(0, entry['duration'].length() - 6);
+      diaryList.add(
+        diaryItem(context, entry['name'], entry['description'], date,
+            entry['duration'], entry['intensity'], ValueKey(entry.id)),
+      );
+    }
+  }
+
   customScrollview(BuildContext context) {
     return Container(
       child: Expanded(
@@ -163,18 +196,35 @@ class _DiaryScreenState extends State<DiaryScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (diaryList.isEmpty) {
-      addItem(context, testList);
-      addItem(context, testList);
-      addItem(context, testList);
-      addItem(context, testList);
-    }
+    final user = Provider.of<UserClass>(context, listen: false);
 
-    return Center(
-        child: Column(
-      children: [
-        customScrollview(context),
-      ],
-    ));
+    return FutureBuilder<QuerySnapshot>(
+        future: FirebaseFirestore.instance
+            .collection('userData')
+            .doc(user.uid)
+            .collection('trainingDiary')
+            .get(),
+        builder: (context, snapshot) {
+          if (snapshot.data != null) {
+            final List<DocumentSnapshot> documents = snapshot.data.docs;
+            print(documents);
+            structureData(context, documents);
+          } else {
+            print('No training data found for user');
+          }
+          /* if (diaryList.isEmpty) {
+            addItem(context, testList);
+            addItem(context, testList);
+            addItem(context, testList);
+            addItem(context, testList);
+          }*/
+
+          return Center(
+              child: Column(
+            children: [
+              customScrollview(context),
+            ],
+          ));
+        });
   }
 }

@@ -13,6 +13,7 @@ class UserData {
   final String weight;
   final String height;
   final bool consent;
+  final String gender;
 
   UserData(
       {this.uid,
@@ -21,7 +22,8 @@ class UserData {
       this.age,
       this.weight,
       this.height,
-      this.consent});
+      this.consent,
+      this.gender});
 
   bool getNewUser() {
     return this.newuser;
