@@ -264,8 +264,6 @@ class _AddActivityScreenState extends State<AddActivityScreen>
       historyActivityList
           .sort((b, a) => a[2].toString().compareTo(b[2].toString()));
       activityList = historyActivityList;
-
-      print(historyActivityList);
     }
     if (_selectedIndex == 1) {
       activityList = myActivityList;
@@ -357,8 +355,7 @@ class _AddActivityScreenState extends State<AddActivityScreen>
 
   void addItem(context, activityData) async {
     setState(() {});
-    print('TRYING TO UPDATE');
-    print(activityData);
+
     final user = Provider.of<UserClass>(context, listen: false);
     await DatabaseService(uid: user.uid).createTrainingData(
         (int.parse(_generateKey())).toString(),

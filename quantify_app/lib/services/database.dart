@@ -7,7 +7,7 @@ import 'package:path/path.dart' as Path;
 import 'package:quantify_app/models/training.dart';
 import 'package:quantify_app/models/activityDiary.dart';
 import 'package:quantify_app/models/userClass.dart';
-import 'package:quantify_app/screens/homeScreen.dart';
+import 'package:quantify_app/models/mealData.dart';
 import 'package:async/async.dart';
 
 //refrence
@@ -75,11 +75,15 @@ class DatabaseService {
 
   Future<void> removeMeal(MealData mealData) async {
     print(mealData.docId);
-
+    print('DELETING MEALDATA');
     if (mealData.mealImageUrl != null) {
       firebase_storage.Reference storageRef = firebase_storage
           .FirebaseStorage.instance
+          .ref()
+          .storage
           .refFromURL(mealData.mealImageUrl);
+      print(storageRef);
+      print(mealData.mealImageUrl);
       await storageRef.delete().catchError((error) => print(error));
     }
     return await userInfo

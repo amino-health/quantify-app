@@ -17,22 +17,13 @@ import 'package:quantify_app/screens/profileScreen.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:quantify_app/services/database.dart';
+import 'package:quantify_app/models/mealData.dart';
 
 class HomeScreen extends StatefulWidget {
   HomeScreen({Key key}) : super(key: key);
 
   @override
   _HomeScreenState createState() => _HomeScreenState();
-}
-
-class MealData {
-  MealData(this.mealDescription, this.mealDate, this.mealImageUrl, this.docId,
-      this.localPath);
-  String mealDescription = "";
-  DateTime mealDate;
-  String mealImageUrl;
-  String docId;
-  String localPath;
 }
 
 GlobalKey mealKey = new GlobalKey();

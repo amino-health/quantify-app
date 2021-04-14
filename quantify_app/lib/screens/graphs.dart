@@ -7,12 +7,13 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:quantify_app/loading.dart';
 import 'package:quantify_app/models/userClass.dart';
-import 'package:quantify_app/screens/homeScreen.dart';
+//import 'package:quantify_app/screens/homeScreen.dart';
 import 'package:quantify_app/services/database.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:intl/date_symbol_data_local.dart';
 //import 'package:path_provider/path_provider.dart';
 //import 'package:flutter/services.dart' show rootBundle;
+import 'package:quantify_app/models/mealData.dart';
 
 //import 'package:bezier_chart/bezier_chart.dart';
 
