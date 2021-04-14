@@ -8,7 +8,7 @@ import 'package:quantify_app/models/training.dart';
 import 'package:quantify_app/models/activityDiary.dart';
 import 'package:quantify_app/models/userClass.dart';
 import 'package:quantify_app/screens/homeScreen.dart';
-import 'package:async/async.dart';
+import 'package:stream_transform/stream_transform.dart';
 
 //refrence
 //
@@ -114,6 +114,8 @@ class DatabaseService {
     if (mealData.mealImageUrl != null) {
       firebase_storage.Reference storageRef = firebase_storage
           .FirebaseStorage.instance
+          .ref()
+          .storage
           .refFromURL(mealData.mealImageUrl);
       await storageRef.delete().catchError((error) => print(error));
     }
@@ -174,7 +176,7 @@ class DatabaseService {
         .snapshots()
         .map(_userActivityFromSnapshot);
 
-    return StreamZip([activityData, mealData]);
+    return activityData.combineLatestAll([mealData]);
   }
 
   final CollectionReference trainingData =
@@ -282,4 +284,11 @@ class DatabaseService {
         .doc(diaryid)
         .delete();
   }
+}
+
+class CombinedData {
+  final List to;
+  final List from;
+
+  CombinedData(this.to, this.from);
 }
