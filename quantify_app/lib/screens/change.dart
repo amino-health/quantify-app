@@ -2,6 +2,7 @@ import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:quantify_app/screens/changeemail.dart';
 import '../loading.dart';
 import '../models/userClass.dart';
 import '../services/database.dart';
@@ -135,6 +136,7 @@ class _ChangeState extends State<Change> {
                                       userData.height,
                                       userData.consent,
                                       userData.gender);
+
                               Navigator.pop(context);
                             }
                             if (_change == "height") {
@@ -149,8 +151,16 @@ class _ChangeState extends State<Change> {
                                       userData.consent,
                                       userData.gender);
                               Navigator.pop(context);
-                            } else {
-                              Navigator.pop(context);
+                            }
+                            if (_change == "email") {
+                              final result = await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => ChangeEmail()),
+                              );
+
+                              result.updateEmail(_inputController.text);
+                              print(context);
                             }
                           }
                         },

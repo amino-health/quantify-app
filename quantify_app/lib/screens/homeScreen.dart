@@ -4,7 +4,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-
 //import 'package:quantify_app/loading.dart';
 import 'package:quantify_app/models/userClass.dart';
 import 'package:quantify_app/screens/diaryScreen.dart';
@@ -30,7 +29,6 @@ import 'package:quantify_app/models/mealData.dart';
 
 import 'diaryScreen.dart';
 
-
 class HomeScreen extends StatefulWidget {
   HomeScreen({Key key}) : super(key: key);
 
@@ -38,9 +36,7 @@ class HomeScreen extends StatefulWidget {
   _HomeScreenState createState() => _HomeScreenState();
 }
 
-
-GlobalKey mealKey = new GlobalKey();
-
+GlobalKey overviewKey = new GlobalKey();
 
 class _HomeScreenState extends State<HomeScreen>
     with SingleTickerProviderStateMixin {
