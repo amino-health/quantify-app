@@ -72,6 +72,10 @@ class DatabaseService {
     });
   }
 
+  Future updateEmail(String email) async {
+    return await userInfo.doc(uid).set({'email': email});
+  }
+
   Future<DocumentSnapshot> get userRegistered async {
     return userInfo.doc(uid).get();
   }

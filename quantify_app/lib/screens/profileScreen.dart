@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:quantify_app/loading.dart';
 import 'package:quantify_app/models/userClass.dart';
 import 'package:quantify_app/screens/change.dart';
+import 'package:quantify_app/screens/changeemail.dart';
 import 'package:quantify_app/screens/tos.dart';
 import 'package:quantify_app/screens/addSensor.dart';
 //import 'package:quantify_app/screens/welcomeScreen.dart';
@@ -17,10 +18,6 @@ class Profile extends StatefulWidget {
 
 class _ProfileState extends State<Profile> {
   final AuthService _auth = AuthService();
-
-  String _currentEmail = 'current@email.com';
-  int _currentWeight = 85;
-  //int _currentHeight = 190;
 
   @override
   Widget build(BuildContext context) {
@@ -63,10 +60,7 @@ class _ProfileState extends State<Profile> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => Change(
-                                    toChange: "email",
-                                    current: userData.email,
-                                  )),
+                              builder: (context) => ChangeEmail()),
                         );
                       },
                     ),

@@ -5,6 +5,9 @@ import 'package:quantify_app/services/database.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 
 class AuthService {
+  static String uEmail, uPassword;
+  static bool done;
+
   final FirebaseAuth _auth = FirebaseAuth.instance;
   //final GoogleSignIn _googleSignUn = new GoogleSignIn();
 
@@ -43,6 +46,18 @@ class AuthService {
         default:
           return null;
       }
+    }
+  }
+
+  Future changeEmail(String email) async {
+    try {
+      dynamic user = _auth.currentUser;
+
+      dynamic response = await user.updateEmail(email);
+      await DatabaseService(uid: user.uid).updateEmail(email);
+      return response;
+    } catch (e) {
+      return null;
     }
   }
 
@@ -121,6 +136,26 @@ class AuthService {
       print(error.toString());
       return null;
     }
+  }
+
+  Future updateEmail({
+    String email,
+    String password,
+    String newEmail,
+  }) async {
+    bool done = false;
+    User user = _auth.currentUser;
+    AuthCredential credentials =
+        EmailAuthProvider.credential(email: email, password: password);
+
+    UserCredential result =
+        await user.reauthenticateWithCredential(credentials);
+
+    await result.user.updateEmail(newEmail).then((_) {
+      print("Succesfull changed email");
+      done = true;
+    });
+    return done;
   }
 
 //Sign in with google
