@@ -5,6 +5,7 @@ import 'package:quantify_app/models/userClass.dart';
 import 'package:quantify_app/services/database.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 
+
 class AuthService {
   static String uEmail, uPassword;
   static bool done;
@@ -132,8 +133,9 @@ class AuthService {
 
       await DatabaseService(uid: user.uid).updateUserData(
           user.uid, user.email, true, '0', '0', '0', false, "male");
-      await DatabaseService(uid: user.uid).createTrainingData(
-          '0', 'Running', 'Sprint', DateTime.now(), '', 3, false);
+      await DatabaseService(uid: user.uid)
+          .createTrainingData('Running', 'Sprint', DateTime.now(), 0, 3, false);
+
     } catch (error) {
       print('HEJ');
       print(error.toString());

@@ -126,6 +126,7 @@ class _GraphicalInterfaceState extends State<GraphicalInterface> {
                           ),
                         );
                       }),
+
                   Expanded(
                     child: SfCartesianChart(
                       tooltipBehavior: _tooltipBehavior,
