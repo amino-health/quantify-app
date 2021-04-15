@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:quantify_app/loading.dart';
 import 'package:quantify_app/models/userClass.dart';
+import 'package:quantify_app/screens/ActivityFormScreen.dart';
 import 'package:quantify_app/screens/change.dart';
+import 'package:quantify_app/screens/deleteAccount.dart';
 import 'package:quantify_app/screens/tos.dart';
 import 'package:quantify_app/screens/addSensor.dart';
+import 'package:quantify_app/screens/wrapper.dart';
 //import 'package:quantify_app/screens/welcomeScreen.dart';
 import 'package:quantify_app/services/auth.dart';
 import 'package:quantify_app/services/database.dart';
@@ -16,8 +19,6 @@ class Profile extends StatefulWidget {
 }
 
 class _ProfileState extends State<Profile> {
-  final AuthService _auth = AuthService();
-
   String _currentEmail = 'current@email.com';
   int _currentWeight = 85;
   //int _currentHeight = 190;
@@ -25,6 +26,7 @@ class _ProfileState extends State<Profile> {
   @override
   Widget build(BuildContext context) {
     final user = Provider.of<UserClass>(context);
+    final AuthService _auth = AuthService();
 
     return StreamBuilder<UserData>(
         stream: DatabaseService(uid: user.uid).userData,
@@ -61,12 +63,13 @@ class _ProfileState extends State<Profile> {
                       subtitle: userData.email,
                       onPressed: (BuildContext context) {
                         Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => Change(
-                                      toChange: "email",
-                                      current: _currentEmail,
-                                    )));
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => Change(
+                                    toChange: "email",
+                                    current: userData.email,
+                                  )),
+                        );
                       },
                     ),
                   ],
@@ -96,7 +99,7 @@ class _ProfileState extends State<Profile> {
                             MaterialPageRoute(
                                 builder: (context) => Change(
                                       toChange: "weight",
-                                      current: _currentWeight,
+                                      current: userData.weight,
                                     )));
                       },
                     ),
@@ -114,7 +117,18 @@ class _ProfileState extends State<Profile> {
                     ),
                     SettingsTile(
                       title: 'Delete account',
-                      onPressed: (BuildContext context) {},
+                      onPressed: (BuildContext context) async {
+                        bool result = await showDialog(
+                            context: context, builder: (_) => DeleteAccount());
+                        if (result) {
+                          await DatabaseService(uid: user.uid).removeDir();
+                          _auth.deleteAccount();
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => Wrapper()));
+                        } else {}
+                      },
                     ),
                   ],
                 ),
@@ -140,6 +154,9 @@ class _ProfileState extends State<Profile> {
                 ),
               ],
             );
+          } else if (snapshot.hasError) {
+            print(snapshot.error);
+            return Loading();
           } else {
             return Loading();
           }

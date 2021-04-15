@@ -53,7 +53,7 @@ class _GraphicalInterfaceState extends State<GraphicalInterface> {
       DateTime now = DateTime.now();
       double rand = (10 + random.nextInt(15)).toDouble();
       for (int i = 0; i < n; i++) {
-        list.add(GlucoseData(now.subtract(Duration(hours: i)), rand));
+        list.add(GlucoseData(now.subtract(Duration(minutes: 5 * i)), rand));
         rand = ((rand - 2) + random.nextInt(5)).toDouble();
       }
       alreadyRandom = true;
@@ -70,7 +70,7 @@ class _GraphicalInterfaceState extends State<GraphicalInterface> {
           if (!snapshot.hasData) {
             return Loading();
           }
-          list = _createRandomData(100);
+          list = _createRandomData(1000);
 
           List imageData = snapshot.data;
           List idList = imageData.map((e) => e.id).toList();
@@ -87,6 +87,9 @@ class _GraphicalInterfaceState extends State<GraphicalInterface> {
                 return element.time.millisecondsSinceEpoch == item['date'];
               }
               return false;
+            }, orElse: () {
+              return GlucoseData(
+                  DateTime.fromMillisecondsSinceEpoch(item['date']), 10.0);
             });
           }
 
@@ -103,14 +106,13 @@ class _GraphicalInterfaceState extends State<GraphicalInterface> {
                       onPointTapped: (PointTapArgs args) {
                         //print(args.dataPoints.first.y);
                         if (args.dataPoints.length == imageData.length) {
-                          var image = imageData[args.pointIndex];
+                          var meal = imageData[args.pointIndex];
                           update(new MealData(
-                              image['note'],
-                              DateTime.fromMillisecondsSinceEpoch(
-                                  image['date']),
-                              image['imageRef'],
-                              image['docId'],
-                              image['localPath']));
+                              meal['note'],
+                              DateTime.fromMillisecondsSinceEpoch(meal['date']),
+                              meal['imageRef'],
+                              meal['docId'],
+                              meal['localPath']));
                         }
                       },
                       onMarkerRender: (markerArgs) {

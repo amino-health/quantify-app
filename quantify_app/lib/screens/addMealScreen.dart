@@ -2,7 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:quantify_app/models/userClass.dart';
-import 'package:quantify_app/screens/homeScreen.dart';
 import 'package:quantify_app/screens/homeSkeleton.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
@@ -11,24 +10,56 @@ import 'dart:io' show Platform;
 import 'package:quantify_app/services/database.dart';
 
 class AddMealScreen extends StatefulWidget {
-  AddMealScreen({Key key}) : super(key: key);
-
+  final _image;
+  final _date;
+  final _time;
+  final _note;
+  final _imageUrl;
+  final _edit;
+  final _docId;
+  AddMealScreen({Key key})
+      : _image = null,
+        _date = new DateTime.now(),
+        _time = TimeOfDay.now(),
+        _note = "",
+        _imageUrl = null,
+        _edit = false,
+        _docId = null,
+        super(key: key);
+  AddMealScreen.edit(image, date, time, note, url, edit, docId)
+      : this._image = image,
+        this._date = date,
+        this._time = time,
+        this._note = note,
+        this._imageUrl = url,
+        this._edit = edit,
+        this._docId = docId;
   @override
-  _AddMealScreenState createState() => _AddMealScreenState();
+  _AddMealScreenState createState() => _AddMealScreenState(
+      _image, _date, _time, _note, _imageUrl, _edit, _docId);
 }
 
 class _AddMealScreenState extends State<AddMealScreen> {
+  _AddMealScreenState(this._image, this._date, this._time, this._note,
+      this._imageUrl, this._edit, this._docId);
   FocusNode myFocusNode = FocusNode();
-
   final textController = TextEditingController();
-
   File _image;
-  DateTime _date = new DateTime.now();
-  TimeOfDay _time = TimeOfDay.now();
-
+  DateTime _date;
+  TimeOfDay _time;
+  String _note;
+  String _imageUrl;
+  bool _edit = false;
+  String _docId;
+  bool _imageChanged = false;
   final DateTime today = DateTime.now();
   DateTime _timeStamp;
-  String _note = "";
+  @override
+  void initState() {
+    super.initState();
+    textController.text = _note;
+  }
+
   @override
   void dispose() {
     myFocusNode.dispose();
@@ -45,7 +76,14 @@ class _AddMealScreenState extends State<AddMealScreen> {
       _isIos = false;
     }
     final user = Provider.of<UserClass>(context);
-
+    var displayImage;
+    if (_image != null) {
+      displayImage = DecorationImage(image: FileImage(_image));
+    } else if (_imageUrl != null) {
+      displayImage = DecorationImage(image: NetworkImage(_imageUrl));
+    } else {
+      displayImage = null;
+    }
     return StreamBuilder<UserClass>(
         stream: null,
         builder: (context, snapshot) {
@@ -56,9 +94,7 @@ class _AddMealScreenState extends State<AddMealScreen> {
               width: MediaQuery.of(context).size.height * 0.4,
               decoration: BoxDecoration(
                   color: _image == null ? Colors.grey : Color(0x00000000),
-                  image: _image != null
-                      ? DecorationImage(image: FileImage(_image))
-                      : null),
+                  image: displayImage),
             ),
             Padding(
               //This padding contains the gallery and camera buttons.
@@ -101,6 +137,9 @@ class _AddMealScreenState extends State<AddMealScreen> {
                 focusNode: myFocusNode,
                 controller: textController,
                 maxLines: null,
+                onSubmitted: (value) {
+                  textController.text = value;
+                },
                 keyboardType: TextInputType.text,
                 maxLength: 128,
                 decoration: InputDecoration(
@@ -306,7 +345,7 @@ class _AddMealScreenState extends State<AddMealScreen> {
                   child: Padding(
                     padding: const EdgeInsets.only(
                         left: 45.0, right: 45.0, top: 12.0, bottom: 12.0),
-                    child: (Text('Add meal',
+                    child: (Text(_edit ? "Edit" : 'Add meal',
                         style: TextStyle(
                             fontFamily: 'Roboto-Medium', fontSize: 16.0))),
                   ),
@@ -338,6 +377,7 @@ class _AddMealScreenState extends State<AddMealScreen> {
       croppedFile = await _cropImage(image);
       setState(() {
         _image = croppedFile;
+        _imageChanged = true;
       });
     }
   }
@@ -351,6 +391,7 @@ class _AddMealScreenState extends State<AddMealScreen> {
       croppedFile = await _cropImage(image);
       setState(() {
         _image = croppedFile;
+        _imageChanged = true;
       });
     }
   }
@@ -432,11 +473,14 @@ class _AddMealScreenState extends State<AddMealScreen> {
   _uploadMealAndNavigate(user) {
     _timeStamp =
         DateTime(_date.year, _date.month, _date.day, _time.hour, _time.minute);
-    DatabaseService(uid: user.uid).uploadImage(_image, _timeStamp, _note);
-    Navigator.pop(context);
-    Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (context) => HomeScreen()),
-        (Route<dynamic> route) => false);
+    if (_edit) {
+      DatabaseService(uid: user.uid)
+          .editMeal(_docId, _image, _timeStamp, _note, _imageChanged);
+    } else {
+      DatabaseService(uid: user.uid).uploadImage(_image, _timeStamp, _note);
+    }
+    while (Navigator.canPop(context)) {
+      Navigator.pop(context, _edit);
+    }
   }
 }
