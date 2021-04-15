@@ -1,17 +1,19 @@
-class Training {
+class TrainingDiary {
   final String uid;
-  Training({this.uid});
+  TrainingDiary({this.uid});
 }
 
-class TrainingData {
+class TrainingDiaryData {
   String trainingid;
   String name;
   String description;
   DateTime date;
+
   Duration duration;
+
   int intensity;
 
-  TrainingData({
+  TrainingDiaryData({
     this.trainingid,
     this.name,
     this.description,

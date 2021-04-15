@@ -1,12 +1,23 @@
 //import 'package:dio/dio.dart';
+import 'dart:io';
+
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:quantify_app/screens/DiaryDetailsScreen.dart';
+import 'package:intl/intl.dart';
+import 'package:quantify_app/loading.dart';
+import 'package:quantify_app/screens/diaryDetailsScreen.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:provider/provider.dart';
+import 'package:quantify_app/models/userClass.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:quantify_app/services/database.dart';
+import 'package:quantify_app/models/mealData.dart';
 
 //import 'package:flutter_svg/flutter_svg.dart';
 
 class DiaryScreen extends StatefulWidget {
-  DiaryScreen({Key key});
+  DiaryScreen({ValueKey key});
 
   @override
   _DiaryScreenState createState() => _DiaryScreenState();
@@ -41,51 +52,27 @@ class _DiaryScreenState extends State<DiaryScreen> {
     'intensity'
   ];
 
-  void _removeItem(Key dismissKey) {
-    setState(() {});
-
-    for (int j = 0; j < diaryList.length; j++) {
-      print(diaryList[j].key.hashCode.toString().toLowerCase());
-      print(diaryList.hashCode.toString().toLowerCase());
-      if (diaryList[j].key.hashCode == (dismissKey.hashCode)) {
-        print('List before $diaryList');
-        diaryList.remove(diaryList[j]);
-        print('List after $diaryList');
-        print('removed item with key $j from data source');
-      }
-    } //Todo remove Activityitem from database
-  }
-
-  Key _generateKey() {
-    int topKeyIndex = 0;
-
-    for (int j = 0; j < diaryList.length; j++) {
-      String keyval = diaryList[j]
-          .key
-          .toString()
-          .substring(3, diaryList[j].key.toString().length - 3);
-      int compareVal = int.parse(keyval);
-      if (topKeyIndex <= compareVal) {
-        topKeyIndex = compareVal + 1;
-      }
-    }
-    print('generated key is $topKeyIndex');
-    return Key(topKeyIndex.toString());
-  }
-
-  //activityData is list with String title, String subtitle, String, date, String intesity
-  void addItem(context, activityData) {
+  void _removeActivity(ValueKey dismissKey) {
     setState(() {
-      Key newkey = _generateKey();
-      diaryList.add(diaryItem(context, activityData[0], activityData[1],
-          activityData[2], activityData[3], newkey));
-
-      // }
+      final user = Provider.of<UserClass>(context, listen: false);
+      DatabaseService(uid: user.uid).removeDiaryItem(dismissKey.value);
     });
   }
 
-  diaryItem(BuildContext context, String name, String _subtitle, String date,
-      String intensity, Key newKey) {
+  void _removeMeal(MealData mealToRemove) {
+    print(mealToRemove.localPath);
+    print(mealToRemove.mealImageUrl);
+    final user = Provider.of<UserClass>(context, listen: false);
+    DatabaseService(uid: user.uid).removeMeal(mealToRemove);
+
+    setState(() {
+      diaryList
+          .removeWhere((item) => item.key.toString() == mealToRemove.docId);
+    });
+  }
+
+  activityItem(BuildContext context, String name, String _subtitle, int date,
+      int duration, String intensity, ValueKey newKey) {
     return Padding(
       key: newKey,
       padding: const EdgeInsets.only(top: 8.0),
@@ -119,7 +106,11 @@ class _DiaryScreenState extends State<DiaryScreen> {
                               Container(child: Icon(Icons.access_time_sharp)),
                               FittedBox(
                                   fit: BoxFit.fitWidth,
-                                  child: Text(date, textAlign: TextAlign.left)),
+                                  child: Text(
+                                      DateFormat('EEE, M/d/y\nHH:mm').format(
+                                          DateTime.fromMillisecondsSinceEpoch(
+                                              date)),
+                                      textAlign: TextAlign.left)),
                             ],
                           ),
                           FittedBox(
@@ -136,7 +127,16 @@ class _DiaryScreenState extends State<DiaryScreen> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => DiaryDetailsScreen()),
+                        builder: (context) => DiaryDetailsScreen(
+                            titlevalue: name,
+                            subtitle: _subtitle,
+                            dateTime: date,
+                            duration: duration,
+                            isIos: false,
+                            localPath: 'activity',
+                            imgRef: 'activity',
+
+                            intensity: intensity)),
                   );
                 })),
         secondaryActions: <Widget>[
@@ -144,11 +144,163 @@ class _DiaryScreenState extends State<DiaryScreen> {
             caption: 'Delete',
             color: Colors.red,
             icon: Icons.delete,
-            onTap: () => _removeItem(newKey),
+            onTap: () => _removeActivity(newKey),
           ),
         ],
       ),
     );
+  }
+
+  mealItem(BuildContext context, int date, String imageRef, String localPath,
+      String note, ValueKey newKey) {
+    bool _isIos;
+    try {
+      _isIos = Platform.isIOS || Platform.isMacOS;
+    } catch (e) {
+      _isIos = false;
+    }
+    return Padding(
+      key: newKey,
+      padding: const EdgeInsets.only(top: 8.0),
+      child: Slidable(
+        actionPane: SlidableDrawerActionPane(),
+        actionExtentRatio: 0.25,
+        child: Container(
+            color: Colors.white,
+            child: ListTile(
+                leading: Container(
+                    child: FittedBox(
+                        fit: BoxFit.fitWidth,
+                        child:
+                            displayImage(context, _isIos, localPath, imageRef)),
+                    height: MediaQuery.of(context).size.height * 0.125,
+                    width: MediaQuery.of(context).size.width * 0.125),
+                title: Text('Meal'),
+                subtitle: Row(
+                  children: [
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.only(bottom: 20.0, right: 10),
+                        child: Text(
+                          note,
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 2,
+                        ),
+                      ),
+                      flex: 5,
+                    ),
+                    Expanded(
+                      child: Column(
+                        children: [
+                          Row(
+                            children: [
+                              Container(child: Icon(Icons.access_time_sharp)),
+                              FittedBox(
+                                  fit: BoxFit.fitWidth,
+                                  child: Text(
+                                      DateFormat('EEE, M/d/y\nHH:mm').format(
+                                          DateTime.fromMillisecondsSinceEpoch(
+                                              date)),
+                                      textAlign: TextAlign.left)),
+                            ],
+                          ),
+                          FittedBox(
+                              fit: BoxFit.fitWidth,
+                              child: TextButton(
+                                  onPressed: () {}, child: Text('Show Graph')))
+                        ],
+                      ),
+                      flex: 5,
+                    )
+                  ],
+                ),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => DiaryDetailsScreen(
+
+                              titlevalue: 'meal',
+                              subtitle: note,
+                              dateTime: date,
+                              duration: 0,
+                              intensity: '',
+                              isIos: _isIos,
+                              localPath: localPath,
+                              imgRef: imageRef,
+                            )),
+
+                  );
+                })),
+        secondaryActions: <Widget>[
+          IconSlideAction(
+            caption: 'Delete',
+            color: Colors.red,
+            icon: Icons.delete,
+
+            onTap: () => _removeMeal(new MealData(
+                note,
+                DateTime.fromMillisecondsSinceEpoch(date),
+                imageRef,
+                newKey.value,
+                localPath)),
+
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget displayImage(
+      BuildContext context, bool _isIos, String localPath, String imgRef) {
+    if (localPath != null) {
+      try {
+        return Image.file(File(localPath));
+      } catch (e) {}
+    }
+    return imgRef != null
+        ? CachedNetworkImage(
+            progressIndicatorBuilder: (context, url, downProg) =>
+                CircularProgressIndicator(value: downProg.progress),
+            imageUrl: imgRef,
+            errorWidget: (context, url, error) => Icon(_isIos
+                ? CupertinoIcons.exclamationmark_triangle_fill
+                : Icons.error),
+          )
+        : Container(
+            child: Icon(
+              Icons.image_not_supported,
+            ),
+          );
+  }
+
+  void structureData(context, databaseData) {
+    print('databasedata is $databaseData');
+    diaryList.clear();
+
+    databaseData
+        .sort((b, a) => a['date'].toString().compareTo(b['date'].toString()));
+
+    for (DocumentSnapshot entry in databaseData) {
+      //ValueKey newkey = _generateKey();
+
+      try {
+        entry.get('intensity');
+        diaryList.add(
+          activityItem(
+              context,
+              entry['name'],
+              entry['description'],
+              entry['date'],
+              entry['duration'],
+              entry['intensity'],
+              ValueKey(entry.id)),
+        );
+      } catch (e) {
+        diaryList.add(mealItem(context, entry['date'], entry['imageRef'],
+            entry['localPath'], entry['note'], ValueKey(entry.id)));
+      }
+    }
   }
 
   customScrollview(BuildContext context) {
@@ -163,18 +315,27 @@ class _DiaryScreenState extends State<DiaryScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (diaryList.isEmpty) {
-      addItem(context, testList);
-      addItem(context, testList);
-      addItem(context, testList);
-      addItem(context, testList);
-    }
+    final user = Provider.of<UserClass>(context, listen: false);
 
-    return Center(
-        child: Column(
-      children: [
-        customScrollview(context),
-      ],
-    ));
+    return StreamBuilder(
+        stream: DatabaseService(uid: user.uid).userDiary,
+        builder: (context, snapshot) {
+          if (snapshot.data != null) {
+            List documents = snapshot.data.toList();
+            documents = documents.expand((i) => i).toList();
+
+            structureData(context, documents);
+          } else {
+            print('No training data found for user');
+            Loading();
+          }
+
+          return Center(
+              child: Column(
+            children: [
+              customScrollview(context),
+            ],
+          ));
+        });
   }
 }

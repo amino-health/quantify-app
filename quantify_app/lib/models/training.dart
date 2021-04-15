@@ -7,7 +7,7 @@ class TrainingData {
   String trainingid;
   String name;
   String description;
-  String date;
+  DateTime date;
   int intensity;
   int listtype;
   bool inHistory;

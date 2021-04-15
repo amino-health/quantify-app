@@ -140,7 +140,7 @@ class _AddActivityScreenState extends State<AddActivityScreen>
                       ),
                     ),
                     onPressed: () async {
-                      List<String> activityData = await showDialog(
+                      List<Object> activityData = await showDialog(
                           context: context,
                           builder: (_) => ActivityPopup(
                               keyval: '',
@@ -185,7 +185,7 @@ class _AddActivityScreenState extends State<AddActivityScreen>
           }
           if (j == 1 && j == _selectedIndex) {
             print(' J == 1');
-            myActivityList.remove(myActivityList[i][2]);
+            myActivityList.remove(myActivityList[i][1]);
             DatabaseService(uid: user.uid).removeActivity(dismissKey.value);
           } else if (j == 2 && j == _selectedIndex) {
             print(' J == 2');
@@ -235,7 +235,7 @@ class _AddActivityScreenState extends State<AddActivityScreen>
                 subtitle: Text(_subtitle),
                 isThreeLine: false,
                 onTap: () async {
-                  List<String> activityData = await showDialog(
+                  List<Object> activityData = await showDialog(
                       context: context,
                       builder: (_) => ActivityPopup(
                           keyval: newKey.value.toString(),
@@ -261,10 +261,9 @@ class _AddActivityScreenState extends State<AddActivityScreen>
     List<dynamic> activityList = <dynamic>[];
     List<Widget> filteredActivityList = <Widget>[];
     if (_selectedIndex == 0) {
-      historyActivityList.sort((b, a) => a[2].compareTo(b[2]));
+      historyActivityList
+          .sort((b, a) => a[2].toString().compareTo(b[2].toString()));
       activityList = historyActivityList;
-
-      print(historyActivityList);
     }
     if (_selectedIndex == 1) {
       activityList = myActivityList;
@@ -295,15 +294,24 @@ class _AddActivityScreenState extends State<AddActivityScreen>
 
   //Is called whenever a user presses Done in add activity view
   Future addActivity(context, activityData) async {
+    setState(() {});
     final user = Provider.of<UserClass>(context, listen: false);
     await DatabaseService(uid: user.uid).updateTrainingData(
-        ((int.parse(activityData[4])).toString()),
-        activityData[0],
-        activityData[1],
-        activityData[2],
-        activityData[3],
+        ((int.parse(activityData[5])).toString()),
+        activityData[0], //name
+        activityData[1], //description
+        activityData[2], //date
+        activityData[4], //Intensity
         _selectedIndex + 1,
         true);
+    await DatabaseService(uid: user.uid).createTrainingDiaryData(
+      _generateKey(),
+      activityData[0], //name
+      activityData[1], //description
+      activityData[2], //date
+      activityData[3], //duration
+      activityData[4], //Intensity
+    );
   }
 
   /*
@@ -318,8 +326,6 @@ class _AddActivityScreenState extends State<AddActivityScreen>
     allActivityList.clear();
     for (DocumentSnapshot entry in databaseData) {
       if (entry['inHistory']) {
-        //1 = MyHistoryData
-
         historyActivityList.insert(0, [
           activityItem(context, entry['name'], entry['description'],
               ValueKey(entry['trainingid'])),
@@ -328,7 +334,7 @@ class _AddActivityScreenState extends State<AddActivityScreen>
         ]);
       }
       if (entry['listtype'] == 2) {
-        //1 = MyactivityData
+        //2 = MyactivityData
 
         myActivityList.insert(0, [
           activityItem(context, entry['name'], entry['description'],
@@ -349,15 +355,14 @@ class _AddActivityScreenState extends State<AddActivityScreen>
 
   void addItem(context, activityData) async {
     setState(() {});
-    print('TRYING TO UPDATE');
-    print(activityData);
+
     final user = Provider.of<UserClass>(context, listen: false);
     await DatabaseService(uid: user.uid).createTrainingData(
         (int.parse(_generateKey())).toString(),
-        activityData[0],
-        activityData[1],
-        activityData[2],
-        activityData[3],
+        activityData[0], //name
+        activityData[1], //desc
+        activityData[2], //date
+        activityData[4], //intensity
         2,
         true);
   }
