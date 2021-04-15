@@ -7,8 +7,13 @@ import 'package:path/path.dart' as Path;
 import 'package:quantify_app/models/training.dart';
 import 'package:quantify_app/models/activityDiary.dart';
 import 'package:quantify_app/models/userClass.dart';
+
 import 'package:quantify_app/models/mealData.dart';
 import 'package:async/async.dart';
+
+import 'package:quantify_app/screens/homeScreen.dart';
+import 'package:stream_transform/stream_transform.dart';
+
 
 //refrence
 //
@@ -112,8 +117,6 @@ class DatabaseService {
   }
 
 
-
-
   Future<void> removeMeal(MealData mealData) async {
     if (mealData.mealImageUrl != null) {
       firebase_storage.Reference storageRef = firebase_storage
@@ -130,7 +133,6 @@ class DatabaseService {
         .collection('mealData')
         .doc(mealData.docId)
         .delete();
-
   }
 
   Future<DocumentSnapshot> get userRegistered async {
@@ -183,7 +185,8 @@ class DatabaseService {
         .snapshots()
         .map(_userActivityFromSnapshot);
 
-    return StreamZip([activityData, mealData]);
+    return activityData.combineLatestAll([mealData]);
+
   }
 
   final CollectionReference trainingData =
@@ -322,3 +325,9 @@ class DatabaseService {
   }
 }
 
+class CombinedData {
+  final List to;
+  final List from;
+
+  CombinedData(this.to, this.from);
+}

@@ -1,5 +1,4 @@
 //import 'package:dio/dio.dart';
-
 import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
@@ -136,6 +135,7 @@ class _DiaryScreenState extends State<DiaryScreen> {
                             isIos: false,
                             localPath: 'activity',
                             imgRef: 'activity',
+
                             intensity: intensity)),
                   );
                 })),
@@ -219,6 +219,7 @@ class _DiaryScreenState extends State<DiaryScreen> {
                     context,
                     MaterialPageRoute(
                         builder: (context) => DiaryDetailsScreen(
+
                               titlevalue: 'meal',
                               subtitle: note,
                               dateTime: date,
@@ -228,6 +229,7 @@ class _DiaryScreenState extends State<DiaryScreen> {
                               localPath: localPath,
                               imgRef: imageRef,
                             )),
+
                   );
                 })),
         secondaryActions: <Widget>[
@@ -235,12 +237,14 @@ class _DiaryScreenState extends State<DiaryScreen> {
             caption: 'Delete',
             color: Colors.red,
             icon: Icons.delete,
+
             onTap: () => _removeMeal(new MealData(
                 note,
                 DateTime.fromMillisecondsSinceEpoch(date),
                 imageRef,
                 newKey.value,
                 localPath)),
+
           ),
         ],
       ),
@@ -271,6 +275,7 @@ class _DiaryScreenState extends State<DiaryScreen> {
   }
 
   void structureData(context, databaseData) {
+    print('databasedata is $databaseData');
     diaryList.clear();
 
     databaseData

@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:quantify_app/loading.dart';
+import 'package:quantify_app/models/activityDiary.dart';
 import 'package:quantify_app/models/userClass.dart';
 //import 'package:quantify_app/screens/homeScreen.dart';
 import 'package:quantify_app/services/database.dart';
@@ -18,7 +19,7 @@ import 'package:quantify_app/models/mealData.dart';
 //import 'package:bezier_chart/bezier_chart.dart';
 
 class GraphicalInterface extends StatefulWidget {
-  final ValueChanged<MealData> update;
+  final ValueChanged update;
   GraphicalInterface({this.update});
   //GraphicalInterface({Key key});
 
@@ -32,7 +33,7 @@ class _GraphicalInterfaceState extends State<GraphicalInterface> {
   DateTime today = DateTime.now();
   TooltipBehavior _tooltipBehavior;
   bool alreadyRandom = false;
-  final ValueChanged<MealData> update;
+  final ValueChanged<List<dynamic>> update;
   _GraphicalInterfaceState({this.update});
   @override
   void initState() {
@@ -45,42 +46,58 @@ class _GraphicalInterfaceState extends State<GraphicalInterface> {
         canShowMarker: false);
   }
 
-  var list = <GlucoseData>[];
+  var tempGluclist = <GlucoseData>[];
 
   _createRandomData(int n) {
     if (!alreadyRandom) {
       final random = new Random();
       DateTime now = DateTime.now();
-      double rand = (10 + random.nextInt(15)).toDouble();
+      double rand = (2 + random.nextInt(5)).toDouble();
       for (int i = 0; i < n; i++) {
-        list.add(GlucoseData(now.subtract(Duration(minutes: 5 * i)), rand));
-        rand = ((rand - 2) + random.nextInt(5)).toDouble();
+        tempGluclist
+            .add(GlucoseData(now.subtract(Duration(minutes: 5 * i)), rand));
+        if (rand < 4) {
+          rand += random.nextInt(2).toDouble();
+        } else if (rand > 10) {
+          rand -= random.nextInt(2).toDouble();
+        } else {
+          rand = (rand - 2) + random.nextInt(5).toDouble();
+        }
       }
       alreadyRandom = true;
     }
-    return list;
+    return tempGluclist;
   }
 
+  DateTime visMin = DateTime.now().subtract(Duration(hours: 8));
+  DateTime visMax = DateTime.now();
   @override
   Widget build(BuildContext context) {
     final user = Provider.of<UserClass>(context);
     return StreamBuilder(
-        stream: DatabaseService(uid: user.uid).userMeals,
+        stream: DatabaseService(uid: user.uid).userDiary,
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
             return Loading();
           }
-          list = _createRandomData(1000);
+          tempGluclist = _createRandomData(1000);
+          List graphData = snapshot.data;
+          List imageData = graphData[1];
+          List activityData = graphData[0];
 
-          List imageData = snapshot.data;
-          List idList = imageData.map((e) => e.id).toList();
-          imageData = imageData.map((e) => e.data()).toList();
-          int i = 0;
-          for (var item in imageData) {
-            item['docId'] = idList[i];
-            i++;
+          imageData = imageData.map((e) {
+            var data = e.data();
+            data['docId'] = e.id;
+            return data;
+          }).toList();
 
-            item['gluc'] = list.firstWhere((element) {
+          activityData = activityData.map((e) {
+            var data = e.data();
+            data['docId'] = e.id;
+            return data;
+          }).toList();
+          for (var item in imageData + activityData) {
+            item['gluc'] = tempGluclist.firstWhere((element) {
               if (element.time != null &&
                   element.time.millisecondsSinceEpoch < item['date']) {
                 item['date'] = element.time.millisecondsSinceEpoch;
@@ -92,83 +109,129 @@ class _GraphicalInterfaceState extends State<GraphicalInterface> {
                   DateTime.fromMillisecondsSinceEpoch(item['date']), 10.0);
             });
           }
-
+          GlobalKey titleKey = new GlobalKey();
           return Scaffold(
             body: Center(
-                child: Container(
-                    height: MediaQuery.of(context).size.height * 0.45,
-                    child: SfCartesianChart(
-                      tooltipBehavior: _tooltipBehavior,
-                      onActualRangeChanged: (ActualRangeChangedArgs args) {
-                        if (args.orientation == AxisOrientation.horizontal) {}
-                      },
-                      zoomPanBehavior: _zoomPanBehavior,
-                      onPointTapped: (PointTapArgs args) {
-                        //print(args.dataPoints.first.y);
-                        if (args.dataPoints.length == imageData.length) {
-                          var meal = imageData[args.pointIndex];
-                          update(new MealData(
+              child: Container(
+                  child: Column(
+                children: [
+                  StatefulBuilder(
+                      key: titleKey,
+                      builder: (BuildContext context, setStateTitle) {
+                        return Container(
+                          child: Text(
+                            DateFormat('d MMM: HH:mm').format(visMin) +
+                                " - " +
+                                DateFormat('HH:mm').format(visMax),
+                          ),
+                        );
+                      }),
+                  SfCartesianChart(
+                    tooltipBehavior: _tooltipBehavior,
+                    zoomPanBehavior: _zoomPanBehavior,
+                    onPointTapped: (PointTapArgs args) {
+                      if (args.seriesIndex == 1) {
+                        var meal = imageData[args.pointIndex];
+                        update([
+                          new MealData(
                               meal['note'],
                               DateTime.fromMillisecondsSinceEpoch(meal['date']),
                               meal['imageRef'],
                               meal['docId'],
-                              meal['localPath']));
-                        }
-                      },
-                      onMarkerRender: (markerArgs) {
-                        markerArgs.color = Colors.red;
-                      },
-                      primaryYAxis: NumericAxis(
-                          title: AxisTitle(
-                              text: "mmol/L",
-                              alignment: ChartAlignment.center,
-                              textStyle: TextStyle(fontSize: 12))),
-                      // Initialize category axis
-                      primaryXAxis: DateTimeAxis(
-                          autoScrollingDelta: 8,
-                          autoScrollingDeltaType: DateTimeIntervalType.hours
-                          //isInversed: true,
-                          //maximumLabels: 8,
-                          ),
-                      title: ChartTitle(
-                          text: DateFormat('EEEE, d MMM').format(today)),
+                              meal['localPath']),
+                          false
+                        ]);
+                      } else if (args.seriesIndex == 2) {
+                        var activity = activityData[args.pointIndex];
+                        update([
+                          new TrainingDiaryData(
+                              trainingid: activity['docId'],
+                              name: activity['name'],
+                              description: activity['description'],
+                              date: DateTime.fromMillisecondsSinceEpoch(
+                                  activity['date']),
+                              duration:
+                                  Duration(milliseconds: activity['duration']),
+                              intensity: int.parse(activity['intensity'])),
+                          true
+                        ]);
+                      }
+                    },
+                    onActualRangeChanged: (ActualRangeChangedArgs args) {
+                      if (args.orientation == AxisOrientation.horizontal) {
+                        Future.delayed(Duration.zero, () {
+                          titleKey.currentState.setState(() {
+                            visMin = DateTime.fromMillisecondsSinceEpoch(
+                                args.visibleMin);
+                            visMax = DateTime.fromMillisecondsSinceEpoch(
+                                args.visibleMax);
+                          });
+                        });
+                      }
+                    },
+                    primaryYAxis: NumericAxis(
+                        title: AxisTitle(
+                            text: "mmol/L",
+                            alignment: ChartAlignment.center,
+                            textStyle: TextStyle(fontSize: 12))),
+                    // Initialize category axis
+                    primaryXAxis: DateTimeAxis(
+                      autoScrollingDelta: 8,
+                      autoScrollingDeltaType: DateTimeIntervalType.hours,
+                    ),
 
-                      series: <ChartSeries>[
-                        LineSeries<GlucoseData, DateTime>(
-                            enableTooltip: true,
-                            // Bind data source
-                            dataSource: list,
-                            xValueMapper: (GlucoseData glucose, _) =>
-                                glucose.time,
-                            yValueMapper: (GlucoseData glucose, _) =>
-                                glucose.glucoseVal,
-                            markerSettings: MarkerSettings(
-                                isVisible: false,
-                                shape: DataMarkerType.diamond)),
-                        ScatterSeries(
-                            enableTooltip: true,
-                            dataSource: imageData,
-                            xValueMapper: (x, _) =>
-                                DateTime.fromMillisecondsSinceEpoch(x['date']),
-                            yValueMapper: (x, _) => x['gluc'].glucoseVal,
-                            markerSettings: MarkerSettings(
-                                color: Colors.red,
-                                borderColor: Colors.red,
-                                height: 20.0,
-                                width: 20.0,
-                                isVisible: false,
-                                shape: DataMarkerType.diamond)),
-                      ],
-                    ))),
+                    series: <ChartSeries>[
+                      LineSeries<GlucoseData, DateTime>(
+                          enableTooltip: true,
+
+                          // Bind data source
+                          dataSource: tempGluclist,
+                          xValueMapper: (GlucoseData glucose, _) =>
+                              glucose.time,
+                          yValueMapper: (GlucoseData glucose, _) =>
+                              glucose.glucoseVal,
+                          markerSettings: MarkerSettings(
+                              isVisible: false, shape: DataMarkerType.diamond)),
+                      ScatterSeries(
+                          color: Colors.red,
+                          enableTooltip: true,
+                          dataSource: imageData,
+                          xValueMapper: (x, _) =>
+                              DateTime.fromMillisecondsSinceEpoch(x['date']),
+                          yValueMapper: (x, _) => x['gluc'].glucoseVal,
+                          markerSettings: MarkerSettings(
+                              height: 25.0,
+                              width: 25.0,
+                              shape: DataMarkerType.circle)),
+                      ScatterSeries(
+                        color: Colors.blue,
+                        enableTooltip: true,
+                        dataSource: activityData,
+                        xValueMapper: (x, _) =>
+                            DateTime.fromMillisecondsSinceEpoch(x['date']),
+                        yValueMapper: (x, _) => x['gluc'].glucoseVal,
+                        markerSettings: MarkerSettings(
+                            height: 25.0,
+                            width: 25.0,
+                            shape: DataMarkerType.circle),
+                      )
+                    ],
+                  ),
+                ],
+              )),
+            ),
             floatingActionButtonLocation:
                 FloatingActionButtonLocation.endDocked,
             floatingActionButton: Align(
-              alignment: Alignment(1, 0.7),
+              alignment: Alignment.topRight,
+              //alignment: Alignment(1, 0.7),
               child: FloatingActionButton(
                 heroTag: "toStartButton",
                 backgroundColor: Color(0xff99163d),
                 onPressed: () {
-                  setState(() {});
+                  setState(() {
+                    visMax = DateTime.now();
+                  });
                 },
                 child: Icon(Icons.arrow_forward),
               ),
