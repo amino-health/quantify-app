@@ -5,7 +5,6 @@ import 'package:quantify_app/models/userClass.dart';
 import 'package:quantify_app/screens/authenticate/authenticate.dart';
 import 'package:quantify_app/screens/homeScreen.dart';
 import 'package:quantify_app/screens/userInfoScreen.dart';
-//import 'package:quantify_app/screens/welcomeScreen.dart';
 import 'package:quantify_app/services/database.dart';
 
 import 'tos.dart';

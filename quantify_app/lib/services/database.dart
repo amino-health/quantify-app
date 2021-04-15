@@ -9,9 +9,7 @@ import 'package:quantify_app/models/activityDiary.dart';
 import 'package:quantify_app/models/userClass.dart';
 
 import 'package:quantify_app/models/mealData.dart';
-//import 'package:async/async.dart';
 
-//import 'package:quantify_app/screens/homeScreen.dart';
 import 'package:stream_transform/stream_transform.dart';
 
 //refrence
@@ -278,6 +276,7 @@ class DatabaseService {
       'intensity': intensity,
     });
   }
+
 
   Future<void> updateTrainingDiaryData(
     String trainingid,
