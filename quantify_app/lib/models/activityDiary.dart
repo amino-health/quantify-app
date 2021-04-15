@@ -7,8 +7,8 @@ class TrainingDiaryData {
   String trainingid;
   String name;
   String description;
-  String date;
-  String duration;
+  DateTime date;
+  Duration duration;
   int intensity;
 
   TrainingDiaryData({

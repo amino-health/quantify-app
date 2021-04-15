@@ -1,5 +1,12 @@
 //import 'package:dio/dio.dart';
+import 'dart:io';
+
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:quantify_app/loading.dart';
+import 'package:quantify_app/screens/diaryDetailsScreen.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:provider/provider.dart';
 import 'package:quantify_app/models/userClass.dart';
@@ -90,8 +97,8 @@ class _DiaryScreenState extends State<DiaryScreen> {
     // }
   }*/
 
-  diaryItem(BuildContext context, String name, String _subtitle, String date,
-      String duration, String intensity, ValueKey newKey) {
+  activityItem(BuildContext context, String name, String _subtitle, int date,
+      int duration, String intensity, ValueKey newKey) {
     return Padding(
       key: newKey,
       padding: const EdgeInsets.only(top: 8.0),
@@ -126,10 +133,9 @@ class _DiaryScreenState extends State<DiaryScreen> {
                               FittedBox(
                                   fit: BoxFit.fitWidth,
                                   child: Text(
-                                      (date.substring(0, 10) +
-                                              '\n' +
-                                              date.substring(11, date.length))
-                                          .toString(),
+                                      DateFormat('EEE, M/d/y\nHH:mm').format(
+                                          DateTime.fromMillisecondsSinceEpoch(
+                                              date)),
                                       textAlign: TextAlign.left)),
                             ],
                           ),
@@ -150,11 +156,10 @@ class _DiaryScreenState extends State<DiaryScreen> {
                         builder: (context) => DiaryDetailsScreen(
                             titlevalue: name,
                             subtitle: _subtitle,
-                            dateTime: (date.substring(0, 10) +
-                                    '\n' +
-                                    date.substring(11, date.length))
-                                .toString(),
-                            duration: duration,
+                            dateTime: DateFormat('EEE, M/d/y\nHH:mm').format(
+                                DateTime.fromMillisecondsSinceEpoch(date)),
+                            duration:
+                                Duration(milliseconds: duration).toString(),
                             intensity: intensity)),
                   );
                 })),
@@ -170,17 +175,143 @@ class _DiaryScreenState extends State<DiaryScreen> {
     );
   }
 
+  mealItem(BuildContext context, int date, String imageRef, String localPath,
+      String note, ValueKey newKey) {
+    bool _isIos;
+    try {
+      _isIos = Platform.isIOS || Platform.isMacOS;
+    } catch (e) {
+      _isIos = false;
+    }
+    return Padding(
+      key: newKey,
+      padding: const EdgeInsets.only(top: 8.0),
+      child: Slidable(
+        actionPane: SlidableDrawerActionPane(),
+        actionExtentRatio: 0.25,
+        child: Container(
+            color: Colors.white,
+            child: ListTile(
+                leading: Container(
+                    child: FittedBox(
+                        fit: BoxFit.fitWidth,
+                        child:
+                            displayImage(context, _isIos, localPath, imageRef)),
+                    height: MediaQuery.of(context).size.height * 0.125,
+                    width: MediaQuery.of(context).size.width * 0.125),
+                title: Text('Meal'),
+                subtitle: Row(
+                  children: [
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.only(bottom: 20.0, right: 10),
+                        child: Text(
+                          note,
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 2,
+                        ),
+                      ),
+                      flex: 5,
+                    ),
+                    Expanded(
+                      child: Column(
+                        children: [
+                          Row(
+                            children: [
+                              Container(child: Icon(Icons.access_time_sharp)),
+                              FittedBox(
+                                  fit: BoxFit.fitWidth,
+                                  child: Text(
+                                      DateFormat('EEE, M/d/y\nHH:mm').format(
+                                          DateTime.fromMillisecondsSinceEpoch(
+                                              date)),
+                                      textAlign: TextAlign.left)),
+                            ],
+                          ),
+                          FittedBox(
+                              fit: BoxFit.fitWidth,
+                              child: TextButton(
+                                  onPressed: () {}, child: Text('Show Graph')))
+                        ],
+                      ),
+                      flex: 5,
+                    )
+                  ],
+                ),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => DiaryDetailsScreen(
+                            titlevalue: 'meal',
+                            subtitle: note,
+                            dateTime: DateFormat('EEE, M/d/y\nHH:mm').format(
+                                DateTime.fromMillisecondsSinceEpoch(date)),
+                            duration: 'placeholder',
+                            intensity: 'placeholder')),
+                  );
+                })),
+        secondaryActions: <Widget>[
+          IconSlideAction(
+            caption: 'Delete',
+            color: Colors.red,
+            icon: Icons.delete,
+            onTap: () => _removeItem(newKey),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget displayImage(
+      BuildContext context, bool _isIos, String localPath, String imgRef) {
+    if (localPath != null) {
+      try {
+        return Image.file(File(localPath));
+      } catch (e) {}
+    }
+    return imgRef != null
+        ? CachedNetworkImage(
+            progressIndicatorBuilder: (context, url, downProg) =>
+                CircularProgressIndicator(value: downProg.progress),
+            imageUrl: imgRef,
+            errorWidget: (context, url, error) => Icon(_isIos
+                ? CupertinoIcons.exclamationmark_triangle_fill
+                : Icons.error),
+          )
+        : Container(
+            child: Icon(
+              Icons.image_not_supported,
+            ),
+          );
+  }
+
   void structureData(context, databaseData) {
+    print('databasedata is $databaseData');
     diaryList.clear();
+
+    databaseData
+        .sort((b, a) => a['date'].toString().compareTo(b['date'].toString()));
+    print(databaseData);
     for (DocumentSnapshot entry in databaseData) {
       //ValueKey newkey = _generateKey();
-      String date = entry['date'];
-      date = date.substring(0, date.length - 7);
-      //String duration = entry['duration'].substring(0, entry['duration'].length() - 6);
-      diaryList.add(
-        diaryItem(context, entry['name'], entry['description'], date,
-            entry['duration'], entry['intensity'], ValueKey(entry.id)),
-      );
+
+      try {
+        entry.get('intensity');
+        diaryList.add(
+          activityItem(
+              context,
+              entry['name'],
+              entry['description'],
+              entry['date'],
+              entry['duration'],
+              entry['intensity'],
+              ValueKey(entry.id)),
+        );
+      } catch (e) {
+        diaryList.add(mealItem(context, entry['date'], entry['imageRef'],
+            entry['localPath'], entry['note'], ValueKey(entry.id)));
+      }
     }
   }
 
@@ -198,26 +329,22 @@ class _DiaryScreenState extends State<DiaryScreen> {
   Widget build(BuildContext context) {
     final user = Provider.of<UserClass>(context, listen: false);
 
-    return FutureBuilder<QuerySnapshot>(
-        future: FirebaseFirestore.instance
-            .collection('userData')
-            .doc(user.uid)
-            .collection('trainingDiary')
-            .get(),
+    return StreamBuilder(
+        stream: DatabaseService(uid: user.uid).userDiary,
         builder: (context, snapshot) {
           if (snapshot.data != null) {
-            final List<DocumentSnapshot> documents = snapshot.data.docs;
+            List documents = snapshot.data.toList();
+            documents = documents.expand((i) => i).toList();
+            //snapshot.data.forEach((snap) {
+            //print('snap is ${snap.get('date')}');
+            //});
+
             print(documents);
             structureData(context, documents);
           } else {
             print('No training data found for user');
+            Loading();
           }
-          /* if (diaryList.isEmpty) {
-            addItem(context, testList);
-            addItem(context, testList);
-            addItem(context, testList);
-            addItem(context, testList);
-          }*/
 
           return Center(
               child: Column(

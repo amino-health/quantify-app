@@ -115,10 +115,10 @@ class AuthService {
           email: email, password: password);
       User user = result.user; //Grab user from
       //skapar nytt dokument kopplat till spesifikt user with this uid
-      await DatabaseService(uid: user.uid)
-          .updateUserData(user.uid, user.email, true, '0', '0', '0', false, '');
-      await DatabaseService(uid: user.uid)
-          .createTrainingData('0', 'Running', 'Sprint', '', '', 3, false);
+      await DatabaseService(uid: user.uid).updateUserData(
+          user.uid, user.email, true, '0', '0', '0', false, "male");
+      await DatabaseService(uid: user.uid).createTrainingData(
+          '0', 'Running', 'Sprint', DateTime.now(), '', 3, false);
     } catch (error) {
       print('HEJ');
       print(error.toString());
