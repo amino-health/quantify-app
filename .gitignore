@@ -17,7 +17,7 @@ Created 2 years ago • Report abuse
 Standardised gitignore for your Flutter apps & Dart projects
 .gitignore
 ### Flutter Generated
-
+quantify_app/lib/generated_plugin_registrant.dart
 # Miscellaneous
 *.class
 *.lock

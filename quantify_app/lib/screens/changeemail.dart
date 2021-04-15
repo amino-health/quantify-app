@@ -1,12 +1,11 @@
 import 'package:email_validator/email_validator.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:quantify_app/loading.dart';
 import 'package:quantify_app/models/userClass.dart';
 import 'package:quantify_app/screens/authenticate/register.dart';
-import 'package:quantify_app/screens/profileScreen.dart';
 import 'package:quantify_app/services/auth.dart';
+
 import 'package:quantify_app/services/database.dart';
 
 class ChangeEmail extends StatefulWidget {
@@ -123,6 +122,16 @@ class _ChangeEmailState extends State<ChangeEmail> {
                                     newEmail: newemail,
                                   );
                                   if (working) {
+                                    await DatabaseService(uid: user.uid)
+                                        .updateUserData(
+                                            userData.uid,
+                                            newemail,
+                                            userData.newuser,
+                                            userData.age,
+                                            userData.weight,
+                                            userData.height,
+                                            userData.consent,
+                                            userData.gender);
                                     print('Sucess');
                                   } else {
                                     print('Fail');

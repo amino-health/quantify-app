@@ -5,8 +5,15 @@ import 'package:firebase_storage/firebase_storage.dart'
     as firebase_storage; // For File Upload To Firestore
 import 'package:path/path.dart' as Path;
 import 'package:quantify_app/models/training.dart';
-
+import 'package:quantify_app/models/activityDiary.dart';
 import 'package:quantify_app/models/userClass.dart';
+
+import 'package:quantify_app/models/mealData.dart';
+import 'package:async/async.dart';
+
+import 'package:quantify_app/screens/homeScreen.dart';
+import 'package:stream_transform/stream_transform.dart';
+
 
 //refrence
 //
@@ -20,15 +27,24 @@ class DatabaseService {
       FirebaseFirestore.instance.collection('userData'); //collection of info
 
   Future<void> uploadImage(File imageFile, DateTime date, String note) async {
-    String fileName = Path.basename(imageFile.path).substring(14);
-    firebase_storage.Reference storageRef = firebase_storage
-        .FirebaseStorage.instance
-        .ref()
-        .child('images/users/' + uid + '/mealImages/' + fileName);
-    firebase_storage.UploadTask uploadTask = storageRef.putFile(imageFile);
-    await uploadTask.whenComplete(() => null);
-    await userInfo.doc(uid).collection('mealData').doc().set({
-      'imageRef': 'images/users/' + uid + 'mealImages/' + fileName,
+    String downloadURL;
+    DocumentReference doc = userInfo.doc(uid).collection('mealData').doc();
+    if (imageFile != null) {
+      String fileName = Path.basename(imageFile.path).substring(14);
+      firebase_storage.Reference storageRef = firebase_storage
+          .FirebaseStorage.instance
+          .ref()
+          .child('images/users/' + uid + '/mealImages/' + fileName);
+      firebase_storage.UploadTask uploadTask = storageRef.putFile(imageFile);
+      uploadTask.whenComplete(() async {
+        downloadURL = await storageRef.getDownloadURL();
+        await doc.update({'imageRef': downloadURL});
+
+      });
+    }
+    await doc.set({
+      'imageRef': downloadURL,
+      'localPath': imageFile != null ? imageFile.path : null,
       'note': note,
       'date': date.millisecondsSinceEpoch
     });
@@ -56,6 +72,40 @@ class DatabaseService {
     });
   }
 
+  Future<void> editMeal(
+      docId, newImage, DateTime newDate, newNote, imageChanged) async {
+    String downloadURL;
+    if (imageChanged && newImage != null) {
+      DocumentSnapshot mealDoc =
+          await userInfo.doc(uid).collection('mealData').doc(docId).get();
+      String url = mealDoc.get('imageRef');
+
+      if (url != null) {
+        firebase_storage.Reference storageRef =
+            firebase_storage.FirebaseStorage.instance.refFromURL(url);
+        await storageRef.delete().catchError((error) => print(error));
+      }
+      DocumentReference doc =
+          userInfo.doc(uid).collection('mealData').doc(docId);
+      String fileName = Path.basename(newImage.path).substring(14);
+      firebase_storage.Reference storageRef = firebase_storage
+          .FirebaseStorage.instance
+          .ref()
+          .child('images/users/' + uid + '/mealImages/' + fileName);
+      firebase_storage.UploadTask uploadTask = storageRef.putFile(newImage);
+      uploadTask.whenComplete(() async {
+        downloadURL = await storageRef.getDownloadURL();
+        await doc.update({'imageRef': downloadURL});
+      });
+    }
+    await userInfo.doc(uid).collection('mealData').doc(docId).update({
+      'imageRef': downloadURL,
+      'localPath': newImage != null ? newImage.path : null,
+      'note': newNote,
+      'date': newDate.millisecondsSinceEpoch
+    });
+  }
+
   Future<void> updateUserProfile(
       String birth, String weight, String height, String gender) async {
     return await userInfo.doc(uid).set({
@@ -66,10 +116,23 @@ class DatabaseService {
     });
   }
 
-  Future<void> updateUserweight(String weight) async {
-    return await userInfo.doc(uid).set({
-      'weight': weight,
-    });
+
+  Future<void> removeMeal(MealData mealData) async {
+    if (mealData.mealImageUrl != null) {
+      firebase_storage.Reference storageRef = firebase_storage
+          .FirebaseStorage.instance
+          .ref()
+          .storage
+          .refFromURL(mealData.mealImageUrl);
+      print(storageRef);
+      print(mealData.mealImageUrl);
+      await storageRef.delete().catchError((error) => print(error));
+    }
+    return await userInfo
+        .doc(uid)
+        .collection('mealData')
+        .doc(mealData.docId)
+        .delete();
   }
 
   Future updateEmail(String email) async {
@@ -93,18 +156,54 @@ class DatabaseService {
         gender: snapshot.get('gender'));
   }
 
+  List _userMealsFromSnapshot(QuerySnapshot snapshot) {
+    return snapshot.docs.toList();
+  }
+
+  // get user doc stream
   Stream<UserData> get userData {
     return userInfo.doc(uid).snapshots().map(_userDataFromSnapshot);
+  }
+
+  Stream get userMeals {
+    return userInfo
+        .doc(uid)
+        .collection('mealData')
+        .snapshots()
+        .map(_userMealsFromSnapshot);
+  }
+
+  List _userActivityFromSnapshot(QuerySnapshot snapshot) {
+    return snapshot.docs.toList();
+  }
+
+  Stream get userDiary {
+    Stream mealData = userInfo
+        .doc(uid)
+        .collection('mealData')
+        .snapshots()
+        .map(_userMealsFromSnapshot);
+    Stream activityData = userInfo
+        .doc(uid)
+        .collection('trainingDiary')
+        .snapshots()
+        .map(_userActivityFromSnapshot);
+
+    return activityData.combineLatestAll([mealData]);
+
   }
 
   final CollectionReference trainingData =
       FirebaseFirestore.instance.collection('training');
 
+  final CollectionReference trainingDiaryData =
+      FirebaseFirestore.instance.collection('activityDiary');
+
   Future<void> createTrainingData(
       String trainingid,
       String name,
       String description,
-      String date,
+      DateTime date,
       String intensity,
       int listtype,
       bool inHistory) async {
@@ -112,7 +211,7 @@ class DatabaseService {
       'trainingid': trainingid,
       'name': name,
       'description': description,
-      'date': date,
+      'date': date.millisecondsSinceEpoch,
       'intensity': intensity,
       'listtype': listtype,
       'inHistory': inHistory,
@@ -123,7 +222,7 @@ class DatabaseService {
       String trainingid,
       String name,
       String description,
-      String date,
+      DateTime date,
       String intensity,
       int listtype,
       bool inHistory) async {
@@ -133,7 +232,7 @@ class DatabaseService {
         .doc(trainingid)
         .update({
       'trainingid': trainingid,
-      'date': date,
+      'date': date.millisecondsSinceEpoch,
       'inHistory': inHistory,
     });
   }
@@ -159,33 +258,80 @@ class DatabaseService {
         intensity: snapshot.get('date'),
         listtype: snapshot.get('listtype'));
   }
-}
 
-/*
-FirebaseFirestore.instance.collection
-  List<TrainingData> _trainingListFromSnapshot(QuerySnapshot snapshot) {
-    return snapshot.docs.map((trainingid) {
-      return TrainingData(
-          trainingid: trainingid.get('trainingid') ?? '',
-          name: trainingid.get('name') ?? '',
-          description: trainingid.get('description') ?? '',
-          date: trainingid.get('date') ?? '',
-          intensity: trainingid.get('intensity') ?? '');
-    }).toList();
+  Stream<TrainingDiaryData> get activityDiaryDatasave {
+    return userInfo.doc(uid).snapshots().map(_activityDiaryDataFromSnapshot);
+  }
+
+  TrainingDiaryData _activityDiaryDataFromSnapshot(DocumentSnapshot snapshot) {
+    return TrainingDiaryData(
+        trainingid: snapshot.get('trainingid'),
+        name: snapshot.get('name'),
+        description: snapshot.get('description'),
+        date: snapshot.get('date'),
+        duration: snapshot.get('duration'),
+        intensity: snapshot.get('intensity'));
+  }
+  //String key = firebase_storage.FirebaseStorage.instance.ref().child('users').child().push().getKey();
+
+  Future<void> createTrainingDiaryData(
+    String trainingid,
+    String name,
+    String description,
+    DateTime date,
+    Duration duration,
+    String intensity,
+  ) async {
+    return await userInfo.doc(uid).collection('trainingDiary').doc().set({
+      'name': name,
+      'description': description,
+      'date': date.millisecondsSinceEpoch,
+      'duration': duration.inMilliseconds,
+      'intensity': intensity,
+    });
   }
   
+  Future<void> removeDir({String ref = ""}) async {
+    print("Hello: " + ref);
+    firebase_storage.ListResult result;
+    if (ref == "") {
+      result = await firebase_storage.FirebaseStorage.instance
+          .ref('images/users/' + uid)
+          .listAll();
+    } else {
+      result = await firebase_storage.FirebaseStorage.instance
+          .ref()
+          .child(ref)
+          .listAll();
+    }
 
-  Stream<List<TrainingData>> get trainings {
-    return userInfo.snapshots().map(_trainingListFromSnapshot);
+    result.items.forEach((firebase_storage.Reference ref) async {
+      print('Found file: ${ref.fullPath}');
+      await firebase_storage.FirebaseStorage.instance
+          .ref()
+          .child(ref.fullPath)
+          .delete();
+    });
+
+    result.prefixes.forEach((firebase_storage.Reference ref) async {
+      await removeDir(ref: ref.fullPath);
+    });
+    print("endddd");
   }
 
-  // get user doc stream
-  Stream<UserData> get userData {
-    return userInfo.doc(uid).snapshots().map(_userDataFromSnapshot);
-  }
 
-  Future<DocumentSnapshot> get userRegistered async {
-    return userInfo.doc(uid).get();
+  Future<void> removeDiaryItem(String diaryid) async {
+    return await userInfo
+        .doc(uid)
+        .collection('trainingDiary')
+        .doc(diaryid)
+        .delete();
   }
 }
-*/
+
+class CombinedData {
+  final List to;
+  final List from;
+
+  CombinedData(this.to, this.from);
+}
