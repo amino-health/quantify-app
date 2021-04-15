@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:quantify_app/loading.dart';
 import 'package:quantify_app/models/userClass.dart';
-import 'package:quantify_app/screens/ActivityFormScreen.dart';
+//import 'package:quantify_app/screens/ActivityFormScreen.dart';
 import 'package:quantify_app/screens/change.dart';
 import 'package:quantify_app/screens/deleteAccount.dart';
 import 'package:quantify_app/screens/tos.dart';
@@ -19,8 +19,8 @@ class Profile extends StatefulWidget {
 }
 
 class _ProfileState extends State<Profile> {
-  String _currentEmail = 'current@email.com';
-  int _currentWeight = 85;
+  //String _currentEmail = 'current@email.com';
+  //int _currentWeight = 85;
   //int _currentHeight = 190;
 
   @override

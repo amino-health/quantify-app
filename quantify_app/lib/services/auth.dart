@@ -4,7 +4,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:quantify_app/models/userClass.dart';
 import 'package:quantify_app/services/database.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
-import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
+//import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -118,9 +118,8 @@ class AuthService {
 
       await DatabaseService(uid: user.uid).updateUserData(
           user.uid, user.email, true, '0', '0', '0', false, "male");
-      await DatabaseService(uid: user.uid).createTrainingData(
-          '0', 'Running', 'Sprint', DateTime.now(), '', 3, false);
-
+      await DatabaseService(uid: user.uid)
+          .createTrainingData('Running', 'Sprint', DateTime.now(), 0, 3, false);
     } catch (error) {
       print('HEJ');
       print(error.toString());

@@ -9,11 +9,10 @@ import 'package:quantify_app/models/activityDiary.dart';
 import 'package:quantify_app/models/userClass.dart';
 
 import 'package:quantify_app/models/mealData.dart';
-import 'package:async/async.dart';
+//import 'package:async/async.dart';
 
-import 'package:quantify_app/screens/homeScreen.dart';
+//import 'package:quantify_app/screens/homeScreen.dart';
 import 'package:stream_transform/stream_transform.dart';
-
 
 //refrence
 //
@@ -39,7 +38,6 @@ class DatabaseService {
       uploadTask.whenComplete(() async {
         downloadURL = await storageRef.getDownloadURL();
         await doc.update({'imageRef': downloadURL});
-
       });
     }
     await doc.set({
@@ -116,7 +114,6 @@ class DatabaseService {
     });
   }
 
-
   Future<void> removeMeal(MealData mealData) async {
     if (mealData.mealImageUrl != null) {
       firebase_storage.Reference storageRef = firebase_storage
@@ -186,7 +183,6 @@ class DatabaseService {
         .map(_userActivityFromSnapshot);
 
     return activityData.combineLatestAll([mealData]);
-
   }
 
   final CollectionReference trainingData =
@@ -195,16 +191,9 @@ class DatabaseService {
   final CollectionReference trainingDiaryData =
       FirebaseFirestore.instance.collection('activityDiary');
 
-  Future<void> createTrainingData(
-      String trainingid,
-      String name,
-      String description,
-      DateTime date,
-      String intensity,
-      int listtype,
-      bool inHistory) async {
-    return await userInfo.doc(uid).collection('training').doc(trainingid).set({
-      'trainingid': trainingid,
+  Future<void> createTrainingData(String name, String description,
+      DateTime date, int intensity, int listtype, bool inHistory) async {
+    return await userInfo.doc(uid).collection('training').doc().set({
       'name': name,
       'description': description,
       'date': date.millisecondsSinceEpoch,
@@ -219,7 +208,7 @@ class DatabaseService {
       String name,
       String description,
       DateTime date,
-      String intensity,
+      int intensity,
       int listtype,
       bool inHistory) async {
     return await userInfo
@@ -271,12 +260,11 @@ class DatabaseService {
   //String key = firebase_storage.FirebaseStorage.instance.ref().child('users').child().push().getKey();
 
   Future<void> createTrainingDiaryData(
-    String trainingid,
     String name,
     String description,
     DateTime date,
     Duration duration,
-    String intensity,
+    int intensity,
   ) async {
     return await userInfo.doc(uid).collection('trainingDiary').doc().set({
       'name': name,
@@ -286,7 +274,29 @@ class DatabaseService {
       'intensity': intensity,
     });
   }
-  
+
+  Future<void> updateTrainingDiaryData(
+    String trainingid,
+    String name,
+    String description,
+    DateTime date,
+    Duration duration,
+    int intensity,
+  ) async {
+    return await userInfo
+        .doc(uid)
+        .collection('trainingDiary')
+        .doc(trainingid)
+        .update({
+      'trainingid': trainingid,
+      'date': date.millisecondsSinceEpoch,
+      'duration': duration.inMilliseconds,
+      'name': name,
+      'description': description,
+      'intensity': intensity,
+    });
+  }
+
   Future<void> removeDir({String ref = ""}) async {
     print("Hello: " + ref);
     firebase_storage.ListResult result;
@@ -314,7 +324,6 @@ class DatabaseService {
     });
     print("endddd");
   }
-
 
   Future<void> removeDiaryItem(String diaryid) async {
     return await userInfo

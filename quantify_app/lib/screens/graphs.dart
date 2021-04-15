@@ -152,7 +152,7 @@ class _GraphicalInterfaceState extends State<GraphicalInterface> {
                                   activity['date']),
                               duration:
                                   Duration(milliseconds: activity['duration']),
-                              intensity: int.parse(activity['intensity'])),
+                              intensity: (activity['intensity'])),
                           true
                         ]);
                       }

@@ -4,13 +4,13 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-
 //import 'package:quantify_app/loading.dart';
 import 'package:quantify_app/models/userClass.dart';
+import 'package:quantify_app/screens/ActivityFormScreen.dart';
 import 'package:quantify_app/screens/diaryScreen.dart';
 //import 'package:quantify_app/screens/diaryScreen.dart';
 
-import 'package:quantify_app/models/userClass.dart';
+//import 'package:quantify_app/models/userClass.dart';
 import 'package:quantify_app/screens/addMealScreen.dart';
 
 //import 'package:flutter_svg/flutter_svg.dart';
@@ -30,7 +30,6 @@ import 'package:quantify_app/models/mealData.dart';
 
 import 'diaryScreen.dart';
 
-
 class HomeScreen extends StatefulWidget {
   HomeScreen({Key key}) : super(key: key);
 
@@ -38,9 +37,7 @@ class HomeScreen extends StatefulWidget {
   _HomeScreenState createState() => _HomeScreenState();
 }
 
-
-GlobalKey mealKey = new GlobalKey();
-
+GlobalKey overviewKey = new GlobalKey();
 
 class _HomeScreenState extends State<HomeScreen>
     with SingleTickerProviderStateMixin {
@@ -123,7 +120,7 @@ class _HomeScreenState extends State<HomeScreen>
         });
   }
 
-  edit({@required bool isMeal}) {
+  Future<void> edit({@required bool isMeal}) async {
     if (isMeal) {
       File file;
       if (_mealData.localPath != null) {
@@ -143,7 +140,25 @@ class _HomeScreenState extends State<HomeScreen>
                   true,
                   _mealData.docId)));
     } else {
-      print("TODO");
+      List activityData = await showDialog(
+          context: context,
+          builder: (_) => ActivityPopup(
+              keyRef: _trainingData.trainingid,
+              isAdd: true,
+              titlevalue: _trainingData.name,
+              subtitle: _trainingData.description,
+              date: _trainingData.date,
+              duration: _trainingData.duration.inMilliseconds,
+              intensity: _trainingData.intensity));
+      final user = Provider.of<UserClass>(context, listen: false);
+      await DatabaseService(uid: user.uid).updateTrainingDiaryData(
+        activityData[5], //ID
+        activityData[0], //name
+        activityData[1], //description
+        activityData[2], //date
+        activityData[3], //duration
+        activityData[4], //Intensity
+      );
     }
   }
 
