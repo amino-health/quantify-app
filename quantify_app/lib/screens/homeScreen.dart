@@ -3,9 +3,21 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:quantify_app/models/activityDiary.dart';
+
+
+//import 'package:quantify_app/loading.dart';
+import 'package:quantify_app/models/userClass.dart';
+import 'package:quantify_app/screens/diaryScreen.dart';
+//import 'package:quantify_app/screens/diaryScreen.dart';
+
 import 'package:quantify_app/models/userClass.dart';
 import 'package:quantify_app/screens/addMealScreen.dart';
+
+//import 'package:flutter_svg/flutter_svg.dart';
+//import 'package:quantify_app/screens/firstScanScreen.dart';
+
+import 'package:quantify_app/models/activityDiary.dart';
+
 import 'package:quantify_app/screens/graphs.dart';
 import 'package:quantify_app/screens/homeSkeleton.dart';
 import 'package:intl/intl.dart';
@@ -13,7 +25,11 @@ import 'package:quantify_app/screens/profileScreen.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:quantify_app/services/database.dart';
+
+import 'package:quantify_app/models/mealData.dart';
+
 import 'diaryScreen.dart';
+
 
 class HomeScreen extends StatefulWidget {
   HomeScreen({Key key}) : super(key: key);
@@ -22,17 +38,9 @@ class HomeScreen extends StatefulWidget {
   _HomeScreenState createState() => _HomeScreenState();
 }
 
-class MealData {
-  MealData(this.mealDescription, this.mealDate, this.mealImageUrl, this.docId,
-      this.localPath);
-  String mealDescription = "";
-  DateTime mealDate;
-  String mealImageUrl;
-  String docId;
-  String localPath;
-}
 
-GlobalKey overviewKey = new GlobalKey();
+GlobalKey mealKey = new GlobalKey();
+
 
 class _HomeScreenState extends State<HomeScreen>
     with SingleTickerProviderStateMixin {

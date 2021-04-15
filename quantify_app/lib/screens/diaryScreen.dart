@@ -12,6 +12,8 @@ import 'package:provider/provider.dart';
 import 'package:quantify_app/models/userClass.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:quantify_app/services/database.dart';
+import 'package:quantify_app/models/mealData.dart';
+
 //import 'package:flutter_svg/flutter_svg.dart';
 
 class DiaryScreen extends StatefulWidget {
@@ -50,52 +52,24 @@ class _DiaryScreenState extends State<DiaryScreen> {
     'intensity'
   ];
 
-  void _removeItem(ValueKey dismissKey) {
+  void _removeActivity(ValueKey dismissKey) {
     setState(() {
       final user = Provider.of<UserClass>(context, listen: false);
       DatabaseService(uid: user.uid).removeDiaryItem(dismissKey.value);
     });
-/*
-    for (int j = 0; j < diaryList.length; j++) {
-      
-     
-      if (diaryList[j].key == (dismissKey.value)) {
-        print('List before $diaryList');
-        diaryList.remove(diaryList[j]);
-        print('List after $diaryList');
-        print('removed item with key $j from data source');
-      }
-    } //Todo remove Activityitem from database
-    */
   }
-/*
-  ValueKey _generateKey() {
-    int topKeyIndex = 0;
 
-    for (int j = 0; j < diaryList.length; j++) {
-      String keyval = diaryList[j]
-          .key
-          .toString()
-          .substring(3, diaryList[j].key.toString().length - 3);
-      int compareVal = int.parse(keyval);
-      if (topKeyIndex <= compareVal) {
-        topKeyIndex = compareVal + 1;
-      }
-    }
-    print('generated key is $topKeyIndex');
-    return Key(topKeyIndex.toString());
+  void _removeMeal(MealData mealToRemove) {
+    print(mealToRemove.localPath);
+    print(mealToRemove.mealImageUrl);
+    final user = Provider.of<UserClass>(context, listen: false);
+    DatabaseService(uid: user.uid).removeMeal(mealToRemove);
+
+    setState(() {
+      diaryList
+          .removeWhere((item) => item.key.toString() == mealToRemove.docId);
+    });
   }
-*/
-  //activityData is list with String title, String subtitle, String, date, String intesity
-  /*void addItem(context, activityData) {
-    List<Widget> diaryList = [];
-
-    ValueKey newkey = _generateKey();
-    diaryList.add(diaryItem(context, activityData[0], activityData[1],
-        activityData[2], activityData[3], newkey));
-
-    // }
-  }*/
 
   activityItem(BuildContext context, String name, String _subtitle, int date,
       int duration, String intensity, ValueKey newKey) {
@@ -156,10 +130,12 @@ class _DiaryScreenState extends State<DiaryScreen> {
                         builder: (context) => DiaryDetailsScreen(
                             titlevalue: name,
                             subtitle: _subtitle,
-                            dateTime: DateFormat('EEE, M/d/y\nHH:mm').format(
-                                DateTime.fromMillisecondsSinceEpoch(date)),
-                            duration:
-                                Duration(milliseconds: duration).toString(),
+                            dateTime: date,
+                            duration: duration,
+                            isIos: false,
+                            localPath: 'activity',
+                            imgRef: 'activity',
+
                             intensity: intensity)),
                   );
                 })),
@@ -168,7 +144,7 @@ class _DiaryScreenState extends State<DiaryScreen> {
             caption: 'Delete',
             color: Colors.red,
             icon: Icons.delete,
-            onTap: () => _removeItem(newKey),
+            onTap: () => _removeActivity(newKey),
           ),
         ],
       ),
@@ -243,12 +219,17 @@ class _DiaryScreenState extends State<DiaryScreen> {
                     context,
                     MaterialPageRoute(
                         builder: (context) => DiaryDetailsScreen(
-                            titlevalue: 'meal',
-                            subtitle: note,
-                            dateTime: DateFormat('EEE, M/d/y\nHH:mm').format(
-                                DateTime.fromMillisecondsSinceEpoch(date)),
-                            duration: 'placeholder',
-                            intensity: 'placeholder')),
+
+                              titlevalue: 'meal',
+                              subtitle: note,
+                              dateTime: date,
+                              duration: 0,
+                              intensity: '',
+                              isIos: _isIos,
+                              localPath: localPath,
+                              imgRef: imageRef,
+                            )),
+
                   );
                 })),
         secondaryActions: <Widget>[
@@ -256,7 +237,14 @@ class _DiaryScreenState extends State<DiaryScreen> {
             caption: 'Delete',
             color: Colors.red,
             icon: Icons.delete,
-            onTap: () => _removeItem(newKey),
+
+            onTap: () => _removeMeal(new MealData(
+                note,
+                DateTime.fromMillisecondsSinceEpoch(date),
+                imageRef,
+                newKey.value,
+                localPath)),
+
           ),
         ],
       ),
@@ -292,7 +280,7 @@ class _DiaryScreenState extends State<DiaryScreen> {
 
     databaseData
         .sort((b, a) => a['date'].toString().compareTo(b['date'].toString()));
-    print(databaseData);
+
     for (DocumentSnapshot entry in databaseData) {
       //ValueKey newkey = _generateKey();
 
@@ -335,11 +323,7 @@ class _DiaryScreenState extends State<DiaryScreen> {
           if (snapshot.data != null) {
             List documents = snapshot.data.toList();
             documents = documents.expand((i) => i).toList();
-            //snapshot.data.forEach((snap) {
-            //print('snap is ${snap.get('date')}');
-            //});
 
-            print(documents);
             structureData(context, documents);
           } else {
             print('No training data found for user');

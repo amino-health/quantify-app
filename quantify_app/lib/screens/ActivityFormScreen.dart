@@ -199,196 +199,200 @@ class _ActivityPopupState extends State<ActivityPopup> {
     selectedTime = this.selectedTime;
     _titlevalidate = this._titlevalidate;
     return AlertDialog(
+        scrollable: true,
         content: SingleChildScrollView(
-      child: Stack(
-        clipBehavior: Clip.hardEdge,
-        children: <Widget>[
-          Positioned(
-            right: -40.0,
-            top: -40.0,
-            child: InkResponse(
-              onTap: () {
-                Navigator.pop(
-                  context,
-                );
-              },
-              child: CircleAvatar(
-                child: Icon(Icons.close),
-                backgroundColor: Colors.red,
-              ),
-            ),
-          ),
-          Form(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child: Text(isAdd ? 'Add activity' : 'Create Activity'),
-                ),
-                Container(
-                  alignment: Alignment.topLeft,
-                  child: Padding(
-                    padding: EdgeInsets.only(top: 14, left: 8, right: 8),
-                    child: Text(
-                      'Activity name',
-                      textAlign: TextAlign.left,
-                      style: TextStyle(),
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child: TextFormField(
-                    //focusNode: isAdd ? AlwaysDisabledFocusNode() : FocusNode(),
-                    decoration: InputDecoration(
-                      errorText:
-                          _titlevalidate ? 'Value Can\'t Be Empty' : null,
-                    ),
-                    controller: _fillController(titlecontroller, titlevalue),
-                  ),
-                ),
-                Container(
-                  alignment: Alignment.bottomLeft,
-                  child: Padding(
-                    padding: EdgeInsets.only(top: 8, left: 8, right: 8),
-                    child: Text(
-                      'Short Description',
-                      textAlign: TextAlign.left,
-                      style: TextStyle(),
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child: TextFormField(
-                    //focusNode: isAdd ? AlwaysDisabledFocusNode() : FocusNode(),
-                    controller:
-                        _fillController(descriptioncontroller, subtitle),
-                  ),
-                ),
-                Container(
-                  alignment: Alignment.topLeft,
-                  child: Padding(
-                    padding: EdgeInsets.only(
-                        top: 20.0, bottom: 8, left: 8, right: 8),
-                    child: Text(
-                      'Start time',
-                      textAlign: TextAlign.left,
-                      style: TextStyle(),
-                    ),
-                  ),
-                ),
-                Container(
-                  child: TextField(
-                    onTap: () {
-                      _selectDate(context);
-                    },
-                    focusNode: AlwaysDisabledFocusNode(),
-                    decoration: InputDecoration(
-                      counterText: "",
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(20)),
-                      ),
-                      labelText: "${selectedDate.toLocal()}".split(' ')[0] +
-                          ' - ' +
-                          "${selectedDate.toLocal()}".split(' ')[1][0] +
-                          "${selectedDate.toLocal()}".split(' ')[1][1] +
-                          "${selectedDate.toLocal()}".split(' ')[1][2] +
-                          "${selectedDate.toLocal()}".split(' ')[1][3] +
-                          "${selectedDate.toLocal()}".split(' ')[1][4],
-                    ),
-                  ),
-                  height: MediaQuery.of(context).size.height * 0.1,
-                  width: MediaQuery.of(context).size.width * 0.5,
-                ),
-                Container(
-                  alignment: Alignment.bottomLeft,
-                  child: Padding(
-                    padding: EdgeInsets.only(bottom: 8, left: 8, right: 8),
-                    child: Text(
-                      'Duration',
-                      textAlign: TextAlign.left,
-                      style: TextStyle(),
-                    ),
-                  ),
-                ),
-                Container(
-                  child: TextField(
-                    onTap: () {
-                      _selectTime(context);
-                    },
-                    focusNode: AlwaysDisabledFocusNode(),
-                    decoration: InputDecoration(
-                      counterText: "",
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(20)),
-                      ),
-                      labelText: selectedTime.toString().substring(0, 4),
-                    ),
-                  ),
-                  height: MediaQuery.of(context).size.height * 0.1,
-                  width: MediaQuery.of(context).size.width * 0.5,
-                ),
-                Container(
-                    child: Slider(
-                  value: _currentSliderValue,
-                  activeColor: Color(0xFF99163D),
-                  inactiveColor: Colors.grey[500],
-                  min: 1,
-                  max: 10,
-                  divisions: 10,
-                  label: _currentSliderValue.round().toString(),
-                  onChanged: (double value) {
-                    setState(() {
-                      _currentSliderValue = value;
-                    });
+          child: Stack(
+            clipBehavior: Clip.hardEdge,
+            children: <Widget>[
+              Positioned(
+                right: -40.0,
+                top: -40.0,
+                child: InkResponse(
+                  onTap: () {
+                    Navigator.pop(
+                      context,
+                    );
                   },
-                )),
-                Padding(
-                  padding:
-                      const EdgeInsets.only(left: 8.0, right: 8, bottom: 8),
-                  child: Container(child: Text('Intensity')),
+                  child: CircleAvatar(
+                    child: Icon(Icons.close),
+                    backgroundColor: Colors.red,
+                  ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: ElevatedButton(
-                    child: Text("Done"),
-                    style: ButtonStyle(
-                      backgroundColor: MaterialStateProperty.resolveWith<Color>(
-                        (Set<MaterialState> states) {
-                          if (states.contains(MaterialState.pressed))
-                            return Color(0xDD99163D);
-                          else
-                            return Color(0xFF99163D);
+              ),
+              Form(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Text(isAdd ? 'Add activity' : 'Create Activity'),
+                    ),
+                    Container(
+                      alignment: Alignment.topLeft,
+                      child: Padding(
+                        padding: EdgeInsets.only(top: 14, left: 8, right: 8),
+                        child: Text(
+                          'Activity name',
+                          textAlign: TextAlign.left,
+                          style: TextStyle(),
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: TextFormField(
+                        //focusNode: isAdd ? AlwaysDisabledFocusNode() : FocusNode(),
+                        decoration: InputDecoration(
+                          errorText:
+                              _titlevalidate ? 'Value Can\'t Be Empty' : null,
+                        ),
+                        controller:
+                            _fillController(titlecontroller, titlevalue),
+                      ),
+                    ),
+                    Container(
+                      alignment: Alignment.bottomLeft,
+                      child: Padding(
+                        padding: EdgeInsets.only(top: 8, left: 8, right: 8),
+                        child: Text(
+                          'Short Description',
+                          textAlign: TextAlign.left,
+                          style: TextStyle(),
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: TextFormField(
+                        //focusNode: isAdd ? AlwaysDisabledFocusNode() : FocusNode(),
+                        controller:
+                            _fillController(descriptioncontroller, subtitle),
+                      ),
+                    ),
+                    Container(
+                      alignment: Alignment.topLeft,
+                      child: Padding(
+                        padding: EdgeInsets.only(
+                            top: 20.0, bottom: 8, left: 8, right: 8),
+                        child: Text(
+                          'Start time',
+                          textAlign: TextAlign.left,
+                          style: TextStyle(),
+                        ),
+                      ),
+                    ),
+                    Container(
+                      child: TextField(
+                        onTap: () {
+                          _selectDate(context);
+                        },
+                        focusNode: AlwaysDisabledFocusNode(),
+                        decoration: InputDecoration(
+                          counterText: "",
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(20)),
+                          ),
+                          labelText: "${selectedDate.toLocal()}".split(' ')[0] +
+                              ' - ' +
+                              "${selectedDate.toLocal()}".split(' ')[1][0] +
+                              "${selectedDate.toLocal()}".split(' ')[1][1] +
+                              "${selectedDate.toLocal()}".split(' ')[1][2] +
+                              "${selectedDate.toLocal()}".split(' ')[1][3] +
+                              "${selectedDate.toLocal()}".split(' ')[1][4],
+                        ),
+                      ),
+                      height: MediaQuery.of(context).size.height * 0.1,
+                      width: MediaQuery.of(context).size.width * 0.5,
+                    ),
+                    Container(
+                      alignment: Alignment.bottomLeft,
+                      child: Padding(
+                        padding: EdgeInsets.only(bottom: 8, left: 8, right: 8),
+                        child: Text(
+                          'Duration',
+                          textAlign: TextAlign.left,
+                          style: TextStyle(),
+                        ),
+                      ),
+                    ),
+                    Container(
+                      child: TextField(
+                        onTap: () {
+                          _selectTime(context);
+                        },
+                        focusNode: AlwaysDisabledFocusNode(),
+                        decoration: InputDecoration(
+                          counterText: "",
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(20)),
+                          ),
+                          labelText: selectedTime.toString().substring(0, 4),
+                        ),
+                      ),
+                      height: MediaQuery.of(context).size.height * 0.1,
+                      width: MediaQuery.of(context).size.width * 0.5,
+                    ),
+                    Container(
+                        child: Slider(
+                      value: _currentSliderValue,
+                      activeColor: Color(0xFF99163D),
+                      inactiveColor: Colors.grey[500],
+                      min: 1,
+                      max: 10,
+                      divisions: 10,
+                      label: _currentSliderValue.round().toString(),
+                      onChanged: (double value) {
+                        setState(() {
+                          _currentSliderValue = value;
+                        });
+                      },
+                    )),
+                    Padding(
+                      padding:
+                          const EdgeInsets.only(left: 8.0, right: 8, bottom: 8),
+                      child: Container(child: Text('Intensity')),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: ElevatedButton(
+                        child: Text("Done"),
+                        style: ButtonStyle(
+                          backgroundColor:
+                              MaterialStateProperty.resolveWith<Color>(
+                            (Set<MaterialState> states) {
+                              if (states.contains(MaterialState.pressed))
+                                return Color(0xDD99163D);
+                              else
+                                return Color(0xFF99163D);
+                            },
+                          ),
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            titlecontroller.text.isEmpty
+                                ? _titlevalidate = true
+                                : _titlevalidate = false;
+                          });
+                          titlecontroller.text.isNotEmpty
+                              ? Navigator.pop(context, [
+                                  titlecontroller.text.toString(),
+                                  descriptioncontroller.text.toString(),
+                                  selectedDate,
+                                  selectedTime,
+                                  _currentSliderValue.round().toString(),
+                                  keyval.toString()
+                                ])
+                              : myVar = 0;
                         },
                       ),
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        titlecontroller.text.isEmpty
-                            ? _titlevalidate = true
-                            : _titlevalidate = false;
-                      });
-                      titlecontroller.text.isNotEmpty
-                          ? Navigator.pop(context, [
-                              titlecontroller.text.toString(),
-                              descriptioncontroller.text.toString(),
-                              selectedDate,
-                              selectedTime,
-                              _currentSliderValue.round().toString(),
-                              keyval.toString()
-                            ])
-                          : myVar = 0;
-                    },
-                  ),
-                )
-              ],
-            ),
+                    )
+                  ],
+                ),
+              ),
+            ],
+
           ),
-        ],
-      ),
-    ));
+        ));
   }
 }
 
