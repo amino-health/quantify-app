@@ -126,106 +126,115 @@ class _GraphicalInterfaceState extends State<GraphicalInterface> {
                           ),
                         );
                       }),
-                  SfCartesianChart(
-                    tooltipBehavior: _tooltipBehavior,
-                    zoomPanBehavior: _zoomPanBehavior,
-                    onPointTapped: (PointTapArgs args) {
-                      if (args.seriesIndex == 1) {
-                        var meal = imageData[args.pointIndex];
-                        update([
-                          new MealData(
-                              meal['note'],
-                              DateTime.fromMillisecondsSinceEpoch(meal['date']),
-                              meal['imageRef'],
-                              meal['docId'],
-                              meal['localPath']),
-                          false
-                        ]);
-                      } else if (args.seriesIndex == 2) {
-                        var activity = activityData[args.pointIndex];
-                        update([
-                          new TrainingDiaryData(
-                              trainingid: activity['docId'],
-                              name: activity['name'],
-                              description: activity['description'],
-                              date: DateTime.fromMillisecondsSinceEpoch(
-                                  activity['date']),
-                              duration:
-                                  Duration(milliseconds: activity['duration']),
-                              intensity: int.parse(activity['intensity'])),
-                          true
-                        ]);
-                      }
-                    },
-                    onActualRangeChanged: (ActualRangeChangedArgs args) {
-                      if (args.orientation == AxisOrientation.horizontal) {
-                        Future.delayed(Duration.zero, () {
-                          titleKey.currentState.setState(() {
-                            visMin = DateTime.fromMillisecondsSinceEpoch(
-                                args.visibleMin);
-                            visMax = DateTime.fromMillisecondsSinceEpoch(
-                                args.visibleMax);
+                  Expanded(
+                    child: SfCartesianChart(
+                      tooltipBehavior: _tooltipBehavior,
+                      zoomPanBehavior: _zoomPanBehavior,
+                      onPointTapped: (PointTapArgs args) {
+                        if (args.seriesIndex == 1) {
+                          var meal = imageData[args.pointIndex];
+                          update([
+                            new MealData(
+                                meal['note'],
+                                DateTime.fromMillisecondsSinceEpoch(
+                                    meal['date']),
+                                meal['imageRef'],
+                                meal['docId'],
+                                meal['localPath']),
+                            false
+                          ]);
+                        } else if (args.seriesIndex == 2) {
+                          var activity = activityData[args.pointIndex];
+                          update([
+                            new TrainingDiaryData(
+                                trainingid: activity['docId'],
+                                name: activity['name'],
+                                description: activity['description'],
+                                date: DateTime.fromMillisecondsSinceEpoch(
+                                    activity['date']),
+                                duration: Duration(
+                                    milliseconds: activity['duration']),
+                                intensity: int.parse(activity['intensity'])),
+                            true
+                          ]);
+                        }
+                      },
+                      onActualRangeChanged: (ActualRangeChangedArgs args) {
+                        if (args.orientation == AxisOrientation.horizontal) {
+                          Future.delayed(Duration.zero, () {
+                            try {
+                              titleKey.currentState.setState(() {
+                                visMin = DateTime.fromMillisecondsSinceEpoch(
+                                    args.visibleMin);
+                                visMax = DateTime.fromMillisecondsSinceEpoch(
+                                    args.visibleMax);
+                              });
+                            } catch (e) {}
                           });
-                        });
-                      }
-                    },
-                    primaryYAxis: NumericAxis(
-                        title: AxisTitle(
-                            text: "mmol/L",
-                            alignment: ChartAlignment.center,
-                            textStyle: TextStyle(fontSize: 12))),
-                    // Initialize category axis
-                    primaryXAxis: DateTimeAxis(
-                      autoScrollingDelta: 8,
-                      autoScrollingDeltaType: DateTimeIntervalType.hours,
-                    ),
+                        }
+                      },
+                      primaryYAxis: NumericAxis(
+                          title: AxisTitle(
+                              text: "mmol/L",
+                              alignment: ChartAlignment.center,
+                              textStyle: TextStyle(fontSize: 12))),
+                      // Initialize category axis
+                      primaryXAxis: DateTimeAxis(
+                        autoScrollingDelta: 8,
+                        autoScrollingDeltaType: DateTimeIntervalType.hours,
+                      ),
 
-                    series: <ChartSeries>[
-                      LineSeries<GlucoseData, DateTime>(
-                          enableTooltip: true,
+                      series: <ChartSeries>[
+                        LineSeries<GlucoseData, DateTime>(
+                            enableTooltip: true,
 
-                          // Bind data source
-                          dataSource: tempGluclist,
-                          xValueMapper: (GlucoseData glucose, _) =>
-                              glucose.time,
-                          yValueMapper: (GlucoseData glucose, _) =>
-                              glucose.glucoseVal,
-                          markerSettings: MarkerSettings(
-                              isVisible: false, shape: DataMarkerType.diamond)),
-                      ScatterSeries(
-                          color: Colors.red,
+                            // Bind data source
+                            dataSource: tempGluclist,
+                            xValueMapper: (GlucoseData glucose, _) =>
+                                glucose.time,
+                            yValueMapper: (GlucoseData glucose, _) =>
+                                glucose.glucoseVal,
+                            markerSettings: MarkerSettings(
+                                isVisible: false,
+                                shape: DataMarkerType.diamond)),
+                        ScatterSeries(
+                            color: Colors.red,
+                            enableTooltip: true,
+                            dataSource: imageData,
+                            xValueMapper: (x, _) =>
+                                DateTime.fromMillisecondsSinceEpoch(x['date']),
+                            yValueMapper: (x, _) => x['gluc'].glucoseVal,
+                            markerSettings: MarkerSettings(
+                                height: 25.0,
+                                width: 25.0,
+                                shape: DataMarkerType.circle)),
+                        ScatterSeries(
+                          color: Colors.blue,
                           enableTooltip: true,
-                          dataSource: imageData,
+                          dataSource: activityData,
                           xValueMapper: (x, _) =>
                               DateTime.fromMillisecondsSinceEpoch(x['date']),
                           yValueMapper: (x, _) => x['gluc'].glucoseVal,
                           markerSettings: MarkerSettings(
                               height: 25.0,
                               width: 25.0,
-                              shape: DataMarkerType.circle)),
-                      ScatterSeries(
-                        color: Colors.blue,
-                        enableTooltip: true,
-                        dataSource: activityData,
-                        xValueMapper: (x, _) =>
-                            DateTime.fromMillisecondsSinceEpoch(x['date']),
-                        yValueMapper: (x, _) => x['gluc'].glucoseVal,
-                        markerSettings: MarkerSettings(
-                            height: 25.0,
-                            width: 25.0,
-                            shape: DataMarkerType.circle),
-                      )
-                    ],
+                              shape: DataMarkerType.circle),
+                        )
+                      ],
+                    ),
                   ),
                 ],
               )),
             ),
             floatingActionButtonLocation:
-                FloatingActionButtonLocation.endDocked,
+                FloatingActionButtonLocation.miniEndFloat,
             floatingActionButton: Align(
-              alignment: Alignment.topRight,
-              //alignment: Alignment(1, 0.7),
+              //alignment: Alignment.bottomRight  ,
+              alignment: Alignment(1, 0.8),
               child: FloatingActionButton(
+                mini: true,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(1))),
                 heroTag: "toStartButton",
                 backgroundColor: Color(0xff99163d),
                 onPressed: () {
