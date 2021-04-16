@@ -14,9 +14,9 @@ class AddSensor extends StatefulWidget {
 }
 
 class _AddSensorState extends State<AddSensor> {
-  NfcTag tag;
   bool _nfc_use_multi_block_read = false;
   int nfcReadTimeout = 1000;
+
   Future<void> addSensor() async {
     bool isAvailable = await NfcManager.instance.isAvailable();
 
@@ -27,9 +27,10 @@ class _AddSensorState extends State<AddSensor> {
           onDiscovered: (tag) async {
             try {
               print("HEEEEEEEEEEEEEEEEEEEEELLOO");
-              await NfcManager.instance.stopSession();
 
-              this.tag = tag;
+              print(tag.data);
+              await handleSensor(tag);
+              await NfcManager.instance.stopSession();
               return;
               //setState(() => _alertMessage = result);
             } catch (e) {
@@ -45,7 +46,7 @@ class _AddSensorState extends State<AddSensor> {
     }
   }
 
-  Future<void> handleSensor() async {
+  Future<void> handleSensor(NfcTag tag) async {
     await addSensor();
     print('done');
     if (tag != null) {
@@ -61,25 +62,39 @@ class _AddSensorState extends State<AddSensor> {
           maxTransceiveLength: maxTransceiveLength);
       print("Trying to read data from tag");
       try {
-        final int step = _nfc_use_multi_block_read ? 3 : 1;
+        final int step = 1; //_nfc_use_multi_block_read ? 3 : 1;
         final int blockSize = 8;
 
         for (int blockIndex = 0; blockIndex <= 40; blockIndex += step) {
           Uint8List data;
-          if (_nfc_use_multi_block_read) {
+          /*if (_nfc_use_multi_block_read) {
             data = Uint8List.fromList(
                 [2, 35, blockIndex, 2]); // multi-block read 3 blocks
           } else {
             data = Uint8List.fromList(
                 [96, 32, 0, 0, 0, 0, 0, 0, 0, 0, blockIndex, 0]);
             List.copyRange(data, 2, identifier, 0);
-          }
+          }*/
 
           Uint8List readData;
           //int startReadingTime = (DateTime.now().millisecondsSinceEpoch);
           while (true) {
             try {
-              readData = await nfcV.transceive(data: data);
+              readData = await nfcV.transceive(
+                  data: Uint8List.fromList([
+                96,
+                32,
+                195,
+                200,
+                139,
+                96,
+                0,
+                160,
+                7,
+                224,
+                blockIndex,
+                0
+              ])); // 195,200,139,96,0,160,7,224 is the identifier for the sensor
               print(readData);
               break;
             } catch (e) {
@@ -117,7 +132,7 @@ class _AddSensorState extends State<AddSensor> {
           child: Text("Hej")),
       floatingActionButton: FloatingActionButton(
         child: Text("knapp"),
-        onPressed: handleSensor,
+        onPressed: addSensor,
       ),
     );
   }
