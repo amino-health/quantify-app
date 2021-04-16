@@ -6,6 +6,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:quantify_app/loading.dart';
+import 'package:quantify_app/screens/ActivityFormScreen.dart';
+import 'package:quantify_app/screens/addMealScreen.dart';
 import 'package:quantify_app/screens/diaryDetailsScreen.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:provider/provider.dart';
@@ -60,8 +62,6 @@ class _DiaryScreenState extends State<DiaryScreen> {
   }
 
   void _removeMeal(MealData mealToRemove) {
-    print(mealToRemove.localPath);
-    print(mealToRemove.mealImageUrl);
     final user = Provider.of<UserClass>(context, listen: false);
     DatabaseService(uid: user.uid).removeMeal(mealToRemove);
 
@@ -71,8 +71,43 @@ class _DiaryScreenState extends State<DiaryScreen> {
     });
   }
 
+  updateMeal(MealData mealData) {
+    File file;
+    if (mealData.localPath != null) {
+      try {
+        file = File(mealData.localPath);
+      } catch (e) {}
+    }
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => AddMealScreen.edit(
+                file,
+                mealData.mealDate,
+                TimeOfDay.fromDateTime(mealData.mealDate),
+                mealData.mealDescription,
+                mealData.mealImageUrl,
+                true,
+                mealData.docId)));
+  }
+
+  Future updateActivity(context, activityData) async {
+    print(activityData);
+    final user = Provider.of<UserClass>(context, listen: false);
+    await DatabaseService(uid: user.uid).updateTrainingDiaryData(
+      activityData[5], //ID
+      activityData[0], //name
+      activityData[1], //description
+      activityData[2], //date
+      activityData[3], //duration
+      activityData[4], //Intensity
+    );
+    //setState(() {});
+  }
+
   activityItem(BuildContext context, String name, String _subtitle, int date,
-      int duration, String intensity, ValueKey newKey) {
+      int duration, int intensity, ValueKey newKey) {
+    print('valueKey is $newKey');
     return Padding(
       key: newKey,
       padding: const EdgeInsets.only(top: 8.0),
@@ -128,6 +163,7 @@ class _DiaryScreenState extends State<DiaryScreen> {
                     context,
                     MaterialPageRoute(
                         builder: (context) => DiaryDetailsScreen(
+                            keyRef: newKey,
                             titlevalue: name,
                             subtitle: _subtitle,
                             dateTime: date,
@@ -135,7 +171,6 @@ class _DiaryScreenState extends State<DiaryScreen> {
                             isIos: false,
                             localPath: 'activity',
                             imgRef: 'activity',
-
                             intensity: intensity)),
                   );
                 })),
@@ -146,6 +181,23 @@ class _DiaryScreenState extends State<DiaryScreen> {
             icon: Icons.delete,
             onTap: () => _removeActivity(newKey),
           ),
+          IconSlideAction(
+              caption: 'Edit',
+              color: Colors.grey[600],
+              icon: Icons.edit,
+              onTap: () async {
+                List<Object> activityData = await showDialog(
+                    context: context,
+                    builder: (_) => ActivityPopup(
+                        keyRef: newKey.value.toString(),
+                        isAdd: true,
+                        titlevalue: name,
+                        subtitle: _subtitle,
+                        date: DateTime.fromMillisecondsSinceEpoch(date),
+                        duration: duration,
+                        intensity: intensity));
+                updateActivity(context, activityData);
+              }),
         ],
       ),
     );
@@ -219,17 +271,16 @@ class _DiaryScreenState extends State<DiaryScreen> {
                     context,
                     MaterialPageRoute(
                         builder: (context) => DiaryDetailsScreen(
-
+                              keyRef: newKey,
                               titlevalue: 'meal',
                               subtitle: note,
                               dateTime: date,
                               duration: 0,
-                              intensity: '',
+                              intensity: null,
                               isIos: _isIos,
                               localPath: localPath,
                               imgRef: imageRef,
                             )),
-
                   );
                 })),
         secondaryActions: <Widget>[
@@ -237,14 +288,23 @@ class _DiaryScreenState extends State<DiaryScreen> {
             caption: 'Delete',
             color: Colors.red,
             icon: Icons.delete,
-
             onTap: () => _removeMeal(new MealData(
                 note,
                 DateTime.fromMillisecondsSinceEpoch(date),
                 imageRef,
                 newKey.value,
                 localPath)),
-
+          ),
+          IconSlideAction(
+            caption: 'Edit',
+            color: Colors.grey[600],
+            icon: Icons.edit,
+            onTap: () => updateMeal(new MealData(
+                note,
+                DateTime.fromMillisecondsSinceEpoch(date),
+                imageRef,
+                newKey.value,
+                localPath)),
           ),
         ],
       ),

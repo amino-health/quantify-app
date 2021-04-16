@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:quantify_app/loading.dart';
 import 'package:quantify_app/models/userClass.dart';
+
 import 'package:quantify_app/screens/change.dart';
 import 'package:quantify_app/screens/deleteAccount.dart';
 import 'package:quantify_app/screens/reauthenticate/changeemail.dart';
@@ -20,6 +21,7 @@ class Profile extends StatefulWidget {
 }
 
 class _ProfileState extends State<Profile> {
+
   //int _currentHeight = 190;
 
   @override

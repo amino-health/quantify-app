@@ -6,8 +6,10 @@ import 'package:provider/provider.dart';
 
 //import 'package:quantify_app/loading.dart';
 import 'package:quantify_app/models/userClass.dart';
+import 'package:quantify_app/screens/ActivityFormScreen.dart';
 import 'package:quantify_app/screens/diaryScreen.dart';
 //import 'package:quantify_app/screens/diaryScreen.dart';
+
 
 import 'package:quantify_app/screens/addMealScreen.dart';
 
@@ -50,11 +52,13 @@ class _HomeScreenState extends State<HomeScreen>
       overviewKey.currentState.setState(() {
         _mealData = castedData.first;
         showMeal = true;
+        showActivity = false;
       });
     } else {
       overviewKey.currentState.setState(() {
         _trainingData = castedData.first;
         showActivity = true;
+        showMeal = false;
       });
     }
     /**/
@@ -118,7 +122,7 @@ class _HomeScreenState extends State<HomeScreen>
         });
   }
 
-  edit({@required bool isMeal}) {
+  Future<void> edit({@required bool isMeal}) async {
     if (isMeal) {
       File file;
       if (_mealData.localPath != null) {
@@ -138,7 +142,25 @@ class _HomeScreenState extends State<HomeScreen>
                   true,
                   _mealData.docId)));
     } else {
-      print("TODO");
+      List activityData = await showDialog(
+          context: context,
+          builder: (_) => ActivityPopup(
+              keyRef: _trainingData.trainingid,
+              isAdd: true,
+              titlevalue: _trainingData.name,
+              subtitle: _trainingData.description,
+              date: _trainingData.date,
+              duration: _trainingData.duration.inMilliseconds,
+              intensity: _trainingData.intensity));
+      final user = Provider.of<UserClass>(context, listen: false);
+      await DatabaseService(uid: user.uid).updateTrainingDiaryData(
+        activityData[5], //ID
+        activityData[0], //name
+        activityData[1], //description
+        activityData[2], //date
+        activityData[3], //duration
+        activityData[4], //Intensity
+      );
     }
   }
 
@@ -172,248 +194,237 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   activityContent(context, _isIos) {
-    return Expanded(
-        flex: 50,
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Container(
-            decoration: BoxDecoration(
-                color: Color(0xff99163d),
-                borderRadius: BorderRadius.all(Radius.circular(20))),
-            child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Container(
+        height: MediaQuery.of(context).size.height * 0.4,
+        decoration: BoxDecoration(
+            color: Color(0xff99163d),
+            borderRadius: BorderRadius.all(Radius.circular(20))),
+        child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      Spacer(
-                        flex: 1,
-                      ),
-                      Spacer(
-                        flex: 1,
-                      ),
-                      Align(
-                        alignment: Alignment.center,
-                        child: Text(
-                          DateFormat("yyyy-MM-dd - kk:mm")
-                              .format(_trainingData.date),
+                  Spacer(
+                    flex: 1,
+                  ),
+                  Spacer(
+                    flex: 1,
+                  ),
+                  Align(
+                    alignment: Alignment.center,
+                    child: Text(
+                      DateFormat("yyyy-MM-dd - kk:mm")
+                          .format(_trainingData.date),
+                      textScaleFactor: 1.5,
+                      style: TextStyle(
+                          color: Colors.white, fontStyle: FontStyle.italic),
+                    ),
+                  ),
+                  Spacer(
+                    flex: 1,
+                  ),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: IconButton(
+                        color: Colors.white,
+                        onPressed: () {
+                          overviewKey.currentState.setState(() {
+                            showActivity = false;
+                          });
+                        },
+                        icon: Icon(Icons.close)),
+                  ),
+                ],
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Container(
+                      height: MediaQuery.of(context).size.height * 0.2,
+                      width: MediaQuery.of(context).size.width * 0.45,
+                      child: FittedBox(
+                          fit: BoxFit.fitWidth,
+                          child: Icon(Icons.directions_run))),
+                  Container(
+                    height: MediaQuery.of(context).size.height * 0.2,
+                    width: MediaQuery.of(context).size.width * 0.45,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        AutoSizeText(
+                          _trainingData.name,
+                          textScaleFactor: 2,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.left,
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        AutoSizeText(
+                          _trainingData.description,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                           textScaleFactor: 1.5,
+                          textAlign: TextAlign.left,
                           style: TextStyle(
                               color: Colors.white, fontStyle: FontStyle.italic),
                         ),
-                      ),
-                      Spacer(
-                        flex: 1,
-                      ),
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: IconButton(
-                            color: Colors.white,
-                            onPressed: () {
-                              overviewKey.currentState.setState(() {
-                                showActivity = false;
-                              });
-                            },
-                            icon: Icon(Icons.close)),
-                      ),
-                    ],
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      Container(
-                          height: MediaQuery.of(context).size.height * 0.2,
-                          width: MediaQuery.of(context).size.width * 0.45,
-                          child: FittedBox(
-                              fit: BoxFit.fitWidth,
-                              child: Icon(Icons.directions_run))),
-                      Container(
-                        height: MediaQuery.of(context).size.height * 0.2,
-                        width: MediaQuery.of(context).size.width * 0.45,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            AutoSizeText(
-                              _trainingData.name,
-                              maxLines: 2,
-                              textAlign: TextAlign.center,
-                              style:
-                                  TextStyle(fontSize: 35, color: Colors.white),
-                            ),
-                            AutoSizeText(
-                              "\"" + _trainingData.description + "\"",
-                              maxLines: 2,
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                  fontSize: 20,
-                                  color: Colors.white,
-                                  fontStyle: FontStyle.italic),
-                            ),
-                            AutoSizeText(
-                              "Intensity: " +
-                                  _trainingData.intensity.toString() +
-                                  "/10",
-                              maxLines: 5,
-                              textAlign: TextAlign.left,
-                              style: TextStyle(
-                                  fontSize: 20,
-                                  color: Colors.white,
-                                  fontStyle: FontStyle.italic),
-                            ),
-                            AutoSizeText(
-                              "Duration: " +
-                                  _printDuration(_trainingData.duration),
-                              maxLines: 5,
-                              textAlign: TextAlign.left,
-                              style: TextStyle(
-                                  fontSize: 20,
-                                  color: Colors.white,
-                                  fontStyle: FontStyle.italic),
-                            ),
-                          ],
+                        AutoSizeText(
+                          "Intensity: " +
+                              _trainingData.intensity.toString() +
+                              "/10",
+                          maxLines: 1,
+                          textAlign: TextAlign.left,
+                          style: TextStyle(
+                              color: Colors.white, fontStyle: FontStyle.italic),
                         ),
-                      ),
-                    ],
-                  ),
-                  Container(
-                    width: MediaQuery.of(context).size.width * 0.9333,
-                    height: MediaQuery.of(context).size.height * 0.1,
-                    child: Row(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(left: 32),
-                          child: IconButton(
-                              color: Colors.white,
-                              iconSize:
-                                  MediaQuery.of(context).size.height * 0.04,
-                              onPressed: () {
-                                delete(isMeal: false);
-                              },
-                              icon: Icon(_isIos
-                                  ? CupertinoIcons.trash
-                                  : Icons.delete)),
+                        AutoSizeText(
+                          "Duration: " + _printDuration(_trainingData.duration),
+                          maxLines: 1,
+                          textAlign: TextAlign.left,
+                          style: TextStyle(
+                              color: Colors.white, fontStyle: FontStyle.italic),
                         ),
-                        IconButton(
-                            color: Colors.white,
-                            iconSize: MediaQuery.of(context).size.height * 0.04,
-                            onPressed: () {
-                              edit(isMeal: false);
-                            },
-                            icon: Icon(Icons.edit))
                       ],
                     ),
-                  )
-                ]),
-          ),
-        ));
+                  ),
+                ],
+              ),
+              Container(
+                width: MediaQuery.of(context).size.width * 0.9333,
+                height: MediaQuery.of(context).size.height * 0.1,
+                child: Row(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(left: 32),
+                      child: IconButton(
+                          color: Colors.white,
+                          iconSize: MediaQuery.of(context).size.height * 0.04,
+                          onPressed: () {
+                            delete(isMeal: false);
+                          },
+                          icon: Icon(
+                              _isIos ? CupertinoIcons.trash : Icons.delete)),
+                    ),
+                    IconButton(
+                        color: Colors.white,
+                        iconSize: MediaQuery.of(context).size.height * 0.04,
+                        onPressed: () {
+                          edit(isMeal: false);
+                        },
+                        icon: Icon(Icons.edit))
+                  ],
+                ),
+              )
+            ]),
+      ),
+    );
   }
 
   mealContent(context, _isIos) {
-    return Expanded(
-        flex: 50,
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Container(
-            decoration: BoxDecoration(
-                color: Color(0xff99163d),
-                borderRadius: BorderRadius.all(Radius.circular(20))),
-            child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8.0, left: 8, right: 8),
+      child: Container(
+        decoration: BoxDecoration(
+            color: Color(0xff99163d),
+            borderRadius: BorderRadius.all(Radius.circular(20))),
+        child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      Spacer(
-                        flex: 1,
-                      ),
-                      Spacer(
-                        flex: 1,
-                      ),
-                      Align(
-                        alignment: Alignment.center,
-                        child: Text(
-                          DateFormat("yyyy-MM-dd - kk:mm")
-                              .format(_mealData.mealDate),
+                  Spacer(
+                    flex: 1,
+                  ),
+                  Spacer(
+                    flex: 1,
+                  ),
+                  Align(
+                    alignment: Alignment.center,
+                    child: Text(
+                      DateFormat("yyyy-MM-dd - kk:mm")
+                          .format(_mealData.mealDate),
+                      textScaleFactor: 1.5,
+                      style: TextStyle(
+                          color: Colors.white, fontStyle: FontStyle.italic),
+                    ),
+                  ),
+                  Spacer(
+                    flex: 1,
+                  ),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: IconButton(
+                        color: Colors.white,
+                        onPressed: () {
+                          overviewKey.currentState.setState(() {
+                            showMeal = false;
+                          });
+                        },
+                        icon: Icon(Icons.close)),
+                  ),
+                ],
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Container(
+                      height: MediaQuery.of(context).size.height * 0.2,
+                      width: MediaQuery.of(context).size.width * 0.45,
+                      child: displayImage(_isIos)),
+                  Container(
+                    height: MediaQuery.of(context).size.height * 0.2,
+                    width: MediaQuery.of(context).size.width * 0.45,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        AutoSizeText(
+                          _mealData.mealDescription,
+                          maxLines: 4,
                           textScaleFactor: 1.5,
+                          overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.center,
                           style: TextStyle(
                               color: Colors.white, fontStyle: FontStyle.italic),
                         ),
-                      ),
-                      Spacer(
-                        flex: 1,
-                      ),
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: IconButton(
-                            color: Colors.white,
-                            onPressed: () {
-                              overviewKey.currentState.setState(() {
-                                showMeal = false;
-                              });
-                            },
-                            icon: Icon(Icons.close)),
-                      ),
-                    ],
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      Container(
-                          height: MediaQuery.of(context).size.height * 0.15,
-                          width: MediaQuery.of(context).size.width * 0.45,
-                          child: displayImage(_isIos)),
-                      Container(
-                        height: MediaQuery.of(context).size.height * 0.2,
-                        width: MediaQuery.of(context).size.width * 0.45,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            AutoSizeText(
-                              "\"" + _mealData.mealDescription + "\"",
-                              maxLines: 5,
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                  fontSize: 35,
-                                  color: Colors.white,
-                                  fontStyle: FontStyle.italic),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  Container(
-                    width: MediaQuery.of(context).size.width * 0.9333,
-                    height: MediaQuery.of(context).size.height * 0.1,
-                    child: Row(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(left: 32),
-                          child: IconButton(
-                              color: Colors.white,
-                              iconSize:
-                                  MediaQuery.of(context).size.height * 0.04,
-                              onPressed: () {
-                                delete(isMeal: true);
-                              },
-                              icon: Icon(_isIos
-                                  ? CupertinoIcons.trash
-                                  : Icons.delete)),
-                        ),
-                        IconButton(
-                            color: Colors.white,
-                            iconSize: MediaQuery.of(context).size.height * 0.04,
-                            onPressed: () {
-                              edit(isMeal: true);
-                            },
-                            icon: Icon(Icons.edit))
                       ],
                     ),
-                  )
-                ]),
-          ),
-        ));
+                  ),
+                ],
+              ),
+              Container(
+                width: MediaQuery.of(context).size.width * 0.9333,
+                height: MediaQuery.of(context).size.height * 0.1,
+                child: Row(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(left: 32),
+                      child: IconButton(
+                          color: Colors.white,
+                          iconSize: MediaQuery.of(context).size.height * 0.04,
+                          onPressed: () {
+                            delete(isMeal: true);
+                          },
+                          icon: Icon(
+                              _isIos ? CupertinoIcons.trash : Icons.delete)),
+                    ),
+                    IconButton(
+                        color: Colors.white,
+                        iconSize: MediaQuery.of(context).size.height * 0.04,
+                        onPressed: () {
+                          edit(isMeal: true);
+                        },
+                        icon: Icon(Icons.edit))
+                  ],
+                ),
+              )
+            ]),
+      ),
+    );
   }
 
   @override
@@ -430,24 +441,25 @@ class _HomeScreenState extends State<HomeScreen>
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
-              flex: 55,
               child: Container(
                 child: GraphicalInterface(
                   update: setData,
                 ),
               ),
             ),
-            StatefulBuilder(
-                key: overviewKey,
-                builder: (BuildContext context, setStateMeal) {
-                  if (showMeal) {
-                    return mealContent(context, _isIos);
-                  } else if (showActivity) {
-                    return activityContent(context, _isIos);
-                  } else {
-                    return Expanded(flex: 50, child: Container());
-                  }
-                }),
+            Expanded(
+              child: StatefulBuilder(
+                  key: overviewKey,
+                  builder: (BuildContext context, setStateMeal) {
+                    if (showMeal) {
+                      return mealContent(context, _isIos);
+                    } else if (showActivity) {
+                      return activityContent(context, _isIos);
+                    } else {
+                      return Container();
+                    }
+                  }),
+            ),
           ],
         ),
       ),

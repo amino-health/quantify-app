@@ -193,16 +193,9 @@ class DatabaseService {
   final CollectionReference trainingDiaryData =
       FirebaseFirestore.instance.collection('activityDiary');
 
-  Future<void> createTrainingData(
-      String trainingid,
-      String name,
-      String description,
-      DateTime date,
-      String intensity,
-      int listtype,
-      bool inHistory) async {
-    return await userInfo.doc(uid).collection('training').doc(trainingid).set({
-      'trainingid': trainingid,
+  Future<void> createTrainingData(String name, String description,
+      DateTime date, int intensity, int listtype, bool inHistory) async {
+    return await userInfo.doc(uid).collection('training').doc().set({
       'name': name,
       'description': description,
       'date': date.millisecondsSinceEpoch,
@@ -217,7 +210,7 @@ class DatabaseService {
       String name,
       String description,
       DateTime date,
-      String intensity,
+      int intensity,
       int listtype,
       bool inHistory) async {
     return await userInfo
@@ -269,12 +262,11 @@ class DatabaseService {
   //String key = firebase_storage.FirebaseStorage.instance.ref().child('users').child().push().getKey();
 
   Future<void> createTrainingDiaryData(
-    String trainingid,
     String name,
     String description,
     DateTime date,
     Duration duration,
-    String intensity,
+    int intensity,
   ) async {
     return await userInfo.doc(uid).collection('trainingDiary').doc().set({
       'name': name,
@@ -284,6 +276,31 @@ class DatabaseService {
       'intensity': intensity,
     });
   }
+
+
+
+  Future<void> updateTrainingDiaryData(
+    String trainingid,
+    String name,
+    String description,
+    DateTime date,
+    Duration duration,
+    int intensity,
+  ) async {
+    return await userInfo
+        .doc(uid)
+        .collection('trainingDiary')
+        .doc(trainingid)
+        .update({
+      'trainingid': trainingid,
+      'date': date.millisecondsSinceEpoch,
+      'duration': duration.inMilliseconds,
+      'name': name,
+      'description': description,
+      'intensity': intensity,
+    });
+  }
+
 
   Future<void> removeDir({String ref = ""}) async {
     print("Hello: " + ref);

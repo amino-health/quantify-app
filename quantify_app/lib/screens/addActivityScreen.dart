@@ -105,6 +105,7 @@ class _AddActivityScreenState extends State<AddActivityScreen>
   @override
   void dispose() {
     _tabController.dispose();
+    _filter.dispose();
     super.dispose();
   }
 
@@ -143,10 +144,14 @@ class _AddActivityScreenState extends State<AddActivityScreen>
                       List<Object> activityData = await showDialog(
                           context: context,
                           builder: (_) => ActivityPopup(
-                              keyval: '',
-                              isAdd: false,
-                              titlevalue: '',
-                              subtitle: ''));
+                                keyRef: '',
+                                isAdd: false,
+                                titlevalue: '',
+                                subtitle: '',
+                                date: DateTime.now(),
+                                duration: 0,
+                                intensity: 5,
+                              ));
                       addItem(context, activityData);
                     }))));
   }
@@ -176,8 +181,8 @@ class _AddActivityScreenState extends State<AddActivityScreen>
                 (dismissKey.value.toString()),
                 '',
                 '',
-                historyActivityList[i][2],
-                '',
+                DateTime.fromMicrosecondsSinceEpoch(historyActivityList[i][2]),
+                0,
                 0,
                 false);
             historyActivityList.remove(historyActivityList[i]);
@@ -203,25 +208,12 @@ class _AddActivityScreenState extends State<AddActivityScreen>
 
   //This method returns a string converted integer higher than the highest
   //existing key integer.
-  String _generateKey() {
-    List<dynamic> activityList =
-        historyActivityList + myActivityList + allActivityList;
-    int topKeyIndex = 1;
-    for (int j = 0; j < activityList.length; j++) {
-      int compareVal = int.parse(activityList[j][0].key.value);
-      if (topKeyIndex <= compareVal) {
-        topKeyIndex = compareVal + 1;
-      }
-    }
-    print('generated key is $topKeyIndex');
-    return topKeyIndex.toString();
-  }
 
   //Returns a container item with key _name and a child slider with a numbered key
-  activityItem(
-      BuildContext context, String name, String _subtitle, ValueKey newKey) {
+  activityItem(BuildContext context, String name, String _subtitle, int date,
+      int intensity, String keyRef) {
     return Container(
-        key: newKey,
+        key: ValueKey(keyRef),
         width: MediaQuery.of(context).size.width * 0.95,
         height: MediaQuery.of(context).size.height * 0.1,
         child: Slidable(
@@ -238,10 +230,14 @@ class _AddActivityScreenState extends State<AddActivityScreen>
                   List<Object> activityData = await showDialog(
                       context: context,
                       builder: (_) => ActivityPopup(
-                          keyval: newKey.value.toString(),
-                          isAdd: true,
-                          titlevalue: name,
-                          subtitle: _subtitle));
+                            keyRef: keyRef,
+                            isAdd: true,
+                            titlevalue: name,
+                            subtitle: _subtitle,
+                            date: DateTime.now(),
+                            duration: 0,
+                            intensity: intensity,
+                          ));
                   addActivity(context, activityData);
                 }),
           ),
@@ -250,7 +246,7 @@ class _AddActivityScreenState extends State<AddActivityScreen>
               caption: 'Delete',
               color: Colors.red,
               icon: Icons.delete,
-              onTap: () => _removeItem(newKey),
+              onTap: () => _removeItem(ValueKey(keyRef)),
             ),
           ],
         ));
@@ -294,10 +290,10 @@ class _AddActivityScreenState extends State<AddActivityScreen>
 
   //Is called whenever a user presses Done in add activity view
   Future addActivity(context, activityData) async {
-    setState(() {});
     final user = Provider.of<UserClass>(context, listen: false);
+    print(activityData);
     await DatabaseService(uid: user.uid).updateTrainingData(
-        ((int.parse(activityData[5])).toString()),
+        activityData[5],
         activityData[0], //name
         activityData[1], //description
         activityData[2], //date
@@ -305,13 +301,15 @@ class _AddActivityScreenState extends State<AddActivityScreen>
         _selectedIndex + 1,
         true);
     await DatabaseService(uid: user.uid).createTrainingDiaryData(
-      _generateKey(),
       activityData[0], //name
       activityData[1], //description
       activityData[2], //date
       activityData[3], //duration
       activityData[4], //Intensity
     );
+    while (Navigator.canPop(context)) {
+      Navigator.pop(context);
+    }
   }
 
   /*
@@ -328,7 +326,7 @@ class _AddActivityScreenState extends State<AddActivityScreen>
       if (entry['inHistory']) {
         historyActivityList.insert(0, [
           activityItem(context, entry['name'], entry['description'],
-              ValueKey(entry['trainingid'])),
+              entry['date'], entry['intensity'], entry.id),
           entry['name'] + entry['description'],
           entry['date']
         ]);
@@ -338,7 +336,7 @@ class _AddActivityScreenState extends State<AddActivityScreen>
 
         myActivityList.insert(0, [
           activityItem(context, entry['name'], entry['description'],
-              ValueKey(entry['trainingid'])),
+              entry['date'], entry['intensity'], entry.id),
           entry['name'] + entry['description']
         ]);
       } else if (entry['listtype'] == 3) {
@@ -346,7 +344,7 @@ class _AddActivityScreenState extends State<AddActivityScreen>
 
         allActivityList.insert(0, [
           activityItem(context, entry['name'], entry['description'],
-              Key(entry['trainingid'])),
+              entry['date'], entry['intensity'], entry.id),
           entry['name'] + entry['description']
         ]);
       }
@@ -354,17 +352,24 @@ class _AddActivityScreenState extends State<AddActivityScreen>
   }
 
   void addItem(context, activityData) async {
-    setState(() {});
-
     final user = Provider.of<UserClass>(context, listen: false);
     await DatabaseService(uid: user.uid).createTrainingData(
-        (int.parse(_generateKey())).toString(),
         activityData[0], //name
         activityData[1], //desc
         activityData[2], //date
         activityData[4], //intensity
         2,
         true);
+    await DatabaseService(uid: user.uid).createTrainingDiaryData(
+      activityData[0], //name
+      activityData[1], //description
+      activityData[2], //date
+      activityData[3], //duration
+      activityData[4], //Intensity
+    );
+    while (Navigator.canPop(context)) {
+      Navigator.pop(context);
+    }
   }
 
   tabBar(BuildContext context) {
@@ -388,6 +393,7 @@ class _AddActivityScreenState extends State<AddActivityScreen>
         builder: (context, snapshot) {
           if (snapshot.data != null) {
             final List<DocumentSnapshot> documents = snapshot.data.docs;
+            //print('documents is ${documents}');
             structureData(context, documents);
           } else {
             print('No training data found for user');
