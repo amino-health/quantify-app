@@ -149,17 +149,20 @@ class _DiaryDetailsState extends State<DiaryDetailsScreen> {
                                     duration: duration,
                                     intensity: intensity));
                             updateActivity(context, activityData);
+                            if (Navigator.canPop(context)) {
+                              Navigator.pop(context);
+                            }
                           } else {
-                            updateMeal(new MealData(
+                            await updateMeal(new MealData(
                                 subtitle,
                                 DateTime.fromMillisecondsSinceEpoch(dateTime),
                                 imgRef,
                                 keyRef.value,
                                 localPath));
                           }
-                          while (Navigator.canPop(context)) {
+                          /*while (Navigator.canPop(context)) {
                             Navigator.pop(context);
-                          }
+                          }*/
                         })))),
         Container(
             child: FittedBox(
