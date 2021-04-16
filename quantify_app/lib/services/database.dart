@@ -9,11 +9,8 @@ import 'package:quantify_app/models/activityDiary.dart';
 import 'package:quantify_app/models/userClass.dart';
 
 import 'package:quantify_app/models/mealData.dart';
-import 'package:async/async.dart';
 
-import 'package:quantify_app/screens/homeScreen.dart';
 import 'package:stream_transform/stream_transform.dart';
-
 
 //refrence
 //
@@ -39,7 +36,6 @@ class DatabaseService {
       uploadTask.whenComplete(() async {
         downloadURL = await storageRef.getDownloadURL();
         await doc.update({'imageRef': downloadURL});
-
       });
     }
     await doc.set({
@@ -116,7 +112,6 @@ class DatabaseService {
     });
   }
 
-
   Future<void> removeMeal(MealData mealData) async {
     if (mealData.mealImageUrl != null) {
       firebase_storage.Reference storageRef = firebase_storage
@@ -190,7 +185,6 @@ class DatabaseService {
         .map(_userActivityFromSnapshot);
 
     return activityData.combineLatestAll([mealData]);
-
   }
 
   final CollectionReference trainingData =
@@ -290,7 +284,7 @@ class DatabaseService {
       'intensity': intensity,
     });
   }
-  
+
   Future<void> removeDir({String ref = ""}) async {
     print("Hello: " + ref);
     firebase_storage.ListResult result;
@@ -318,7 +312,6 @@ class DatabaseService {
     });
     print("endddd");
   }
-
 
   Future<void> removeDiaryItem(String diaryid) async {
     return await userInfo

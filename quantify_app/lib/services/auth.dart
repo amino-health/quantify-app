@@ -4,7 +4,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:quantify_app/models/userClass.dart';
 import 'package:quantify_app/services/database.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
-import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
+//import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 
 class AuthService {
   static String uEmail, uPassword;
@@ -49,18 +49,6 @@ class AuthService {
         default:
           return null;
       }
-    }
-  }
-
-  Future changeEmail(String email) async {
-    try {
-      dynamic user = _auth.currentUser;
-
-      dynamic response = await user.updateEmail(email);
-      await DatabaseService(uid: user.uid).updateEmail(email);
-      return response;
-    } catch (e) {
-      return null;
     }
   }
 
@@ -135,7 +123,6 @@ class AuthService {
           user.uid, user.email, true, '0', '0', '0', false, "male");
       await DatabaseService(uid: user.uid).createTrainingData(
           '0', 'Running', 'Sprint', DateTime.now(), '', 3, false);
-
     } catch (error) {
       print('HEJ');
       print(error.toString());
@@ -163,10 +150,28 @@ class AuthService {
     return done;
   }
 
-//Sign in with google
+  Future updatePassword({
+    String email,
+    String password,
+    String newPassword,
+  }) async {
+    bool done = false;
+    User user = _auth.currentUser;
+
+    AuthCredential credentials =
+        EmailAuthProvider.credential(email: email, password: password);
+
+    UserCredential result =
+        await user.reauthenticateWithCredential(credentials);
+
+    await result.user.updatePassword(newPassword).then((_) {
+      print("Succesfull changed password");
+      done = true;
+    });
+    return done;
+  }
 
   //Sign out
-
   Future signOut() async {
     try {
       return await _auth.signOut();

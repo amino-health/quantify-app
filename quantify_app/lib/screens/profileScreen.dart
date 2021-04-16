@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:quantify_app/loading.dart';
 import 'package:quantify_app/models/userClass.dart';
-import 'package:quantify_app/screens/ActivityFormScreen.dart';
 import 'package:quantify_app/screens/change.dart';
-import 'package:quantify_app/screens/changeemail.dart';
 import 'package:quantify_app/screens/deleteAccount.dart';
+import 'package:quantify_app/screens/reauthenticate/changeemail.dart';
+import 'package:quantify_app/screens/reauthenticate/changepassword.dart';
 import 'package:quantify_app/screens/tos.dart';
 import 'package:quantify_app/screens/addSensor.dart';
 import 'package:quantify_app/screens/wrapper.dart';
@@ -20,11 +20,7 @@ class Profile extends StatefulWidget {
 }
 
 class _ProfileState extends State<Profile> {
-
-  final AuthService _auth = AuthService();
-
   //int _currentHeight = 190;
-
 
   @override
   Widget build(BuildContext context) {
@@ -69,6 +65,22 @@ class _ProfileState extends State<Profile> {
                           context,
                           MaterialPageRoute(
                               builder: (context) => ChangeEmail()),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+                SettingsSection(
+                  title: 'Contact info',
+                  tiles: [
+                    SettingsTile(
+                      title: 'Change password',
+                      // subtitle: userData.email,
+                      onPressed: (BuildContext context) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => ChangePassword()),
                         );
                       },
                     ),

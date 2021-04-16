@@ -9,7 +9,6 @@ import 'package:quantify_app/models/userClass.dart';
 import 'package:quantify_app/screens/diaryScreen.dart';
 //import 'package:quantify_app/screens/diaryScreen.dart';
 
-import 'package:quantify_app/models/userClass.dart';
 import 'package:quantify_app/screens/addMealScreen.dart';
 
 //import 'package:flutter_svg/flutter_svg.dart';
