@@ -52,18 +52,6 @@ class AuthService {
     }
   }
 
-  Future changeEmail(String email) async {
-    try {
-      dynamic user = _auth.currentUser;
-
-      dynamic response = await user.updateEmail(email);
-      await DatabaseService(uid: user.uid).updateEmail(email);
-      return response;
-    } catch (e) {
-      return null;
-    }
-  }
-
   Future<dynamic> signInWithGoogle() async {
     User user;
 
@@ -133,8 +121,10 @@ class AuthService {
 
       await DatabaseService(uid: user.uid).updateUserData(
           user.uid, user.email, true, '0', '0', '0', false, "male");
+
       await DatabaseService(uid: user.uid)
           .createTrainingData('Running', 'Sprint', DateTime.now(), 0, 3, false);
+
 
     } catch (error) {
       print('HEJ');
@@ -163,10 +153,28 @@ class AuthService {
     return done;
   }
 
-//Sign in with google
+  Future updatePassword({
+    String email,
+    String password,
+    String newPassword,
+  }) async {
+    bool done = false;
+    User user = _auth.currentUser;
+
+    AuthCredential credentials =
+        EmailAuthProvider.credential(email: email, password: password);
+
+    UserCredential result =
+        await user.reauthenticateWithCredential(credentials);
+
+    await result.user.updatePassword(newPassword).then((_) {
+      print("Succesfull changed password");
+      done = true;
+    });
+    return done;
+  }
 
   //Sign out
-
   Future signOut() async {
     try {
       return await _auth.signOut();

@@ -2,7 +2,7 @@ import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:quantify_app/screens/changeemail.dart';
+import 'package:quantify_app/screens/reauthenticate/changeemail.dart';
 import '../loading.dart';
 import '../models/userClass.dart';
 import '../services/database.dart';
