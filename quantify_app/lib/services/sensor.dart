@@ -2,8 +2,10 @@ import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
 
+import 'package:flutter/material.dart';
 import 'package:nfc_manager/nfc_manager.dart';
 import 'package:nfc_manager/platform_tags.dart';
+import 'package:quantify_app/models/sensorWidgetList.dart';
 import 'package:quantify_app/screens/graphs.dart';
 
 class Sensor {
@@ -18,7 +20,7 @@ class Sensor {
   int nfcReadTimeout = 1000;
   Uint8List data = Uint8List(360);
 
-  Future<void> addSensor() async {
+  Future<dynamic> sensorSession() async {
     bool isAvailable = await NfcManager.instance.isAvailable();
 
     if (isAvailable) {
@@ -30,9 +32,10 @@ class Sensor {
               print("----------------------------------");
               print(tag.data);
 
-              await handleSensor(tag);
+              Widget result = await readData(tag);
+
               await NfcManager.instance.stopSession();
-              return;
+              return result;
               //setState(() => _alertMessage = result);
             } catch (e) {
               await NfcManager.instance
@@ -46,7 +49,7 @@ class Sensor {
     }
   }
 
-  Future<void> handleSensor(NfcTag tag) async {
+  Future<Widget> readData(NfcTag tag) async {
     print('handleSensor');
     if (tag != null) {
       Uint8List identifier = tag.data['nfcv']['identifier'];
@@ -82,17 +85,19 @@ class Sensor {
               print(e);
             }
           }
-          Uint8List cleanData = Uint8List(blockSize);
+          Uint8List cleanData = Uint8List(8);
           List.copyRange(cleanData, 0, readData, 2);
           print(cleanData);
           List.copyRange(data, 8 * blockIndex, cleanData);
         }
-        print("Got NFC tag data");
+        return SensorWidgetList().getSensorWidgetList(data[4]);
       } catch (e) {
-        print("asjhdkljaskdjhasjd");
         print(e);
       }
     }
+    return Container(
+      child: Text("Error"),
+    );
   }
 
   int getHistoryIndex() {
