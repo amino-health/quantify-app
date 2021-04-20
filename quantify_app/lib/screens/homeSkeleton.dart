@@ -45,7 +45,7 @@ class _SmartButtonState extends State<SmartButton> {
   Widget build(BuildContext context) {
     return FloatingActionButton(
         backgroundColor: Colors.transparent,
-        elevation: 0.0,
+        elevation: 100.0,
         heroTag: 'btn0',
         child: Container(
             height: 70,
@@ -64,6 +64,7 @@ class _SmartButtonState extends State<SmartButton> {
             ),
             child: Icon(Icons.add, color: Color(0xFF99163D))),
         onPressed: () => showModalBottomSheet<void>(
+              elevation: 1,
               backgroundColor: Colors.transparent,
               context: context,
               isDismissible: true,
@@ -157,14 +158,14 @@ class _SmartButtonState extends State<SmartButton> {
                                         Padding(
                                           padding: const EdgeInsets.only(
                                               top: 20, bottom: 30),
-                                          child: FloatingActionButton(
+                                          /* child: FloatingActionButton(
                                             child: Icon(Icons.cancel,
                                                 color: Color(0xFF99163D)),
                                             heroTag: 'btn4',
                                             backgroundColor: Colors.white,
                                             onPressed: () =>
                                                 Navigator.pop(context),
-                                          ),
+                                          ),*/
                                         ),
                                       ]),
                                 ],

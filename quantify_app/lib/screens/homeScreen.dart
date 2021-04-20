@@ -3,13 +3,14 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
+import 'package:quantify_app/customWidgets/bottomNavbar.dart';
+import 'package:quantify_app/customWidgets/expandingFAB.dart';
+//import 'package:quantify_app/customWidgets/globals.dart' as globals;
 //import 'package:quantify_app/loading.dart';
 import 'package:quantify_app/models/userClass.dart';
 import 'package:quantify_app/screens/ActivityFormScreen.dart';
 import 'package:quantify_app/screens/diaryScreen.dart';
 //import 'package:quantify_app/screens/diaryScreen.dart';
-
 
 import 'package:quantify_app/screens/addMealScreen.dart';
 
@@ -46,6 +47,7 @@ class _HomeScreenState extends State<HomeScreen>
   TrainingDiaryData _trainingData = new TrainingDiaryData();
   bool showMeal = false;
   bool showActivity = false;
+
   setData(Object data) {
     List castedData = data as List;
     if (castedData.first.runtimeType == MealData) {
@@ -475,11 +477,25 @@ class _HomeScreenState extends State<HomeScreen>
     }
 
     var scaffold = Scaffold(
-        appBar: CustomAppBar(),
-        body: _children[_selectedIndex],
-        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-        floatingActionButton: SmartButton(),
-        bottomNavigationBar: BottomNavigationBar(
+      appBar: CustomAppBar(),
+      body: _children[_selectedIndex],
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      floatingActionButton: ExampleExpandableFab(), //SmartButton(),
+      //bottomNavigationBar:
+      bottomNavigationBar: FABBottomAppBar(
+        onTabSelected: _onItemTapped,
+        selectedColor: Color(0xFF99163D),
+        color: Colors.grey[500],
+        items: [
+          FABBottomAppBarItem(
+              iconData: Icons.stacked_line_chart, text: 'Stats'),
+          FABBottomAppBarItem(iconData: Icons.layers, text: 'Journal'),
+          FABBottomAppBarItem(iconData: Icons.people, text: 'Profile'),
+          FABBottomAppBarItem(iconData: Icons.settings, text: 'Settings'),
+        ],
+      ),
+
+      /*BottomNavigationBar(
           type: BottomNavigationBarType.fixed,
           backgroundColor: Color(0xFF99163D),
           currentIndex: _selectedIndex,
@@ -494,6 +510,7 @@ class _HomeScreenState extends State<HomeScreen>
                 icon: Icon(Icons.book),
                 backgroundColor: Color(0xFF99163D),
                 label: 'Diary'),
+            //BottomNavigationBarItem(icon: null),
             BottomNavigationBarItem(
                 icon: Icon(Icons.people),
                 backgroundColor: Color(0xFF99163D),
@@ -503,7 +520,8 @@ class _HomeScreenState extends State<HomeScreen>
                 backgroundColor: Color(0xFF99163D),
                 label: 'Settings'),
           ],
-        ));
+        )*/
+    );
 
     return scaffold;
   }
