@@ -43,7 +43,7 @@ class _AddSensorState extends State<AddSensor> {
       floatingActionButton: FloatingActionButton(
         child: Text("knapp"),
         onPressed: () async {
-          await sensor.addSensor();
+          await sensor.sensorSession();
           print("--------------------------");
 
           setState(() {
