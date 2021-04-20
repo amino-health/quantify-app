@@ -69,21 +69,23 @@ class _ExpandableFabState extends State<ExpandableFab>
     super.dispose();
   }
 
-  void _toggle() {
+  Future<void> _toggle() async {
     setState(() {
       _open = !_open;
-      if (_open) {
-        globals.screenDisabled = true;
-        _sigmaX = 5.0;
-        _sigmaY = 10.0;
-        _controller.forward();
-      } else {
-        globals.screenDisabled = false;
-        _sigmaX = 0.001;
-        _sigmaY = 0.001;
-        _controller.reverse();
-      }
     });
+
+    if (_open) {
+      _sigmaX = 5.0;
+      _sigmaY = 10.0;
+      globals.screenDisabled = true;
+      await _controller.forward();
+    } else {
+      _sigmaX = 0.001;
+      _sigmaY = 0.001;
+      await _controller.reverse();
+      globals.screenDisabled = false;
+    }
+    setState(() {});
   }
 
   @override
@@ -182,8 +184,8 @@ class _ExpandableFabState extends State<ExpandableFab>
 
   Widget _buildContainerToDisableTouch() {
     return Container(
-        height: globals.screenDisabled ? MediaQuery.of(context).size.height : 0,
-        width: globals.screenDisabled ? MediaQuery.of(context).size.width : 0,
+        height: _open ? MediaQuery.of(context).size.height : 0,
+        width: _open ? MediaQuery.of(context).size.width : 0,
         color: Colors.black.withOpacity(0.75));
   }
 
