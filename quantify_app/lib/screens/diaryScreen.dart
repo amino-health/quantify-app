@@ -25,34 +25,8 @@ class DiaryScreen extends StatefulWidget {
   _DiaryScreenState createState() => _DiaryScreenState();
 }
 
-List weeklist = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-String weekday =
-    weeklist[DateTime.parse('2021-04-06 10:02:14.453').weekday - 1];
-
-List months = [
-  'jan',
-  'feb',
-  'mar',
-  'apr',
-  'may',
-  'jun',
-  'jul',
-  'aug',
-  'sep',
-  'oct',
-  'nov',
-  'dec'
-];
-String month = months[DateTime.parse('2021-04-06 10:02:14.453').month - 1];
-
 class _DiaryScreenState extends State<DiaryScreen> {
   List<Widget> diaryList = <Widget>[];
-  List<String> testList = [
-    'Sample Diaryitem',
-    'Description about exercise in simple text.',
-    '10:02 \n $weekday 6 $month',
-    'intensity'
-  ];
 
   void _removeActivity(ValueKey dismissKey) {
     setState(() {
@@ -222,9 +196,20 @@ class _DiaryScreenState extends State<DiaryScreen> {
             child: ListTile(
                 leading: Container(
                     child: FittedBox(
-                        fit: BoxFit.fitWidth,
-                        child:
-                            displayImage(context, _isIos, localPath, imageRef)),
+                      fit: BoxFit.fitWidth,
+                      child: FutureBuilder(
+                          future: displayImage(
+                              context, _isIos, localPath, imageRef),
+                          builder:
+                              (BuildContext context, AsyncSnapshot snapshot) {
+                            if (!snapshot.hasData) {
+                              Loading();
+                            } else {
+                              return snapshot.data;
+                            }
+                            return Container();
+                          }),
+                    ),
                     height: MediaQuery.of(context).size.height * 0.125,
                     width: MediaQuery.of(context).size.width * 0.125),
                 title: Text('Meal'),
@@ -311,12 +296,20 @@ class _DiaryScreenState extends State<DiaryScreen> {
     );
   }
 
-  Widget displayImage(
-      BuildContext context, bool _isIos, String localPath, String imgRef) {
+  Future<Widget> displayImage(BuildContext context, bool _isIos,
+      String localPath, String imgRef) async {
     if (localPath != null) {
       try {
-        return Image.file(File(localPath));
-      } catch (e) {}
+        File imageFile = File(localPath);
+        if (await imageFile.exists()) {
+          Image img = Image.file(imageFile);
+          return img;
+        }
+      } on FileSystemException {
+        print("Couldn't find local image");
+      } catch (e) {
+        print(e);
+      }
     }
     return imgRef != null
         ? CachedNetworkImage(
