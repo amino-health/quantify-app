@@ -29,6 +29,7 @@ import 'package:quantify_app/services/database.dart';
 
 import 'package:quantify_app/models/mealData.dart';
 
+import '../loading.dart';
 import 'diaryScreen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -166,11 +167,19 @@ class _HomeScreenState extends State<HomeScreen>
     }
   }
 
-  Widget displayImage(bool _isIos) {
+  Future<Widget> displayImage(bool _isIos) async {
     if (_mealData.localPath != null) {
       try {
-        return Image.file(File(_mealData.localPath));
-      } catch (e) {}
+        File imageFile = File(_mealData.localPath);
+        if (await imageFile.exists()) {
+          Image img = Image.file(imageFile);
+          return img;
+        }
+      } on FileSystemException {
+        print("Couldn't find local image");
+      } catch (e) {
+        print(e);
+      }
     }
     return _mealData.mealImageUrl != null
         ? CachedNetworkImage(
@@ -377,7 +386,17 @@ class _HomeScreenState extends State<HomeScreen>
                   Container(
                       height: MediaQuery.of(context).size.height * 0.2,
                       width: MediaQuery.of(context).size.width * 0.45,
-                      child: displayImage(_isIos)),
+                      child: FutureBuilder(
+                          future: displayImage(_isIos),
+                          builder:
+                              (BuildContext context, AsyncSnapshot snapshot) {
+                            if (!snapshot.hasData) {
+                              Loading();
+                            } else {
+                              return snapshot.data;
+                            }
+                            return Container();
+                          })),
                   Container(
                     height: MediaQuery.of(context).size.height * 0.2,
                     width: MediaQuery.of(context).size.width * 0.45,
