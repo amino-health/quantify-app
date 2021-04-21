@@ -216,7 +216,7 @@ class _GraphicalInterfaceState extends State<GraphicalInterface> {
                             markerSettings: MarkerSettings(
                                 height: 25.0,
                                 width: 25.0,
-                                shape: DataMarkerType.circle)),
+                                shape: DataMarkerType.diamond)),
                         ScatterSeries(
                           color: Colors.blue,
                           enableTooltip: true,
@@ -227,7 +227,7 @@ class _GraphicalInterfaceState extends State<GraphicalInterface> {
                           markerSettings: MarkerSettings(
                               height: 25.0,
                               width: 25.0,
-                              shape: DataMarkerType.circle),
+                              shape: DataMarkerType.diamond),
                         )
                       ],
                     ),

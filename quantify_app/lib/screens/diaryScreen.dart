@@ -107,14 +107,15 @@ class _DiaryScreenState extends State<DiaryScreen> {
   void goToGraphPoint(DateTime date,
       {TrainingDiaryData trainingData, MealData mealData}) {
     goToGraph(date);
+
     if (trainingData != null) {
-      Future.delayed(Duration.zero, () {
-        update([trainingData, false]);
-      });
+      //Future.delayed(Duration.zero, () {
+      update([trainingData, false]);
+      //   });
     } else if (mealData != null) {
-      Future.delayed(Duration.zero, () {
-        update([mealData, false]);
-      });
+      //Future.delayed(Duration.zero, () {
+      update([mealData, false]);
+      // });
     }
   }
 
@@ -175,6 +176,7 @@ class _DiaryScreenState extends State<DiaryScreen> {
                           ),
                         ),
                         Expanded(
+                            flex: 5,
                             child: Padding(
                                 padding: const EdgeInsets.fromLTRB(
                                     20.0, 5.0, 2.0, 5.0),
@@ -240,7 +242,19 @@ class _DiaryScreenState extends State<DiaryScreen> {
                                       ),
                                     ),
                                   ],
-                                )))
+                                ))),
+                        Expanded(
+                            flex: 2,
+                            child: Padding(
+                              padding: const EdgeInsets.only(bottom: 20.0),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(Icons.arrow_back_ios_outlined),
+                                  Icon(Icons.arrow_forward_ios_outlined)
+                                ],
+                              ),
+                            ))
                       ])),
             ),
           ),
@@ -352,8 +366,7 @@ class _DiaryScreenState extends State<DiaryScreen> {
                                     ),
                                   ),
                                   CircleAvatar(
-                                      backgroundColor:
-                                          Color(0xFF99163D),
+                                      backgroundColor: Color(0xFF99163D),
                                       radius: 12,
                                       child: Text(78.toString(),
                                           style: TextStyle(
@@ -368,6 +381,7 @@ class _DiaryScreenState extends State<DiaryScreen> {
                           ),
                         ),
                         Expanded(
+                            flex: 5,
                             child: Padding(
                                 padding: const EdgeInsets.fromLTRB(
                                     20.0, 5.0, 2.0, 5.0),
@@ -435,7 +449,19 @@ class _DiaryScreenState extends State<DiaryScreen> {
                                       ),
                                     ),
                                   ],
-                                )))
+                                ))),
+                        Expanded(
+                            flex: 2,
+                            child: Padding(
+                              padding: const EdgeInsets.only(bottom: 20.0),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(Icons.arrow_back_ios_outlined),
+                                  Icon(Icons.arrow_forward_ios_outlined)
+                                ],
+                              ),
+                            ))
                       ])),
             ),
           ),

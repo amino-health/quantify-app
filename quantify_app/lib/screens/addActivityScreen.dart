@@ -170,10 +170,14 @@ class _AddActivityScreenState extends State<AddActivityScreen>
       myActivityList,
       allActivityList
     ];
+
     final user = Provider.of<UserClass>(context, listen: false);
     for (int j = 0; j < activityList.length; j++) {
       for (int i = 0; i < activityList[j].length; i++) {
-        if (activityList[j][i][0].key.hashCode == (dismissKey.hashCode)) {
+        print(activityList[j][i][0].key.value);
+        print(dismissKey.value);
+        print(j);
+        if (activityList[j][i][0].key.value == (dismissKey.value)) {
           if (j == 0) {
             print('list item is');
             print(historyActivityList[i][1]);

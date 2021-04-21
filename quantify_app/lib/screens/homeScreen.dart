@@ -464,17 +464,17 @@ class _HomeScreenState extends State<HomeScreen>
               ),
             ),
             Expanded(
+              key: globals.overviewKey,
               child: StatefulBuilder(
-                  key: globals.overviewKey,
                   builder: (BuildContext context, setStateMeal) {
-                    if (showMeal) {
-                      return mealContent(context, _isIos);
-                    } else if (showActivity) {
-                      return activityContent(context, _isIos);
-                    } else {
-                      return Container();
-                    }
-                  }),
+                if (showMeal) {
+                  return mealContent(context, _isIos);
+                } else if (showActivity) {
+                  return activityContent(context, _isIos);
+                } else {
+                  return Container();
+                }
+              }),
             ),
           ],
         ),

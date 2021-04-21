@@ -169,12 +169,12 @@ class _ExpandableFabState extends State<ExpandableFab>
             _buildContainerToDisableTouch(),
             Padding(
                 padding: EdgeInsets.only(
-                    bottom: MediaQuery.of(context).size.width * 0.025),
+                    bottom: MediaQuery.of(context).size.width * 0.075),
                 child: _buildTapToCloseFab()),
             ..._buildExpandingActionButtons(),
             Padding(
                 padding: EdgeInsets.only(
-                    bottom: MediaQuery.of(context).size.width * 0.025),
+                    bottom: MediaQuery.of(context).size.width * 0.075),
                 child: _buildTapToOpenFab()),
           ],
         )),
