@@ -24,16 +24,25 @@ class Sensor {
     bool isAvailable = await NfcManager.instance.isAvailable();
 
     if (isAvailable) {
+<<<<<<< HEAD
       print("isAvaliable");
       if (Platform.isAndroid) {
         print("isAndroid");
+=======
+      if (Platform.isAndroid) {
+        print("isAvaliable");
+>>>>>>> eac6f0386ef6fa7e15f634ccfd6bc9958895f2e0
         NfcManager.instance.startSession(
           onDiscovered: (tag) async {
             try {
               print("----------------------------------");
               print(tag.data);
 
+<<<<<<< HEAD
               Widget result = await readDataAndroid(tag);
+=======
+              Widget result = await readData(tag);
+>>>>>>> eac6f0386ef6fa7e15f634ccfd6bc9958895f2e0
 
               await NfcManager.instance.stopSession();
               return result;
@@ -47,6 +56,7 @@ class Sensor {
           },
         ).catchError((e) => print(e));
       }
+<<<<<<< HEAD
       if (Platform.isIOS) {
         print("isIOS");
         NfcManager.instance.startSession(
@@ -68,6 +78,12 @@ class Sensor {
   }
 
   Future<Widget> readDataAndroid(NfcTag tag) async {
+=======
+    }
+  }
+
+  Future<Widget> readData(NfcTag tag) async {
+>>>>>>> eac6f0386ef6fa7e15f634ccfd6bc9958895f2e0
     print('handleSensor');
     if (tag != null) {
       Uint8List identifier = tag.data['nfcv']['identifier'];
@@ -118,8 +134,11 @@ class Sensor {
     );
   }
 
+<<<<<<< HEAD
   Future<void> readDataIOS(NfcTag tag) {}
 
+=======
+>>>>>>> eac6f0386ef6fa7e15f634ccfd6bc9958895f2e0
   int getHistoryIndex() {
     return data[26];
   }
