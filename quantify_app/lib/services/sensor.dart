@@ -47,23 +47,6 @@ class Sensor {
           },
         ).catchError((e) => print(e));
       }
-      if (Platform.isIOS) {
-        print("isIOS");
-        NfcManager.instance.startSession(
-          alertMessage: "Scanning for sensor",
-          onDiscovered: (tag) async {
-            try {
-              print("-----------------------------------");
-              print(tag.data);
-              //final result = await handleTag(tag);
-              //if (result == null) return;
-              await NfcManager.instance.stopSession(alertMessage: "Done");
-            } catch (e) {
-              await NfcManager.instance.stopSession(errorMessage: '$e');
-            }
-          },
-        );
-      }
     }
   }
 
@@ -117,8 +100,6 @@ class Sensor {
       child: Text("Error"),
     );
   }
-
-  Future<void> readDataIOS(NfcTag tag) {}
 
   int getHistoryIndex() {
     return data[26];
