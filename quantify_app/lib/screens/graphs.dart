@@ -20,12 +20,13 @@ import 'package:quantify_app/models/mealData.dart';
 
 class GraphicalInterface extends StatefulWidget {
   final ValueChanged update;
-  GraphicalInterface({this.update});
+  final DateTime graphPosSetter;
+  GraphicalInterface({this.update, this.graphPosSetter});
   //GraphicalInterface({Key key});
 
   @override
   _GraphicalInterfaceState createState() =>
-      _GraphicalInterfaceState(update: update);
+      _GraphicalInterfaceState(update: update, graphPosSetter: graphPosSetter);
 }
 
 class _GraphicalInterfaceState extends State<GraphicalInterface> {
@@ -34,7 +35,9 @@ class _GraphicalInterfaceState extends State<GraphicalInterface> {
   TooltipBehavior _tooltipBehavior;
   bool alreadyRandom = false;
   final ValueChanged<List<dynamic>> update;
-  _GraphicalInterfaceState({this.update});
+  DateTime graphPosSetter;
+  _GraphicalInterfaceState({this.update, this.graphPosSetter});
+
   @override
   void initState() {
     initializeDateFormatting();
@@ -180,6 +183,12 @@ class _GraphicalInterfaceState extends State<GraphicalInterface> {
                               textStyle: TextStyle(fontSize: 12))),
                       // Initialize category axis
                       primaryXAxis: DateTimeAxis(
+                        visibleMinimum: graphPosSetter != null
+                            ? graphPosSetter.subtract(Duration(hours: 4))
+                            : null,
+                        visibleMaximum: graphPosSetter != null
+                            ? graphPosSetter.add(Duration(hours: 4))
+                            : null,
                         autoScrollingDelta: 8,
                         autoScrollingDeltaType: DateTimeIntervalType.hours,
                       ),
@@ -239,6 +248,7 @@ class _GraphicalInterfaceState extends State<GraphicalInterface> {
                 backgroundColor: Color(0xff99163d),
                 onPressed: () {
                   setState(() {
+                    graphPosSetter = null;
                     visMax = DateTime.now();
                   });
                 },
