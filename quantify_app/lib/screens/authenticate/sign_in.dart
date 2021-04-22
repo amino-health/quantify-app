@@ -74,7 +74,20 @@ class _SignInState extends State<SignIn> {
                       setState(() => password = val.trim());
                     }),
               ),
-
+              Padding(
+                padding: const EdgeInsets.all(2.0),
+                // ignore: missing_required_param
+                child: TextButton(
+                  onPressed: () {
+                    Navigator.pushReplacement(context,
+                        MaterialPageRoute(builder: (context) => Register()));
+                  },
+                  child: Text(
+                    error, //title
+                    textAlign: TextAlign.end, //aligment
+                  ),
+                ),
+              ),
               Padding(
                 padding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
                 child: SizedBox(
@@ -86,9 +99,9 @@ class _SignInState extends State<SignIn> {
                       if (_formKey.currentState.validate()) {
                         dynamic result = await _auth.signInWithEmailAndPassword(
                             email, password);
-                        if (result == null) {
+                        if (result[0] == null) {
                           setState(() {
-                            error = 'Could not sign in with those credentials';
+                            error = result[1];
                           });
                         }
                       }
@@ -158,20 +171,6 @@ class _SignInState extends State<SignIn> {
                 ),
               ),
 
-              Padding(
-                padding: const EdgeInsets.all(2.0),
-                // ignore: missing_required_param
-                child: TextButton(
-                  onPressed: () {
-                    Navigator.pushReplacement(context,
-                        MaterialPageRoute(builder: (context) => Register()));
-                  },
-                  child: Text(
-                    error, //title
-                    textAlign: TextAlign.end, //aligment
-                  ),
-                ),
-              ),
               Padding(
                 padding: const EdgeInsets.all(4.0),
                 // ignore: missing_required_param

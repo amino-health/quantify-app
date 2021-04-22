@@ -5,7 +5,6 @@ import 'package:quantify_app/models/userClass.dart';
 import 'package:quantify_app/services/database.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 
-
 class AuthService {
   static String uEmail, uPassword;
   static bool done;
@@ -31,6 +30,7 @@ class AuthService {
     return _auth.authStateChanges().map(_userFromFirebaseUser);
   }
 
+  String errorCode;
 //Sign in
   Future<dynamic> signInWithEmailAndPassword(
       String email, String password) async {
@@ -41,13 +41,41 @@ class AuthService {
       User user = result.user;
       print(user);
       return user;
-    } catch (e) {
-      switch (e.code) {
+    } catch (error) {
+      print(error.code);
+      switch (error.code) {
+        case "ERROR_EMAIL_ALREADY_IN_USE":
+        case "account-exists-with-different-credential":
+        case "email-already-in-use":
+          errorCode = "Email already used. Go to login page.";
+          return [null, errorCode];
+        case "ERROR_WRONG_PASSWORD":
+        case "wrong-password":
+          errorCode = "Wrong email/password combination.";
+          return [null, errorCode];
+        case "ERROR_USER_NOT_FOUND":
+        case "user-not-found":
+          errorCode = "No user found with this email.";
+          return [null, errorCode];
+        case "ERROR_USER_DISABLED":
+        case "user-disabled":
+          errorCode = "User disabled.";
+          return [null, errorCode];
+        case "ERROR_TOO_MANY_REQUESTS":
+        case "operation-not-allowed":
+          errorCode = "Too many requests to log into this account.";
+          return [null, errorCode];
+        case "ERROR_OPERATION_NOT_ALLOWED":
+        case "operation-not-allowed":
+          errorCode = "Server error, please try again later.";
+          return [null, errorCode];
         case "ERROR_INVALID_EMAIL":
-          return e.message;
-          break;
+        case "invalid-email":
+          errorCode = "Email address is invalid.";
+          return [null, errorCode];
         default:
-          return null;
+          errorCode = "Login failed. Please try again.";
+          return [null, errorCode];
       }
     }
   }
@@ -124,8 +152,6 @@ class AuthService {
 
       await DatabaseService(uid: user.uid)
           .createTrainingData('Running', 'Sprint', DateTime.now(), 0, 3, false);
-
-
     } catch (error) {
       print('HEJ');
       print(error.toString());
