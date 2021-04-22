@@ -16,7 +16,7 @@ class UserInfoScreen extends StatefulWidget {
 
 class _UserInfoScreenState extends State<UserInfoScreen> {
   DateTime selectedDate = DateTime.now();
-  String dropdownValue = 'Female';
+  String dropdownValue = 'Gender';
   final _formKey = GlobalKey<FormState>();
   bool myvar = false;
 
@@ -142,6 +142,7 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
                           onTap: () {
                             _selectDate(context);
                           },
+                          focusNode: AlwaysDisabledFocusNode(),
                           decoration: InputDecoration(
                             hintText: 'Birth:',
                             labelText:
@@ -192,11 +193,11 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
                       Padding(
                         padding: const EdgeInsets.all(10.0),
                         child: Container(
-                          width: 400.0,
+                          //width: 400.0,
                           // margin: EdgeInsets.fromLTRB(30.0, 10.0, 20.0, 10.0),
                           child: DropdownButtonHideUnderline(
                             child: Container(
-                              padding: EdgeInsets.fromLTRB(20.0, 0, 20.0, 0),
+                              padding: EdgeInsets.fromLTRB(85.0, 0, 85.0, 0),
                               decoration: ShapeDecoration(
                                 shape: RoundedRectangleBorder(
                                     side: BorderSide(
@@ -205,6 +206,7 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
                                         Radius.circular(32.0))),
                               ),
                               child: DropdownButton<String>(
+                                hint: Text('Gender'),
                                 value: dropdownValue,
                                 icon: const Icon(Icons.arrow_downward),
                                 onChanged: (String newValue) {
