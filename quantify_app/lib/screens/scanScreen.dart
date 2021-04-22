@@ -13,6 +13,26 @@ class ScanScreen extends StatefulWidget {
 
 class _ScanScreenState extends State<ScanScreen> {
   Sensor sensor = new Sensor();
+  int returnValue;
+
+  void callbackResult(int result) {
+    returnValue = result;
+    print(returnValue);
+    List<GlucoseData> lg = sensor.getTrendData();
+    lg.forEach((element) {
+      print("g: " +
+          element.glucoseVal.toString() +
+          " t: " +
+          element.time.toString());
+    });
+    List<GlucoseData> hg = sensor.getHistoryData();
+    hg.forEach((element) {
+      print("g: " +
+          element.glucoseVal.toString() +
+          " t: " +
+          element.time.toString());
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,13 +63,15 @@ class _ScanScreenState extends State<ScanScreen> {
             ),
             ElevatedButton(
               onPressed: () async {
-                int result = await sensor.sensorSession(user.uid);
+                int result =
+                    await sensor.sensorSession(user.uid, callbackResult);
                 print("RESLUT: " + result.toString());
               },
               child: Text("Scan"),
             ),
             ElevatedButton(
                 onPressed: () async {
+                  print(returnValue);
                   List<GlucoseData> lg = sensor.getTrendData();
                   lg.forEach((element) {
                     print("g: " +
