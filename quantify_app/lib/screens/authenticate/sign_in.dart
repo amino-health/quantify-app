@@ -157,53 +157,6 @@ class _SignInState extends State<SignIn> {
                   ),
                 ),
               ),
-              Padding(
-                padding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
-                child: SizedBox(
-                  height: 50,
-                  width: 350,
-                  child: ElevatedButton(
-                    //child: Text("Sign in with Google"),
-                    onPressed: () async {
-                      if (_formKey.currentState.validate()) {
-                        dynamic result = await _auth.signInWithEmailAndPassword(
-                            email, password);
-                        if (result == null) {
-                          setState(() {
-                            error = 'Could not sign in with those credentials';
-                          });
-                        }
-                      }
-                    },
-                    style: ElevatedButton.styleFrom(
-                      primary: Color(0xFF3A559F),
-                      onPrimary: Colors.black,
-                      shape: RoundedRectangleBorder(
-                          // borderRadius: BorderRadius.circular(300),
-                          ),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        Image(
-                            image: AssetImage("lib/assets/facebook_logo.png"),
-                            height: 20.0),
-                        Padding(
-                          padding: const EdgeInsets.only(left: 5),
-                          child: Text(
-                            'Sign in with FaceBook',
-                            style: TextStyle(
-                              fontSize: 13,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
 
               Padding(
                 padding: const EdgeInsets.all(2.0),
