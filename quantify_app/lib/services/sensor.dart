@@ -17,11 +17,12 @@ class Sensor {
   static const int histOffsetSndByte = 124;
   static const int blockSize = 6;
   static const int minInMilliSec = 60000;
+  static const int sensorAlive = 3;
 
   int nfcReadTimeout = 1000;
   Uint8List data = Uint8List(360);
 
-  Future<int> sensorSession(String uid) async {
+  Future<int> sensorSession(String uid, Function(int) f) async {
     bool isAvailable = await NfcManager.instance.isAvailable();
 
     if (isAvailable) {
@@ -35,14 +36,16 @@ class Sensor {
               print(tag.data);
 
               int result = await readDataAndroid(tag);
-              List<GlucoseData> trend = getTrendData();
-              List<GlucoseData> history = getHistoryData();
+              if (result == sensorAlive) {
+                List<GlucoseData> trend = getTrendData();
+                List<GlucoseData> history = getHistoryData();
 
-              await DatabaseService(uid: uid).updateGlucose(trend);
-              await DatabaseService(uid: uid).updateGlucose(history);
+                await DatabaseService(uid: uid).updateGlucose(trend);
+                await DatabaseService(uid: uid).updateGlucose(history);
+              }
 
               await NfcManager.instance.stopSession();
-              return result;
+              f(result);
             } catch (e) {
               await NfcManager.instance
                   .stopSession()
@@ -56,7 +59,6 @@ class Sensor {
         });
       }
     }
-    print("aaaaaaaaaaaaaaaaaa");
     return 6;
   }
 
@@ -126,20 +128,22 @@ class Sensor {
     int watchTime = DateTime.now().millisecondsSinceEpoch;
     int indexTrend = getTrendIndex();
     int sensorTime = 256 * (data[317]) + (data[316]);
-    print("--------------------------------------------------------");
-    print(sensorTime);
-    print(data[317]);
-    print(data[316]);
     int sensorStartTime = watchTime - sensorTime * minInMilliSec;
 
     for (int index = 0; index < 32; index++) {
       int i = indexTrend - index - 1;
       if (i < 0) i += 32;
-      int time = [0, sensorTime - index].reduce(max);
+      int time = [
+        0,
+        (((sensorTime - 3) / 15).abs() * 15 - index * 15).round()
+      ] // Bordea vara 30 ist för 3 om det ska stämma med minuter
+          .reduce(max);
+      DateTime readTime = DateTime.fromMillisecondsSinceEpoch(
+          sensorStartTime + time * minInMilliSec);
       result.add(
         GlucoseData(
-          DateTime.fromMillisecondsSinceEpoch(
-              sensorStartTime + time * minInMilliSec),
+          DateTime(readTime.year, readTime.month, readTime.day, readTime.hour,
+              readTime.minute),
           getGlucoseLevel(
             data[(i * blockSize + histOffsetFstByte)],
             data[(i * blockSize + histOffsetSndByte)],
