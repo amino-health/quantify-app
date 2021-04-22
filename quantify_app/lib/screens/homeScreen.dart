@@ -39,6 +39,8 @@ class HomeScreen extends StatefulWidget {
   _HomeScreenState createState() => _HomeScreenState();
 }
 
+GlobalKey overviewKey = new GlobalKey();
+
 class _HomeScreenState extends State<HomeScreen>
     with SingleTickerProviderStateMixin {
   MealData _mealData = new MealData("", DateTime.now(), null, null, null);
@@ -47,6 +49,7 @@ class _HomeScreenState extends State<HomeScreen>
   bool showActivity = false;
   int selectedIndex = 0;
   DateTime graphPos;
+
   findGraphPoint(Object data) {
     setState(() {
       graphPos = data;
@@ -57,15 +60,23 @@ class _HomeScreenState extends State<HomeScreen>
 
   setData(Object data) {
     List castedData = data as List;
+    dynamic toSet;
+    if (castedData.last) {
+      toSet = overviewKey.currentState;
+      print('setting state of overviewkey');
+    } else {
+      toSet = this;
+      print('setting state of homescreen');
+    }
     if (castedData.first.runtimeType == MealData) {
-      globals.overviewKey.currentState.setState(() {
+      toSet.setState(() {
         _mealData = castedData.first;
         showMeal = true;
         showActivity = false;
       });
     } else {
-      print('State is  ${globals.overviewKey.currentState}');
-      globals.overviewKey.currentState.setState(() {
+      print('State is now ${overviewKey.currentState}');
+      toSet.setState(() {
         _trainingData = castedData.first;
         showActivity = true;
         showMeal = false;
@@ -100,12 +111,12 @@ class _HomeScreenState extends State<HomeScreen>
                       final user =
                           Provider.of<UserClass>(context, listen: false);
                       if (isMeal) {
-                        globals.overviewKey.currentState.setState(() {
+                        overviewKey.currentState.setState(() {
                           DatabaseService(uid: user.uid).removeMeal(_mealData);
                           showMeal = false;
                         });
                       } else {
-                        globals.overviewKey.currentState.setState(() {
+                        overviewKey.currentState.setState(() {
                           DatabaseService(uid: user.uid)
                               .removeDiaryItem(_trainingData.trainingid);
                           showActivity = false;
@@ -257,7 +268,7 @@ class _HomeScreenState extends State<HomeScreen>
                     child: IconButton(
                         color: Colors.white,
                         onPressed: () {
-                          globals.overviewKey.currentState.setState(() {
+                          overviewKey.currentState.setState(() {
                             showActivity = false;
                           });
                         },
@@ -387,7 +398,7 @@ class _HomeScreenState extends State<HomeScreen>
                     child: IconButton(
                         color: Colors.white,
                         onPressed: () {
-                          globals.overviewKey.currentState.setState(() {
+                          overviewKey.currentState.setState(() {
                             showMeal = false;
                           });
                         },
@@ -483,17 +494,17 @@ class _HomeScreenState extends State<HomeScreen>
               ),
             ),
             Expanded(
-              key: globals.overviewKey,
               child: StatefulBuilder(
+                  key: overviewKey,
                   builder: (BuildContext context, setStateMeal) {
-                if (showMeal) {
-                  return mealContent(context, _isIos);
-                } else if (showActivity) {
-                  return activityContent(context, _isIos);
-                } else {
-                  return Container();
-                }
-              }),
+                    if (showMeal) {
+                      return mealContent(context, _isIos);
+                    } else if (showActivity) {
+                      return activityContent(context, _isIos);
+                    } else {
+                      return Container();
+                    }
+                  }),
             ),
           ],
         ),

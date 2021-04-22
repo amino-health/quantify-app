@@ -144,7 +144,7 @@ class _GraphicalInterfaceState extends State<GraphicalInterface> {
                                 meal['imageRef'],
                                 meal['docId'],
                                 meal['localPath']),
-                            false
+                            true
                           ]);
                         } else if (args.seriesIndex == 2) {
                           var activity = activityData[args.pointIndex];
