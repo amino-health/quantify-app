@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:quantify_app/customWidgets/globals.dart' as globals;
 
 class FABBottomAppBarItem {
   FABBottomAppBarItem({this.iconData, this.text});
@@ -54,8 +55,11 @@ class FABBottomAppBarState extends State<FABBottomAppBar> {
       );
     });
     items.insert(items.length >> 1, _buildMiddleTabItem());
-
+    if (globals.navBarRef != null) {
+      _selectedIndex = 0;
+    }
     return BottomAppBar(
+      key: globals.navBarRef,
       shape: widget.notchedShape,
       child: Row(
         mainAxisSize: MainAxisSize.max,

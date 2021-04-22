@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:quantify_app/models/mealData.dart';
 import 'package:quantify_app/models/userClass.dart';
 import 'package:quantify_app/screens/homeSkeleton.dart';
 import 'dart:io';
@@ -8,6 +9,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'dart:io' show Platform;
 import 'package:quantify_app/services/database.dart';
+//import 'package:quantify_app/customWidgets/globals.dart' as globals;
 
 class AddMealScreen extends StatefulWidget {
   final _image;
@@ -399,19 +401,9 @@ class _AddMealScreenState extends State<AddMealScreen> {
   _cropImage(image) async {
     return await ImageCropper.cropImage(
         cropStyle: CropStyle.rectangle,
+        aspectRatio: CropAspectRatio(ratioX: 1, ratioY: 1),
         sourcePath: image.path,
-        aspectRatioPresets: Platform.isAndroid
-            ? [CropAspectRatioPreset.square, CropAspectRatioPreset.original]
-            : [
-                CropAspectRatioPreset.original,
-                CropAspectRatioPreset.square,
-                CropAspectRatioPreset.ratio3x2,
-                CropAspectRatioPreset.ratio4x3,
-                CropAspectRatioPreset.ratio5x3,
-                CropAspectRatioPreset.ratio5x4,
-                CropAspectRatioPreset.ratio7x5,
-                CropAspectRatioPreset.ratio16x9
-              ],
+        aspectRatioPresets: [CropAspectRatioPreset.square],
         compressFormat: ImageCompressFormat.jpg,
         androidUiSettings: AndroidUiSettings(
             toolbarTitle: 'Crop your image',
@@ -480,7 +472,10 @@ class _AddMealScreenState extends State<AddMealScreen> {
       DatabaseService(uid: user.uid).uploadImage(_image, _timeStamp, _note);
     }
     while (Navigator.canPop(context)) {
-      Navigator.pop(context, _edit);
+      Navigator.pop(
+          context,
+          new MealData(_note, _timeStamp, null, _docId,
+              _image != null ? _image.path : null));
     }
   }
 }
