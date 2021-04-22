@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:quantify_app/customWidgets/bottomNavbar.dart';
 import 'package:quantify_app/customWidgets/expandingFAB.dart';
-//import 'package:quantify_app/customWidgets/globals.dart' as globals;
 //import 'package:quantify_app/loading.dart';
 import 'package:quantify_app/models/userClass.dart';
 import 'package:quantify_app/screens/ActivityFormScreen.dart';
@@ -13,6 +12,7 @@ import 'package:quantify_app/screens/diaryScreen.dart';
 //import 'package:quantify_app/screens/diaryScreen.dart';
 
 import 'package:quantify_app/screens/addMealScreen.dart';
+import 'package:quantify_app/customWidgets/globals.dart' as globals;
 
 //import 'package:flutter_svg/flutter_svg.dart';
 //import 'package:quantify_app/screens/firstScanScreen.dart';
@@ -43,7 +43,6 @@ GlobalKey overviewKey = new GlobalKey();
 
 class _HomeScreenState extends State<HomeScreen>
     with SingleTickerProviderStateMixin {
-  int _selectedIndex = 0;
   MealData _mealData = new MealData("", DateTime.now(), null, null, null);
 
   TrainingDiaryData _trainingData = new TrainingDiaryData();
@@ -51,16 +50,36 @@ class _HomeScreenState extends State<HomeScreen>
   bool showMeal = false;
   bool showActivity = false;
   bool showWelcome = true;
+  int selectedIndex = 0;
+  DateTime graphPos;
+
+  findGraphPoint(Object data) {
+    setState(() {
+      graphPos = data;
+      selectedIndex = 0;
+    });
+    globals.navBarRef.currentState.setState(() {});
+  }
+
   setData(Object data) {
     List castedData = data as List;
+    dynamic toSet;
+    if (castedData.last) {
+      toSet = overviewKey.currentState;
+      print('setting state of overviewkey');
+    } else {
+      toSet = this;
+      print('setting state of homescreen');
+    }
     if (castedData.first.runtimeType == MealData) {
-      overviewKey.currentState.setState(() {
+      toSet.setState(() {
         _mealData = castedData.first;
         showMeal = true;
         showActivity = false;
       });
     } else {
-      overviewKey.currentState.setState(() {
+      print('State is now ${overviewKey.currentState}');
+      toSet.setState(() {
         _trainingData = castedData.first;
         showActivity = true;
         showMeal = false;
@@ -153,18 +172,26 @@ class _HomeScreenState extends State<HomeScreen>
                   _mealData.mealDescription,
                   _mealData.mealImageUrl,
                   true,
-                  _mealData.docId)));
+                  _mealData.docId))).then((values) => setData([values, false]));
     } else {
       List activityData = await showDialog(
           context: context,
-          builder: (_) => ActivityPopup(
+          builder: (context) => ActivityPopup(
               keyRef: _trainingData.trainingid,
               isAdd: true,
               titlevalue: _trainingData.name,
               subtitle: _trainingData.description,
               date: _trainingData.date,
               duration: _trainingData.duration.inMilliseconds,
-              intensity: _trainingData.intensity));
+              intensity: _trainingData.intensity)).then((values) => setData([
+            new TrainingDiaryData(
+                trainingid: values[5],
+                name: values[0],
+                description: values[1],
+                date: values[2],
+                duration: values[3],
+                intensity: values[4])
+          ]));
       final user = Provider.of<UserClass>(context, listen: false);
       await DatabaseService(uid: user.uid).updateTrainingDiaryData(
         activityData[5], //ID
@@ -692,25 +719,26 @@ class _HomeScreenState extends State<HomeScreen>
           ],
         ),
       ),
-      DiaryScreen(),
+      DiaryScreen(goToGraph: findGraphPoint, update: setData),
       Profile(),
       Text('Settingspage'),
     ];
 
-    void _onItemTapped(int index) {
+    void onItemTapped(int index) {
       setState(() {
-        _selectedIndex = index;
+        selectedIndex = index;
       });
     }
 
-    var scaffold = Scaffold(
+    print(selectedIndex);
+    return Scaffold(
       appBar: CustomAppBar(),
-      body: _children[_selectedIndex],
+      body: _children[selectedIndex],
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: ExampleExpandableFab(), //SmartButton(),
-      //bottomNavigationBar:
+
       bottomNavigationBar: FABBottomAppBar(
-        onTabSelected: _onItemTapped,
+        onTabSelected: onItemTapped,
         selectedColor: Color(0xFF99163D),
         color: Colors.grey[500],
         items: [
@@ -721,35 +749,6 @@ class _HomeScreenState extends State<HomeScreen>
           FABBottomAppBarItem(iconData: Icons.settings, text: 'Settings'),
         ],
       ),
-
-      /*BottomNavigationBar(
-          type: BottomNavigationBarType.fixed,
-          backgroundColor: Color(0xFF99163D),
-          currentIndex: _selectedIndex,
-          selectedItemColor: Colors.grey[400],
-          onTap: _onItemTapped,
-          items: const <BottomNavigationBarItem>[
-            BottomNavigationBarItem(
-                icon: Icon(Icons.home),
-                backgroundColor: Color(0xFF99163D),
-                label: 'Home'),
-            BottomNavigationBarItem(
-                icon: Icon(Icons.book),
-                backgroundColor: Color(0xFF99163D),
-                label: 'Diary'),
-            //BottomNavigationBarItem(icon: null),
-            BottomNavigationBarItem(
-                icon: Icon(Icons.people),
-                backgroundColor: Color(0xFF99163D),
-                label: 'Profile'),
-            BottomNavigationBarItem(
-                icon: Icon(Icons.settings),
-                backgroundColor: Color(0xFF99163D),
-                label: 'Settings'),
-          ],
-        )*/
     );
-
-    return scaffold;
   }
 }
