@@ -7,6 +7,7 @@ import 'package:nfc_manager/nfc_manager.dart';
 import 'package:nfc_manager/platform_tags.dart';
 import 'package:quantify_app/models/sensorWidgetList.dart';
 import 'package:quantify_app/screens/graphs.dart';
+import 'package:quantify_app/services/database.dart';
 
 class Sensor {
   // Constants
@@ -20,7 +21,7 @@ class Sensor {
   int nfcReadTimeout = 1000;
   Uint8List data = Uint8List(360);
 
-  Future<Widget> sensorSession() async {
+  Future<int> sensorSession(String uid) async {
     bool isAvailable = await NfcManager.instance.isAvailable();
 
     if (isAvailable) {
@@ -33,11 +34,15 @@ class Sensor {
               print("----------------------------------");
               print(tag.data);
 
-              Widget result = await readDataAndroid(tag);
+              int result = await readDataAndroid(tag);
+              List<GlucoseData> trend = getTrendData();
+              List<GlucoseData> history = getHistoryData();
+
+              await DatabaseService(uid: uid).updateGlucose(trend);
+              await DatabaseService(uid: uid).updateGlucose(history);
 
               await NfcManager.instance.stopSession();
               return result;
-              //setState(() => _alertMessage = result);
             } catch (e) {
               await NfcManager.instance
                   .stopSession()
@@ -45,14 +50,17 @@ class Sensor {
               print(e);
             }
           },
-        ).catchError((e) => print(e));
+        ).catchError((e) async {
+          print(e);
+          await NfcManager.instance.stopSession();
+        });
       }
     }
     print("aaaaaaaaaaaaaaaaaa");
-    return Text("Error reading sensor");
+    return 6;
   }
 
-  Future<Widget> readDataAndroid(NfcTag tag) async {
+  Future<int> readDataAndroid(NfcTag tag) async {
     print('handleSensor');
     if (tag != null) {
       Uint8List identifier = tag.data['nfcv']['identifier'];
@@ -93,15 +101,12 @@ class Sensor {
           print(cleanData);
           List.copyRange(data, 8 * blockIndex, cleanData);
         }
-        return Text(
-            "HELLOOO"); //SensorWidgetList().getSensorWidgetList(data[4]);
+        return data[4]; //SensorWidgetList().getSensorWidgetList(data[4]);
       } catch (e) {
         print(e);
       }
     }
-    return Container(
-      child: Text("Error"),
-    );
+    return 6;
   }
 
   int getHistoryIndex() {
@@ -121,17 +126,26 @@ class Sensor {
     int watchTime = DateTime.now().millisecondsSinceEpoch;
     int indexTrend = getTrendIndex();
     int sensorTime = 256 * (data[317]) + (data[316]);
+    print("--------------------------------------------------------");
+    print(sensorTime);
+    print(data[317]);
+    print(data[316]);
     int sensorStartTime = watchTime - sensorTime * minInMilliSec;
 
     for (int index = 0; index < 32; index++) {
       int i = indexTrend - index - 1;
       if (i < 0) i += 32;
       int time = [0, sensorTime - index].reduce(max);
-      result.add(GlucoseData(
+      result.add(
+        GlucoseData(
           DateTime.fromMillisecondsSinceEpoch(
               sensorStartTime + time * minInMilliSec),
-          getGlucoseLevel(data[(i * blockSize + histOffsetFstByte)],
-              data[(i * blockSize + histOffsetSndByte)])));
+          getGlucoseLevel(
+            data[(i * blockSize + histOffsetFstByte)],
+            data[(i * blockSize + histOffsetSndByte)],
+          ),
+        ),
+      );
     }
 
     return result;

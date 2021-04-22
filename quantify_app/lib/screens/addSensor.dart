@@ -20,10 +20,6 @@ class _AddSensorState extends State<AddSensor> {
   String _text = "";
   @override
   Widget build(BuildContext context) {
-    final Future<String> _future = Future<String>.delayed(
-      const Duration(seconds: 5),
-      () => 'Data Loaded',
-    );
     return Scaffold(
       appBar: CustomAppBar(),
       body: Container(
@@ -42,14 +38,7 @@ class _AddSensorState extends State<AddSensor> {
           )),
       floatingActionButton: FloatingActionButton(
         child: Text("knapp"),
-        onPressed: () async {
-          await sensor.sensorSession();
-          print("--------------------------");
-
-          setState(() {
-            _text = sensor.getTrendData()[0].glucoseVal.toString();
-          });
-        },
+        onPressed: () async {},
       ),
     );
   }
