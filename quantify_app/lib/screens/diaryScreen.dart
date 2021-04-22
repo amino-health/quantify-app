@@ -31,6 +31,7 @@ class DiaryScreen extends StatefulWidget {
 
 class _DiaryScreenState extends State<DiaryScreen> {
   List<Widget> diaryList = <Widget>[];
+
   final ValueChanged<DateTime> goToGraph;
   final ValueChanged<List<dynamic>> update;
   _DiaryScreenState({this.goToGraph, this.update});
@@ -359,10 +360,19 @@ class _DiaryScreenState extends State<DiaryScreen> {
                                           ? BorderRadius.circular(20.0)
                                           : BorderRadius.circular(0),
                                       child: Container(
-                                        width: 52,
-                                        child: displayImage(context, _isIos,
-                                            localPath, imageRef),
-                                      ),
+                                          width: 52,
+                                          child: FutureBuilder(
+                                              future: displayImage(context,
+                                                  _isIos, localPath, imageRef),
+                                              builder: (BuildContext context,
+                                                  AsyncSnapshot snapshot) {
+                                                if (!snapshot.hasData) {
+                                                  Loading();
+                                                } else {
+                                                  return snapshot.data;
+                                                }
+                                                return Container();
+                                              })),
                                     ),
                                   ),
                                   CircleAvatar(
@@ -507,220 +517,20 @@ class _DiaryScreenState extends State<DiaryScreen> {
         ));
   }
 
-  /*mealItem(BuildContext context, int date, String imageRef, String localPath,
-      String note, ValueKey newKey) {
-    bool _isIos;
-    try {
-      _isIos = Platform.isIOS || Platform.isMacOS;
-    } catch (e) {
-      _isIos = false;
-    }
-    return Padding(
-      key: newKey,
-      padding: const EdgeInsets.only(top: 8.0),
-      child: Slidable(
-        actionPane: SlidableDrawerActionPane(),
-        actionExtentRatio: 0.25,
-        child: Container(
-            color: Colors.white,
-            child: ListTile(
-                leading: Container(
-                    child: FittedBox(
-                        fit: BoxFit.fitWidth,
-                        child:
-                            displayImage(context, _isIos, localPath, imageRef)),
-                    height: MediaQuery.of(context).size.height * 0.125,
-                    width: MediaQuery.of(context).size.width * 0.125),
-                title: Text('Meal'),
-                subtitle: Row(
-                  children: [
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.only(bottom: 20.0, right: 10),
-                        child: Text(
-                          note,
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 2,
-                        ),
-                      ),
-                      flex: 5,
-                    ),
-                    Expanded(
-                      child: Column(
-                        children: [
-                          Row(
-                            children: [
-                              Container(child: Icon(Icons.access_time_sharp)),
-                              FittedBox(
-                                  fit: BoxFit.fitWidth,
-                                  child: Text(
-                                      DateFormat('EEE, M/d/y\nHH:mm').format(
-                                          DateTime.fromMillisecondsSinceEpoch(
-                                              date)),
-                                      textAlign: TextAlign.left)),
-                            ],
-                          ),
-                          FittedBox(
-                              fit: BoxFit.fitWidth,
-                              child: TextButton(
-                                  onPressed: () {}, child: Text('Show Graph')))
-                        ],
-                      ),
-                      flex: 5,
-                    )
-                  ],
-                ),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => DiaryDetailsScreen(
-                              keyRef: newKey,
-                              titlevalue: 'meal',
-                              subtitle: note,
-                              dateTime: date,
-                              duration: 0,
-                              intensity: null,
-                              isIos: _isIos,
-                              localPath: localPath,
-                              imgRef: imageRef,
-                            )),
-                  );
-                })),
-        secondaryActions: <Widget>[
-          IconSlideAction(
-            caption: 'Delete',
-            color: Colors.red,
-            icon: Icons.delete,
-            onTap: () => _removeMeal(new MealData(
-                note,
-                DateTime.fromMillisecondsSinceEpoch(date),
-                imageRef,
-                newKey.value,
-                localPath)),
-          ),
-          IconSlideAction(
-            caption: 'Edit',
-            color: Colors.grey[600],
-            icon: Icons.edit,
-            onTap: () => updateMeal(new MealData(
-                note,
-                DateTime.fromMillisecondsSinceEpoch(date),
-                imageRef,
-                newKey.value,
-                localPath)),
-          ),
-        ],
-      ),
-    );
-  }*/
-
-/*
-  activityItem(BuildContext context, String name, String _subtitle, int date,
-      int duration, int intensity, ValueKey newKey) {
-    print('valueKey is $newKey');
-    return Padding(
-      key: newKey,
-      padding: const EdgeInsets.only(top: 8.0),
-      child: Slidable(
-        actionPane: SlidableDrawerActionPane(),
-        actionExtentRatio: 0.25,
-        child: Container(
-            color: Colors.white,
-            child: ListTile(
-                leading: Icon(Icons.directions_run,
-                    size: MediaQuery.of(context).size.height * 0.075),
-                title: Text(name),
-                subtitle: Row(
-                  children: [
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.only(bottom: 20.0, right: 10),
-                        child: Text(
-                          _subtitle,
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 2,
-                        ),
-                      ),
-                      flex: 5,
-                    ),
-                    Expanded(
-                      child: Column(
-                        children: [
-                          Row(
-                            children: [
-                              Container(child: Icon(Icons.access_time_sharp)),
-                              FittedBox(
-                                  fit: BoxFit.fitWidth,
-                                  child: Text(
-                                      DateFormat('EEE, M/d/y\nHH:mm').format(
-                                          DateTime.fromMillisecondsSinceEpoch(
-                                              date)),
-                                      textAlign: TextAlign.left)),
-                            ],
-                          ),
-                          FittedBox(
-                              fit: BoxFit.fitWidth,
-                              child: TextButton(
-                                  onPressed: () {}, child: Text('Show Graph')))
-                        ],
-                      ),
-                      flex: 5,
-                    )
-                  ],
-                ),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => DiaryDetailsScreen(
-                            keyRef: newKey,
-                            titlevalue: name,
-                            subtitle: _subtitle,
-                            dateTime: date,
-                            duration: duration,
-                            isIos: false,
-                            localPath: 'activity',
-                            imgRef: 'activity',
-                            intensity: intensity)),
-                  );
-                })),
-        secondaryActions: <Widget>[
-          IconSlideAction(
-            caption: 'Delete',
-            color: Colors.red,
-            icon: Icons.delete,
-            onTap: () => _removeActivity(newKey),
-          ),
-          IconSlideAction(
-              caption: 'Edit',
-              color: Colors.grey[600],
-              icon: Icons.edit,
-              onTap: () async {
-                List<Object> activityData = await showDialog(
-                    context: context,
-                    builder: (_) => ActivityPopup(
-                        keyRef: newKey.value.toString(),
-                        isAdd: true,
-                        titlevalue: name,
-                        subtitle: _subtitle,
-                        date: DateTime.fromMillisecondsSinceEpoch(date),
-                        duration: duration,
-                        intensity: intensity));
-                updateActivity(context, activityData);
-              }),
-        ],
-      ),
-    );
-  }
-*/
-
-  Widget displayImage(
-      BuildContext context, bool _isIos, String localPath, String imgRef) {
+  Future<Widget> displayImage(BuildContext context, bool _isIos,
+      String localPath, String imgRef) async {
     if (localPath != null) {
       try {
-        return Image.file(File(localPath));
-      } catch (e) {}
+        File imageFile = File(localPath);
+        if (await imageFile.exists()) {
+          Image img = Image.file(imageFile);
+          return img;
+        }
+      } on FileSystemException {
+        print("Couldn't find local image");
+      } catch (e) {
+        print(e);
+      }
     }
     return imgRef != null
         ? CachedNetworkImage(
