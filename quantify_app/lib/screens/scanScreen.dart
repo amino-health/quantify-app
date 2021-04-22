@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:quantify_app/models/userClass.dart';
+import 'package:quantify_app/screens/graphs.dart';
 import 'package:quantify_app/screens/homeSkeleton.dart';
 import 'package:quantify_app/services/sensor.dart';
 //import 'package:flutter_svg/flutter_svg.dart';
@@ -13,6 +16,7 @@ class _ScanScreenState extends State<ScanScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final user = Provider.of<UserClass>(context);
     return Scaffold(
         appBar: CustomAppBar(),
         body: Center(
@@ -36,7 +40,32 @@ class _ScanScreenState extends State<ScanScreen> {
             Text(
               'Waiting for sensor...',
               textScaleFactor: 2,
-            )
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                int result = await sensor.sensorSession(user.uid);
+                print("RESLUT: " + result.toString());
+              },
+              child: Text("Scan"),
+            ),
+            ElevatedButton(
+                onPressed: () async {
+                  List<GlucoseData> lg = sensor.getTrendData();
+                  lg.forEach((element) {
+                    print("g: " +
+                        element.glucoseVal.toString() +
+                        " t: " +
+                        element.time.toString());
+                  });
+                  List<GlucoseData> hg = sensor.getHistoryData();
+                  hg.forEach((element) {
+                    print("g: " +
+                        element.glucoseVal.toString() +
+                        " t: " +
+                        element.time.toString());
+                  });
+                },
+                child: Text("Print")),
           ],
         )));
   }
