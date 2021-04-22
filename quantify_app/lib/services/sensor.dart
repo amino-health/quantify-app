@@ -20,14 +20,14 @@ class Sensor {
   int nfcReadTimeout = 1000;
   Uint8List data = Uint8List(360);
 
-  Future<dynamic> sensorSession() async {
+  Future<Widget> sensorSession() async {
     bool isAvailable = await NfcManager.instance.isAvailable();
 
     if (isAvailable) {
       print("isAvaliable");
       if (Platform.isAndroid) {
         print("isAndroid");
-        NfcManager.instance.startSession(
+        await NfcManager.instance.startSession(
           onDiscovered: (tag) async {
             try {
               print("----------------------------------");
@@ -48,6 +48,8 @@ class Sensor {
         ).catchError((e) => print(e));
       }
     }
+    print("aaaaaaaaaaaaaaaaaa");
+    return Text("Error reading sensor");
   }
 
   Future<Widget> readDataAndroid(NfcTag tag) async {
@@ -91,7 +93,8 @@ class Sensor {
           print(cleanData);
           List.copyRange(data, 8 * blockIndex, cleanData);
         }
-        return SensorWidgetList().getSensorWidgetList(data[4]);
+        return Text(
+            "HELLOOO"); //SensorWidgetList().getSensorWidgetList(data[4]);
       } catch (e) {
         print(e);
       }
