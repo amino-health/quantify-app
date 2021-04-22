@@ -29,6 +29,7 @@ import 'package:quantify_app/services/database.dart';
 
 import 'package:quantify_app/models/mealData.dart';
 
+import '../loading.dart';
 import 'diaryScreen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -44,10 +45,12 @@ class _HomeScreenState extends State<HomeScreen>
     with SingleTickerProviderStateMixin {
   int _selectedIndex = 0;
   MealData _mealData = new MealData("", DateTime.now(), null, null, null);
+
   TrainingDiaryData _trainingData = new TrainingDiaryData();
+  MealData latestMeal = new MealData("", DateTime.now(), null, null, null);
   bool showMeal = false;
   bool showActivity = false;
-
+  bool showWelcome = true;
   setData(Object data) {
     List castedData = data as List;
     if (castedData.first.runtimeType == MealData) {
@@ -64,6 +67,14 @@ class _HomeScreenState extends State<HomeScreen>
       });
     }
     /**/
+  }
+
+  getLatestMeal(MealData latestMeal) {
+    Future.delayed(Duration.zero, () {
+      overviewKey.currentState.setState(() {
+        this.latestMeal = latestMeal;
+      });
+    });
   }
 
   Future<void> delete({@required bool isMeal}) {
@@ -166,27 +177,40 @@ class _HomeScreenState extends State<HomeScreen>
     }
   }
 
-  Widget displayImage(bool _isIos) {
-    if (_mealData.localPath != null) {
-      try {
-        return Image.file(File(_mealData.localPath));
-      } catch (e) {}
+  Future<Widget> displayImage(bool _isIos, {bool latest = false}) async {
+    MealData selectedMeal;
+    if (latest) {
+      selectedMeal = latestMeal;
+    } else {
+      selectedMeal = _mealData;
     }
-    return _mealData.mealImageUrl != null
+    if (selectedMeal.localPath != null) {
+      try {
+        File imageFile = File(selectedMeal.localPath);
+        if (await imageFile.exists()) {
+          Image img = Image.file(imageFile);
+          return img;
+        }
+      } on FileSystemException {
+        print("Couldn't find local image");
+      } catch (e) {
+        print(e);
+      }
+    }
+    return selectedMeal.mealImageUrl != null
         ? CachedNetworkImage(
             progressIndicatorBuilder: (context, url, downProg) =>
                 CircularProgressIndicator(value: downProg.progress),
-            imageUrl: _mealData.mealImageUrl,
+            imageUrl: selectedMeal.mealImageUrl,
             errorWidget: (context, url, error) => Icon(_isIos
                 ? CupertinoIcons.exclamationmark_triangle_fill
                 : Icons.error),
           )
         : Container(
             child: Icon(
-              Icons.image_not_supported,
-              size: MediaQuery.of(context).size.height * 0.1,
-            ),
-          );
+            Icons.image_not_supported,
+            size: MediaQuery.of(context).size.height * 0.1,
+          ));
   }
 
   String _printDuration(Duration duration) {
@@ -326,6 +350,159 @@ class _HomeScreenState extends State<HomeScreen>
     );
   }
 
+  String greeting() {
+    var hour = DateTime.now().hour;
+    if (hour < 12) {
+      return 'Good morning!';
+    }
+    if (hour < 17) {
+      return 'Good afternoon!';
+    }
+    return 'Good evening!';
+  }
+
+  welcomeContent(context, _isIos) {
+    final user = Provider.of<UserClass>(context, listen: false);
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8.0, left: 8, right: 8),
+      child: Container(
+        decoration: BoxDecoration(
+            color: Color(0x22808080),
+            borderRadius: BorderRadius.all(Radius.circular(20))),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: Align(
+                alignment: Alignment.center,
+                child: Text(
+                  greeting(),
+                  textScaleFactor: 2.5,
+                  style: TextStyle(
+                      color: Colors.black, fontStyle: FontStyle.italic),
+                ),
+              ),
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Spacer(
+                  flex: 1,
+                ),
+                Align(
+                  alignment: Alignment.center,
+                  child: Text(
+                    "Latest glucose value: ",
+                    textScaleFactor: 1.5,
+                    style: TextStyle(color: Colors.black),
+                  ),
+                ),
+                Container(
+                  child: Padding(
+                    padding: const EdgeInsets.all(15.0),
+                    child: Text(
+                      "6.7",
+                      textScaleFactor: 1.5,
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                  decoration: BoxDecoration(
+                      shape: BoxShape.circle, color: Color(0xff99163d)),
+                ),
+                Spacer(
+                  flex: 1,
+                )
+              ],
+            ),
+            Padding(
+              padding: const EdgeInsets.only(top: 10),
+              child: Divider(
+                thickness: 4,
+                indent: 20,
+                endIndent: 20,
+                color: Color(0xff99163d),
+                height: 1,
+              ),
+            ),
+            Expanded(
+              child: Container(
+                child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Expanded(
+                        flex: 1,
+                        child: Container(
+                          child: Column(
+                            children: [
+                              Text(
+                                "Your latest meal:",
+                                textScaleFactor: 1.2,
+                                style: TextStyle(color: Colors.black),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: FutureBuilder(
+                                    future: displayImage(_isIos, latest: true),
+                                    builder: (BuildContext context,
+                                        AsyncSnapshot snapshot) {
+                                      if (!snapshot.hasData) {
+                                        return Loading();
+                                      }
+                                      return Container(
+                                        width:
+                                            MediaQuery.of(context).size.width *
+                                                0.2,
+                                        height:
+                                            MediaQuery.of(context).size.width *
+                                                0.2,
+                                        child: ClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                          child: FittedBox(
+                                              fit: BoxFit.fitHeight,
+                                              child: snapshot.data),
+                                        ),
+                                      );
+                                    }),
+                              ),
+                              Text(
+                                  DateFormat("dd MMM: HH:mm")
+                                      .format(latestMeal.mealDate),
+                                  style: TextStyle(color: Colors.black)),
+                            ],
+                          ),
+                        ),
+                      ),
+                      VerticalDivider(
+                        color: Color(0xff99163d),
+                        thickness: 4,
+                        endIndent: 15,
+                      ),
+                      Expanded(
+                        flex: 1,
+                        child: Container(
+                          child: Column(
+                            children: [
+                              Text(
+                                "Your latest exercise:",
+                                textScaleFactor: 1.2,
+                                style: TextStyle(color: Colors.black),
+                              )
+                            ],
+                          ),
+                        ),
+                      )
+                    ]),
+              ),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
   mealContent(context, _isIos) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8.0, left: 8, right: 8),
@@ -374,12 +551,60 @@ class _HomeScreenState extends State<HomeScreen>
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
+                  Column(
+                    children: [
+                      FutureBuilder(
+                          future: displayImage(_isIos),
+                          builder:
+                              (BuildContext context, AsyncSnapshot snapshot) {
+                            if (!snapshot.hasData) {
+                              return Loading();
+                            } else {
+                              return Container(
+                                height:
+                                    MediaQuery.of(context).size.height * 0.2,
+                                width: MediaQuery.of(context).size.width * 0.45,
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(15),
+                                  child: FittedBox(
+                                      fit: BoxFit.fill, child: snapshot.data),
+                                ),
+                              );
+                            }
+                          }),
+                      Container(
+                        width: MediaQuery.of(context).size.width * 0.45,
+                        height: MediaQuery.of(context).size.height * 0.1,
+                        child: Row(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(left: 32),
+                              child: IconButton(
+                                  color: Colors.white,
+                                  iconSize:
+                                      MediaQuery.of(context).size.height * 0.04,
+                                  onPressed: () {
+                                    delete(isMeal: true);
+                                  },
+                                  icon: Icon(_isIos
+                                      ? CupertinoIcons.trash
+                                      : Icons.delete)),
+                            ),
+                            IconButton(
+                                color: Colors.white,
+                                iconSize:
+                                    MediaQuery.of(context).size.height * 0.04,
+                                onPressed: () {
+                                  edit(isMeal: true);
+                                },
+                                icon: Icon(Icons.edit))
+                          ],
+                        ),
+                      )
+                    ],
+                  ),
                   Container(
-                      height: MediaQuery.of(context).size.height * 0.2,
-                      width: MediaQuery.of(context).size.width * 0.45,
-                      child: displayImage(_isIos)),
-                  Container(
-                    height: MediaQuery.of(context).size.height * 0.2,
+                    height: MediaQuery.of(context).size.height * 0.3,
                     width: MediaQuery.of(context).size.width * 0.45,
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -393,37 +618,39 @@ class _HomeScreenState extends State<HomeScreen>
                           style: TextStyle(
                               color: Colors.white, fontStyle: FontStyle.italic),
                         ),
+                        Container(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Align(
+                                alignment: Alignment.center,
+                                child: Text(
+                                  "Score: ",
+                                  textScaleFactor: 1.5,
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                              ),
+                              Container(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(10.0),
+                                  child: Text(
+                                    "93",
+                                    textScaleFactor: 1.5,
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                ),
+                                decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: Color(0xff62991D)),
+                              )
+                            ],
+                          ),
+                        )
                       ],
                     ),
                   ),
                 ],
               ),
-              Container(
-                width: MediaQuery.of(context).size.width * 0.9333,
-                height: MediaQuery.of(context).size.height * 0.1,
-                child: Row(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(left: 32),
-                      child: IconButton(
-                          color: Colors.white,
-                          iconSize: MediaQuery.of(context).size.height * 0.04,
-                          onPressed: () {
-                            delete(isMeal: true);
-                          },
-                          icon: Icon(
-                              _isIos ? CupertinoIcons.trash : Icons.delete)),
-                    ),
-                    IconButton(
-                        color: Colors.white,
-                        iconSize: MediaQuery.of(context).size.height * 0.04,
-                        onPressed: () {
-                          edit(isMeal: true);
-                        },
-                        icon: Icon(Icons.edit))
-                  ],
-                ),
-              )
             ]),
       ),
     );
@@ -437,6 +664,8 @@ class _HomeScreenState extends State<HomeScreen>
     } catch (e) {
       _isIos = false;
     }
+    GraphicalInterface graph =
+        GraphicalInterface(update: setData, latestMeal: getLatestMeal);
     final List<Widget> _children = [
       Center(
         child: Column(
@@ -444,9 +673,7 @@ class _HomeScreenState extends State<HomeScreen>
           children: [
             Expanded(
               child: Container(
-                child: GraphicalInterface(
-                  update: setData,
-                ),
+                child: graph,
               ),
             ),
             Expanded(
@@ -458,7 +685,7 @@ class _HomeScreenState extends State<HomeScreen>
                     } else if (showActivity) {
                       return activityContent(context, _isIos);
                     } else {
-                      return Container();
+                      return welcomeContent(context, _isIos);
                     }
                   }),
             ),

@@ -20,12 +20,13 @@ import 'package:quantify_app/models/mealData.dart';
 
 class GraphicalInterface extends StatefulWidget {
   final ValueChanged update;
-  GraphicalInterface({this.update});
+  final ValueChanged<MealData> latestMeal;
+  GraphicalInterface({this.update, this.latestMeal});
   //GraphicalInterface({Key key});
 
   @override
   _GraphicalInterfaceState createState() =>
-      _GraphicalInterfaceState(update: update);
+      _GraphicalInterfaceState(update: update, latestMeal: latestMeal);
 }
 
 class _GraphicalInterfaceState extends State<GraphicalInterface> {
@@ -34,7 +35,9 @@ class _GraphicalInterfaceState extends State<GraphicalInterface> {
   TooltipBehavior _tooltipBehavior;
   bool alreadyRandom = false;
   final ValueChanged<List<dynamic>> update;
-  _GraphicalInterfaceState({this.update});
+  final ValueChanged<MealData> latestMeal;
+
+  _GraphicalInterfaceState({this.update, this.latestMeal});
   @override
   void initState() {
     initializeDateFormatting();
@@ -82,21 +85,30 @@ class _GraphicalInterfaceState extends State<GraphicalInterface> {
           }
           tempGluclist = _createRandomData(1000);
           List graphData = snapshot.data;
-          List imageData = graphData[1];
+          List mealData = graphData[1];
           List activityData = graphData[0];
-
-          imageData = imageData.map((e) {
+          mealData = mealData.map((e) {
             var data = e.data();
             data['docId'] = e.id;
             return data;
           }).toList();
-
+          if (mealData.length > 0) {
+            mealData.sort(
+                (b, a) => a['date'].toString().compareTo(b['date'].toString()));
+            var meal = mealData[0];
+            latestMeal(new MealData(
+                meal['note'],
+                DateTime.fromMillisecondsSinceEpoch(meal['date']),
+                meal['imageRef'],
+                meal['docId'],
+                meal['localPath']));
+          }
           activityData = activityData.map((e) {
             var data = e.data();
             data['docId'] = e.id;
             return data;
           }).toList();
-          for (var item in imageData + activityData) {
+          for (var item in mealData + activityData) {
             item['gluc'] = tempGluclist.firstWhere((element) {
               if (element.time != null &&
                   element.time.millisecondsSinceEpoch < item['date']) {
@@ -132,7 +144,7 @@ class _GraphicalInterfaceState extends State<GraphicalInterface> {
                       zoomPanBehavior: _zoomPanBehavior,
                       onPointTapped: (PointTapArgs args) {
                         if (args.seriesIndex == 1) {
-                          var meal = imageData[args.pointIndex];
+                          var meal = mealData[args.pointIndex];
                           update([
                             new MealData(
                                 meal['note'],
@@ -200,7 +212,7 @@ class _GraphicalInterfaceState extends State<GraphicalInterface> {
                         ScatterSeries(
                             color: Colors.red,
                             enableTooltip: true,
-                            dataSource: imageData,
+                            dataSource: mealData,
                             xValueMapper: (x, _) =>
                                 DateTime.fromMillisecondsSinceEpoch(x['date']),
                             yValueMapper: (x, _) => x['gluc'].glucoseVal,

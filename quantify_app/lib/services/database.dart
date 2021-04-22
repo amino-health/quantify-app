@@ -277,8 +277,6 @@ class DatabaseService {
     });
   }
 
-
-
   Future<void> updateTrainingDiaryData(
     String trainingid,
     String name,
@@ -300,7 +298,6 @@ class DatabaseService {
       'intensity': intensity,
     });
   }
-
 
   Future<void> removeDir({String ref = ""}) async {
     print("Hello: " + ref);
