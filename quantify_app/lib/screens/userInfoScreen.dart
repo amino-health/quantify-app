@@ -157,10 +157,11 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
                       Padding(
                         padding: const EdgeInsets.all(10.0),
                         child: TextFormField(
-                            validator: (val) => val.length < 40 &&
-                                    val.length > 200
-                                ? 'Enter a valid weight'
-                                : null, //Valid if not empto, return help tect
+                            validator: (String val) =>
+                                int.parse(val) < 30 && int.parse(val) > 442
+                                    ? 'Enter a valid weight'
+                                    : null,
+                            //Valid if not empto, return help tect
                             decoration: InputDecoration(
                               hintText: 'Weight',
                               contentPadding:
@@ -176,7 +177,7 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
                         padding: const EdgeInsets.all(10.0),
                         child: TextFormField(
                             validator: (val) =>
-                                val.length < 40 && val.length > 200
+                                int.parse(val) < 67 && int.parse(val) > 270
                                     ? 'Enter a valid height'
                                     : null,
                             decoration: InputDecoration(
