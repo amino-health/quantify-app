@@ -128,29 +128,29 @@ class _RegisterState extends State<Register> {
                     }),
               ),
               Padding(
-                padding: EdgeInsets.symmetric(vertical: 16.0),
-                child: ElevatedButton(
-                  child: Text("Register"),
-                  onPressed: () async {
-                    if (_formKey.currentState.validate()) {
-                      dynamic result = await _auth.registerWithEmailAndPassword(
-                          email, password); // If this succed want to go to
-                      if (result == null) {
-                        setState(() =>
-                            error = 'Email already exist'); //Function vill show
-                        print(error);
+                padding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
+                child: SizedBox(
+                  height: 50,
+                  width: 350,
+                  child: ElevatedButton(
+                    child: Text("Sign in"),
+                    onPressed: () async {
+                      if (_formKey.currentState.validate()) {
+                        dynamic result =
+                            await _auth.registerWithEmailAndPassword(email,
+                                password); // If this succed want to go to
+                        if (result == null) {
+                          setState(() => error =
+                              'Email already exist'); //Function vill show
+                          print(error);
+                        }
                       }
-                    }
-
-                    //false field not valid
-                    print(email);
-                    print(password);
-                  },
-                  style: ElevatedButton.styleFrom(
-                    primary: Color(0xFF99163D),
-                    onPrimary: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(60.0),
+                    },
+                    style: ElevatedButton.styleFrom(
+                      primary: Color(0xFF99163D),
+                      onPrimary: Colors.white,
+                      // shape: RoundedRectangleBorder(
+                      //   borderRadius: BorderRadius.circular(60.0),
                     ),
                   ),
                 ),

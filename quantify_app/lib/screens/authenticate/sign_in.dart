@@ -74,7 +74,20 @@ class _SignInState extends State<SignIn> {
                       setState(() => password = val.trim());
                     }),
               ),
-
+              Padding(
+                padding: const EdgeInsets.all(2.0),
+                // ignore: missing_required_param
+                child: TextButton(
+                  onPressed: () {
+                    Navigator.pushReplacement(context,
+                        MaterialPageRoute(builder: (context) => Register()));
+                  },
+                  child: Text(
+                    error, //title
+                    textAlign: TextAlign.end, //aligment
+                  ),
+                ),
+              ),
               Padding(
                 padding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
                 child: SizedBox(
@@ -86,9 +99,9 @@ class _SignInState extends State<SignIn> {
                       if (_formKey.currentState.validate()) {
                         dynamic result = await _auth.signInWithEmailAndPassword(
                             email, password);
-                        if (result == null) {
+                        if (result[0] == null) {
                           setState(() {
-                            error = 'Could not sign in with those credentials';
+                            error = result[1];
                           });
                         }
                       }
@@ -157,68 +170,7 @@ class _SignInState extends State<SignIn> {
                   ),
                 ),
               ),
-              Padding(
-                padding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
-                child: SizedBox(
-                  height: 50,
-                  width: 350,
-                  child: ElevatedButton(
-                    //child: Text("Sign in with Google"),
-                    onPressed: () async {
-                      if (_formKey.currentState.validate()) {
-                        dynamic result = await _auth.signInWithEmailAndPassword(
-                            email, password);
-                        if (result == null) {
-                          setState(() {
-                            error = 'Could not sign in with those credentials';
-                          });
-                        }
-                      }
-                    },
-                    style: ElevatedButton.styleFrom(
-                      primary: Color(0xFF3A559F),
-                      onPrimary: Colors.black,
-                      shape: RoundedRectangleBorder(
-                          // borderRadius: BorderRadius.circular(300),
-                          ),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        Image(
-                            image: AssetImage("lib/assets/facebook_logo.png"),
-                            height: 20.0),
-                        Padding(
-                          padding: const EdgeInsets.only(left: 5),
-                          child: Text(
-                            'Sign in with FaceBook',
-                            style: TextStyle(
-                              fontSize: 13,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
 
-              Padding(
-                padding: const EdgeInsets.all(2.0),
-                // ignore: missing_required_param
-                child: TextButton(
-                  onPressed: () {
-                    Navigator.pushReplacement(context,
-                        MaterialPageRoute(builder: (context) => Register()));
-                  },
-                  child: Text(
-                    error, //title
-                    textAlign: TextAlign.end, //aligment
-                  ),
-                ),
-              ),
               Padding(
                 padding: const EdgeInsets.all(4.0),
                 // ignore: missing_required_param
