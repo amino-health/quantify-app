@@ -167,7 +167,7 @@ class _DiaryDetailsState extends State<DiaryDetailsScreen> {
                               fontFamily: 'rubik',
                               fontSize: 22,
                               fontWeight: FontWeight.bold,
-                              color: Colors.white.withOpacity(0.8))),
+                              color: Colors.white)),
                     ))),
                 Expanded(
                     flex: 1,
@@ -180,14 +180,15 @@ class _DiaryDetailsState extends State<DiaryDetailsScreen> {
                             shape: BoxShape.circle,
                             color: Colors.black,
                           ),
-                          child: Text(intensity.toString(),
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                  fontFamily: 'rubik',
-                                  fontSize:
-                                      MediaQuery.of(context).size.height / 6,
-                                  fontWeight: FontWeight.bold,
-                                  color: Color(0xFFFFFFF6)))),
+                          child: FittedBox(
+                            fit: BoxFit.fitHeight,
+                            child: Text(intensity.toString(),
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                    fontFamily: 'rubik',
+                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xFFFFFFF6))),
+                          )),
                     ))
               ],
             ),
@@ -451,7 +452,9 @@ class _DiaryDetailsState extends State<DiaryDetailsScreen> {
       body: Center(
           child: Column(children: [
         Container(
-            height: MediaQuery.of(context).size.width,
+            height: isMeal
+                ? MediaQuery.of(context).size.width
+                : MediaQuery.of(context).size.height * 0.35,
             child: Stack(
               children: [
                 isMeal
