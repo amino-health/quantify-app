@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:quantify_app/loading.dart';
 import 'package:quantify_app/models/activityDiary.dart';
+import 'package:quantify_app/models/training.dart';
 import 'package:quantify_app/screens/ActivityFormScreen.dart';
 import 'package:quantify_app/screens/addMealScreen.dart';
 import 'package:quantify_app/screens/diaryDetailsScreen.dart';
@@ -76,12 +77,12 @@ class _DiaryScreenState extends State<DiaryScreen> {
   Future updateActivity(context, activityData) async {
     final user = Provider.of<UserClass>(context, listen: false);
     await DatabaseService(uid: user.uid).updateTrainingDiaryData(
-      activityData[5], //ID
-      activityData[0], //name
-      activityData[1], //description
-      activityData[2], //date
-      activityData[3], //duration
-      activityData[4], //Intensity
+      activityData.trainingid, //ID
+      activityData.name, //name
+      activityData.description, //description
+      activityData.date, //date
+      activityData.duration, //duration
+      activityData.intensity, //Intensity
     );
     //setState(() {});
   }
@@ -288,7 +289,7 @@ class _DiaryScreenState extends State<DiaryScreen> {
                 color: Colors.grey[600],
                 icon: Icons.edit,
                 onTap: () async {
-                  List<Object> activityData = await showDialog(
+                  TrainingData activityData = await showDialog(
                       context: context,
                       builder: (_) => ActivityPopup(
                           keyRef: newKey.value.toString(),
@@ -298,7 +299,9 @@ class _DiaryScreenState extends State<DiaryScreen> {
                           date: DateTime.fromMillisecondsSinceEpoch(date),
                           duration: duration,
                           intensity: intensity));
-                  updateActivity(context, activityData);
+                  if (activityData != null) {
+                    updateActivity(context, activityData);
+                  }
                 }),
           ],
         ));

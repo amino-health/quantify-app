@@ -153,7 +153,9 @@ class _AddActivityScreenState extends State<AddActivityScreen>
                                 duration: 0,
                                 intensity: 5,
                               ));
-                      addItem(context, activityData);
+                      if (activityData != null) {
+                        addItem(context, activityData);
+                      }
                     }))));
   }
 
@@ -243,7 +245,9 @@ class _AddActivityScreenState extends State<AddActivityScreen>
                             duration: 0,
                             intensity: intensity,
                           ));
-                  addActivity(context, activityData);
+                  if (activityData != null) {
+                    addActivity(context, activityData);
+                  }
                 }),
           ),
           secondaryActions: <Widget>[

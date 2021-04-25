@@ -8,6 +8,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:quantify_app/loading.dart';
 import 'package:quantify_app/models/mealData.dart';
+import 'package:quantify_app/models/training.dart';
 import 'package:quantify_app/models/userClass.dart';
 import 'package:quantify_app/screens/ActivityFormScreen.dart';
 import 'package:quantify_app/screens/addMealScreen.dart';
@@ -94,12 +95,12 @@ class _DiaryDetailsState extends State<DiaryDetailsScreen> {
     print(activityData);
     final user = Provider.of<UserClass>(context, listen: false);
     await DatabaseService(uid: user.uid).updateTrainingDiaryData(
-      activityData[5], //ID
-      activityData[0], //name
-      activityData[1], //description
-      activityData[2], //date
-      activityData[3], //duration
-      activityData[4], //Intensity
+      activityData.trainingid, //ID
+      activityData.name, //name
+      activityData.description, //description
+      activityData.date, //date
+      activityData.duration, //duration
+      activityData.intensity, //Intensity
     );
   }
 
@@ -198,115 +199,6 @@ class _DiaryDetailsState extends State<DiaryDetailsScreen> {
     );
   }
 
-  bottomButton(BuildContext context, String _title) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: [
-        Container(
-            child: FittedBox(
-                fit: BoxFit.fitWidth,
-                child: Padding(
-                    padding: const EdgeInsets.only(
-                        left: 20.0, right: 20.0, bottom: 6.0),
-                    child: ElevatedButton(
-                        style: ButtonStyle(
-                            backgroundColor:
-                                MaterialStateProperty.resolveWith<Color>(
-                              (Set<MaterialState> states) {
-                                if (states.contains(MaterialState.pressed))
-                                  return Colors.grey[800];
-                                else
-                                  return Colors.grey[700];
-                              },
-                            ),
-                            shape: MaterialStateProperty.all<
-                                RoundedRectangleBorder>(RoundedRectangleBorder(
-                              borderRadius: BorderRadius.zero,
-                            ))),
-                        child: Padding(
-                          padding: const EdgeInsets.only(
-                              left: 25.0, right: 25.0, top: 8, bottom: 8),
-                          child: Text(
-                            'Edit ' + _title,
-                            style: TextStyle(fontFamily: 'roboto-bold'),
-                          ),
-                        ),
-                        onPressed: () async {
-                          print('keyref is $keyRef');
-
-                          if (_title == 'Activity') {
-                            List<Object> activityData = await showDialog(
-                                context: context,
-                                builder: (_) => ActivityPopup(
-                                    keyRef: keyRef.value.toString(),
-                                    isAdd: true,
-                                    titlevalue: titlevalue,
-                                    subtitle: subtitle,
-                                    date: DateTime.fromMillisecondsSinceEpoch(
-                                        dateTime),
-                                    duration: duration,
-                                    intensity: intensity));
-                            updateActivity(context, activityData);
-                            if (Navigator.canPop(context)) {
-                              Navigator.pop(context);
-                            }
-                          } else {
-                            updateMeal(new MealData(
-                                subtitle,
-                                DateTime.fromMillisecondsSinceEpoch(dateTime),
-                                imgRef,
-                                keyRef.value,
-                                localPath));
-                          }
-                          /*while (Navigator.canPop(context)) {
-                            Navigator.pop(context);
-                          }*/
-                        })))),
-        Container(
-            child: FittedBox(
-                fit: BoxFit.fitWidth,
-                child: Padding(
-                    padding: const EdgeInsets.only(
-                        left: 20.0, right: 20.0, bottom: 6.0),
-                    child: ElevatedButton(
-                        style: ButtonStyle(
-                            backgroundColor:
-                                MaterialStateProperty.resolveWith<Color>(
-                              (Set<MaterialState> states) {
-                                if (states.contains(MaterialState.pressed))
-                                  return Color(0xDD99163D);
-                                else
-                                  return Color(0xFF99163D);
-                              },
-                            ),
-                            shape: MaterialStateProperty.all<
-                                RoundedRectangleBorder>(RoundedRectangleBorder(
-                              borderRadius: BorderRadius.zero,
-                            ))),
-                        child: Padding(
-                          padding: const EdgeInsets.only(
-                              left: 25.0, right: 25.0, top: 8, bottom: 8),
-                          child: Text(
-                            'Delete ' + _title,
-                            style: TextStyle(fontFamily: 'roboto-bold'),
-                          ),
-                        ),
-                        onPressed: () async {
-                          print('keyref is $keyRef');
-                          _title == 'Activity'
-                              ? _removeActivity(keyRef)
-                              : _removeMeal(new MealData(
-                                  subtitle,
-                                  DateTime.fromMillisecondsSinceEpoch(dateTime),
-                                  imgRef,
-                                  keyRef.value,
-                                  localPath));
-                          Navigator.of(context).pop();
-                        })))),
-      ],
-    );
-  }
-
   Future<Widget> displayImage(BuildContext context, bool _isIos,
       String localPath, String imgRef) async {
     if (localPath != null) {
@@ -338,107 +230,6 @@ class _DiaryDetailsState extends State<DiaryDetailsScreen> {
               size: 60,
             ),
           );
-  }
-
-  activityView(String titlevalue, String subtitle, int dateTime, int duration,
-      int intensity) {
-    return Scaffold(
-      appBar: CustomAppBar(),
-      body: Center(
-          child: Column(
-        children: [
-          Expanded(
-            flex: 4,
-            child: Row(
-              children: [
-                Expanded(
-                  child: FittedBox(
-                      fit: BoxFit.fill, child: Icon(Icons.directions_run)),
-                  flex: 5,
-                ),
-                Expanded(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 20.0),
-                        child: Container(
-                          alignment: Alignment.bottomLeft,
-                          child: FittedBox(
-                              fit: BoxFit.fitWidth,
-                              child: Text(
-                                  DateFormat('EEE, M/d/y\nHH:mm').format(
-                                      DateTime.fromMillisecondsSinceEpoch(
-                                          dateTime)),
-                                  textAlign: TextAlign.left,
-                                  style: TextStyle(fontSize: 25))),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 20.0),
-                        child: Container(
-                            alignment: Alignment.bottomLeft,
-                            child: FittedBox(
-                                fit: BoxFit.fitWidth,
-                                child: Text(
-                                    'Duration: ' +
-                                        (Duration(milliseconds: duration)
-                                                    .inMinutes /
-                                                60)
-                                            .toString() +
-                                        ':' +
-                                        (Duration(milliseconds: duration)
-                                                    .inMinutes %
-                                                60)
-                                            .toString() +
-                                        ' Hrs',
-                                    style: TextStyle(fontSize: 25)))),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 20.0),
-                        child: Container(
-                          alignment: Alignment.bottomLeft,
-                          child: FittedBox(
-                              fit: BoxFit.fitWidth,
-                              child: Text('Intensity: ' + intensity.toString(),
-                                  style: TextStyle(fontSize: 25))),
-                        ),
-                      ),
-                    ],
-                  ),
-                  flex: 5,
-                )
-              ],
-            ),
-          ),
-          Expanded(
-            flex: 1,
-            child: Padding(
-              padding: const EdgeInsets.only(left: 12.0),
-              child: Container(
-                alignment: Alignment.topLeft,
-                child: Text(
-                  titlevalue,
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                  textScaleFactor: 2,
-                ),
-              ),
-            ),
-          ),
-          Expanded(
-            flex: 5,
-            child: Padding(
-              padding: const EdgeInsets.all(12.0),
-              child: Container(
-                child: Text(subtitle, style: TextStyle(fontSize: 25)),
-                alignment: Alignment.topLeft,
-              ),
-            ),
-          ),
-          bottomButton(context, 'Activity')
-        ],
-      )),
-    );
   }
 
   overlayView(bool isMeal, String titlevalue, String subtitle, int dateTime,
@@ -573,7 +364,7 @@ class _DiaryDetailsState extends State<DiaryDetailsScreen> {
                                     print('keyref is $keyRef');
 
                                     if (!isMeal) {
-                                      List<Object> activityData =
+                                      TrainingData activityData =
                                           await showDialog(
                                               context: context,
                                               builder: (_) => ActivityPopup(
@@ -587,7 +378,9 @@ class _DiaryDetailsState extends State<DiaryDetailsScreen> {
                                                           dateTime),
                                                   duration: duration,
                                                   intensity: intensity));
-                                      updateActivity(context, activityData);
+                                      if (activityData != null) {
+                                        updateActivity(context, activityData);
+                                      }
                                       if (Navigator.canPop(context)) {
                                         Navigator.pop(context);
                                       }

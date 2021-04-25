@@ -5,6 +5,25 @@ import 'package:intl/intl.dart';
 import 'package:quantify_app/models/training.dart';
 import 'package:quantify_app/screens/homeSkeleton.dart';
 //import 'package:duration_picker/duration_picker.dart';
+import 'package:carousel_slider/carousel_slider.dart';
+import 'package:sleek_circular_slider/sleek_circular_slider.dart';
+
+import 'package:fluttericon/rpg_awesome_icons.dart';
+
+List<IconData> iconList = [
+  Icons.directions_bike,
+  Icons.directions_run,
+  Icons.directions_walk,
+  Icons.sports_hockey,
+  Icons.sports_baseball,
+  Icons.sports_basketball,
+  Icons.sports_football,
+  Icons.sports_soccer,
+  Icons.sports_tennis,
+  Icons.sports_handball,
+  Icons.miscellaneous_services,
+  RpgAwesome.muscle_up,
+];
 
 class ActivityPopup extends StatefulWidget {
   final bool isAdd;
@@ -36,9 +55,9 @@ class _ActivityPopupState extends State<ActivityPopup> {
   DateTime selectedDate = DateTime.now();
   Duration selectedTime = Duration(minutes: 30);
   double _currentSliderValue = 1;
+  int _category = 0;
   final TextEditingController titlecontroller = TextEditingController();
   final TextEditingController descriptioncontroller = TextEditingController();
-
   //TimeOfDay _time = TimeOfDay.now();
   final DateTime today = DateTime.now();
   TimeOfDay newTime;
@@ -211,6 +230,32 @@ class _ActivityPopupState extends State<ActivityPopup> {
             ));
   }
 
+  String convertTime(int time) {
+    time ~/= 1000; //To centiseconds
+    time ~/= 60; //to seconds
+    int minutes = time % 60;
+    time ~/= 60;
+    int hours = time;
+    if (hours == 1) {
+      if (minutes == 0) {
+        return "$hours Hour";
+      } else {
+        return "$hours Hour and $minutes Minutes";
+      }
+    }
+    if (hours > 1) {
+      if (minutes == 0) {
+        return "$hours Hours";
+      } else {
+        return "$hours Hours and $minutes Minutes";
+      }
+    } else if (minutes > 0) {
+      return "$minutes Minutes";
+    } else {
+      return "No duration";
+    }
+  }
+
   TextEditingController _fillController(
       TextEditingController contr, String fillertext) {
     setState(() {
@@ -221,6 +266,242 @@ class _ActivityPopupState extends State<ActivityPopup> {
     return contr;
   }
 
+  Widget formBody(context) {
+    return Column(
+      children: [
+        Expanded(
+          flex: 92,
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: 10.0),
+            child: Container(
+                decoration: BoxDecoration(
+                    color: Color(0xFFFFFFF6),
+                    boxShadow: [
+                      BoxShadow(
+                          offset: Offset(3, 8),
+                          color: Colors.black.withOpacity(0.5),
+                          spreadRadius: 5,
+                          blurRadius: 8)
+                    ],
+                    borderRadius: BorderRadius.only(
+                        bottomLeft: Radius.circular(50),
+                        bottomRight: Radius.circular(50))),
+                child: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Column(
+                    children: [
+                      Expanded(
+                        flex: 1,
+                        child: Padding(
+                          padding: EdgeInsets.only(
+                              bottom: 10,
+                              right: MediaQuery.of(context).size.width * 0.15,
+                              left: MediaQuery.of(context).size.width * 0.15),
+                          child: Container(
+                              child: TextFormField(
+                            maxLength: 15,
+
+                            //focusNode: isAdd ? AlwaysDisabledFocusNode() : FocusNode(),
+                            decoration: InputDecoration(
+                              filled: true,
+                              fillColor: Colors.white,
+                              counterText: "",
+                              labelText: 'Name',
+                              errorText: _titlevalidate
+                                  ? 'Value Can\'t Be Empty'
+                                  : null,
+                              border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8.0)),
+                            ),
+                            controller: titlecontroller,
+                          )),
+                        ),
+                      ),
+                      Expanded(
+                        flex: 1,
+                        child: Padding(
+                          padding: EdgeInsets.only(
+                              bottom: 10,
+                              right: MediaQuery.of(context).size.width * 0.15,
+                              left: MediaQuery.of(context).size.width * 0.15),
+                          child: Container(
+                              child: TextFormField(
+                                  maxLines: null,
+                                  expands: true,
+                                  maxLength: 128,
+                                  decoration: InputDecoration(
+                                    filled: true,
+                                    fillColor: Colors.white,
+                                    counterText: "",
+                                    labelText: 'Description',
+                                    border: OutlineInputBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(8.0)),
+                                  ),
+                                  //focusNode: isAdd ? AlwaysDisabledFocusNode() : FocusNode(),
+                                  controller: descriptioncontroller)),
+                        ),
+                      ),
+                      Expanded(
+                        flex: 1,
+                        child: Padding(
+                          padding: EdgeInsets.only(
+                              bottom: 10,
+                              right: MediaQuery.of(context).size.width * 0.15,
+                              left: MediaQuery.of(context).size.width * 0.15),
+                          child: Container(
+                              child: TextFormField(
+                            readOnly: true,
+                            onTap: () {
+                              _selectDate(context);
+                            },
+                            focusNode: AlwaysDisabledFocusNode(),
+                            decoration: InputDecoration(
+                              filled: true,
+                              fillColor: Colors.white,
+                              hintText: DateFormat('EEE, M/d/y - HH:mm')
+                                  .format(selectedDate),
+                              contentPadding:
+                                  EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
+                              border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8.0)),
+                            ),
+                          )),
+                        ),
+                      ),
+                      Expanded(
+                        flex: 1,
+                        child: Padding(
+                          padding: EdgeInsets.only(
+                              bottom: 10,
+                              right: MediaQuery.of(context).size.width * 0.15,
+                              left: MediaQuery.of(context).size.width * 0.15),
+                          child: Container(
+                              child: TextField(
+                                  onTap: () {
+                                    _selectTime(context);
+                                  },
+                                  focusNode: AlwaysDisabledFocusNode(),
+                                  decoration: InputDecoration(
+                                      filled: true,
+                                      fillColor: Colors.white,
+                                      hintText: 'Duration',
+                                      counterText: "",
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.all(
+                                            Radius.circular(8)),
+                                      ),
+                                      labelText: convertTime(
+                                          selectedTime.inMilliseconds)))),
+                        ),
+                      ),
+                      Expanded(
+                        flex: 2,
+                        child: Container(
+                            width: MediaQuery.of(context).size.width * 0.45,
+                            child: CarouselSlider(
+                              options: CarouselOptions(
+                                  onPageChanged: (index, reason) {
+                                    setState(() {
+                                      _category = index;
+                                    });
+                                  },
+                                  viewportFraction: 0.5,
+                                  enlargeCenterPage: true,
+                                  enlargeStrategy:
+                                      CenterPageEnlargeStrategy.height),
+                              items: iconList.map((i) {
+                                return Builder(
+                                  builder: (BuildContext context) {
+                                    return Container(
+                                        margin: EdgeInsets.symmetric(
+                                            horizontal: 5.0),
+
+                                        // decoration: BoxDecoration(color: Colors.amber),
+                                        child: FittedBox(
+                                          fit: BoxFit.fitWidth,
+                                          child:
+                                              Icon(i, color: Color(0xFF99163D)),
+                                        ));
+                                  },
+                                );
+                              }).toList(),
+                            )),
+                      ),
+                      Expanded(
+                        flex: 2,
+                        child: SleekCircularSlider(
+                            min: 1,
+                            max: 10,
+                            initialValue: 5,
+                            appearance: CircularSliderAppearance(
+                                infoProperties:
+                                    InfoProperties(modifier: sliderModifier),
+                                customColors: CustomSliderColors(
+                                    progressBarColor: Color(0xFF99163D))),
+                            onChange: (double value) {
+                              _currentSliderValue = value;
+                            }),
+                      ),
+                    ],
+                  ),
+                )),
+          ),
+        ),
+        Expanded(
+          flex: 8,
+          child: Container(
+              width: MediaQuery.of(context).size.width * 0.8,
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: ElevatedButton(
+                  child: Text(isAdd ? "Add Activty" : "Create Activity"),
+                  style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty.resolveWith<Color>(
+                      (Set<MaterialState> states) {
+                        if (states.contains(MaterialState.pressed))
+                          return Color(0xDD99163D);
+                        else
+                          return Color(0xFF99163D);
+                      },
+                    ),
+                  ),
+                  onPressed: () {
+                    print(_category);
+                    titlecontroller.text.isEmpty
+                        ? _titlevalidate = true
+                        : _titlevalidate = false;
+                    if (_titlevalidate) {
+                      setState(() {});
+                    }
+
+                    if (titlecontroller.text.isNotEmpty) {
+                      Navigator.pop(
+                          context,
+                          TrainingData(
+                            trainingid: keyRef.toString(),
+                            name: titlecontroller.text.toString(),
+                            description: descriptioncontroller.text.toString(),
+                            date: selectedDate,
+                            duration: selectedTime,
+                            intensity: _currentSliderValue.round(),
+                            listtype: 2,
+                            inHistory: true,
+                          ));
+                    }
+                  },
+                ),
+              )),
+        )
+      ],
+    );
+  }
+
+  String sliderModifier(double value) {
+    final roundedValue = value.ceil().toInt().toString();
+    return '$roundedValue / 10';
+  }
+
   @override
   Widget build(BuildContext context) {
     //  isAdd = this.isAdd;
@@ -228,7 +509,8 @@ class _ActivityPopupState extends State<ActivityPopup> {
     // _titlevalidate = this._titlevalidate;
     return Scaffold(
         appBar: CustomAppBar(),
-        body: Padding(
+        body: formBody(
+            context) /*Padding(
           padding: EdgeInsets.only(
               left: (MediaQuery.of(context).size.width * 0.05),
               right: MediaQuery.of(context).size.height * 0.05),
@@ -427,7 +709,8 @@ class _ActivityPopupState extends State<ActivityPopup> {
               ],
             ),
           ),
-        ));
+        )*/
+        );
   }
 }
 
