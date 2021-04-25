@@ -2,6 +2,7 @@ import 'package:duration_picker/duration_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
+import 'package:quantify_app/models/training.dart';
 import 'package:quantify_app/screens/homeSkeleton.dart';
 //import 'package:duration_picker/duration_picker.dart';
 
@@ -403,14 +404,19 @@ class _ActivityPopupState extends State<ActivityPopup> {
                             }
 
                             if (titlecontroller.text.isNotEmpty) {
-                              Navigator.pop(context, [
-                                titlecontroller.text.toString(),
-                                descriptioncontroller.text.toString(),
-                                selectedDate,
-                                selectedTime,
-                                _currentSliderValue.round(),
-                                keyRef.toString()
-                              ]);
+                              Navigator.pop(
+                                  context,
+                                  TrainingData(
+                                    trainingid: keyRef.toString(),
+                                    name: titlecontroller.text.toString(),
+                                    description:
+                                        descriptioncontroller.text.toString(),
+                                    date: selectedDate,
+                                    duration: selectedTime,
+                                    intensity: _currentSliderValue.round(),
+                                    listtype: 2,
+                                    inHistory: true,
+                                  ));
                             }
                           },
                         ),

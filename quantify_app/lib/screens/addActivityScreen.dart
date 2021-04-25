@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:provider/provider.dart';
+import 'package:quantify_app/models/training.dart';
 //import 'package:quantify_app/loading.dart';
 import 'package:quantify_app/models/userClass.dart';
 //import 'package:quantify_app/screens/homeSkeleton.dart';
@@ -141,7 +142,7 @@ class _AddActivityScreenState extends State<AddActivityScreen>
                       ),
                     ),
                     onPressed: () async {
-                      List<Object> activityData = await showDialog(
+                      TrainingData activityData = await showDialog(
                           context: context,
                           builder: (_) => ActivityPopup(
                                 keyRef: '',
@@ -231,7 +232,7 @@ class _AddActivityScreenState extends State<AddActivityScreen>
                 subtitle: Text(_subtitle),
                 isThreeLine: false,
                 onTap: () async {
-                  List<Object> activityData = await showDialog(
+                  TrainingData activityData = await showDialog(
                       context: context,
                       builder: (_) => ActivityPopup(
                             keyRef: keyRef,
@@ -294,22 +295,23 @@ class _AddActivityScreenState extends State<AddActivityScreen>
 
   //Is called whenever a user presses Done in add activity view
   Future addActivity(context, activityData) async {
+    print('in add activity');
     final user = Provider.of<UserClass>(context, listen: false);
     print(activityData);
     await DatabaseService(uid: user.uid).updateTrainingData(
-        activityData[5],
-        activityData[0], //name
-        activityData[1], //description
-        activityData[2], //date
-        activityData[4], //Intensity
+        activityData.trainingid,
+        activityData.name, //name
+        activityData.description, //description
+        activityData.date, //date
+        activityData.intensity, //Intensity
         _selectedIndex + 1,
         true);
     await DatabaseService(uid: user.uid).createTrainingDiaryData(
-      activityData[0], //name
-      activityData[1], //description
-      activityData[2], //date
-      activityData[3], //duration
-      activityData[4], //Intensity
+      activityData.name, //name
+      activityData.description, //description
+      activityData.date, //date
+      activityData.duration, //duration
+      activityData.intensity, //Intensity
     );
     while (Navigator.canPop(context)) {
       Navigator.pop(context);
@@ -356,20 +358,21 @@ class _AddActivityScreenState extends State<AddActivityScreen>
   }
 
   void addItem(context, activityData) async {
+    print('In add item');
     final user = Provider.of<UserClass>(context, listen: false);
     await DatabaseService(uid: user.uid).createTrainingData(
-        activityData[0], //name
-        activityData[1], //desc
-        activityData[2], //date
-        activityData[4], //intensity
+        activityData.name, //name
+        activityData.description, //desc
+        activityData.date, //date
+        activityData.intensity, //intensity
         2,
         true);
     await DatabaseService(uid: user.uid).createTrainingDiaryData(
-      activityData[0], //name
-      activityData[1], //description
-      activityData[2], //date
-      activityData[3], //duration
-      activityData[4], //Intensity
+      activityData.name, //name
+      activityData.description, //description
+      activityData.date, //date
+      activityData.duration, //duration
+      activityData.intensity, //Intensity
     );
     while (Navigator.canPop(context)) {
       Navigator.pop(context);
