@@ -36,13 +36,12 @@ class Sensor {
               print(tag.data);
 
               int result = await readDataAndroid(tag);
-              if (result == sensorAlive) {
-                List<GlucoseData> trend = getTrendData();
-                List<GlucoseData> history = getHistoryData();
 
-                await DatabaseService(uid: uid).updateGlucose(trend);
-                await DatabaseService(uid: uid).updateGlucose(history);
-              }
+              List<GlucoseData> trend = getTrendData();
+              List<GlucoseData> history = getHistoryData();
+
+              await DatabaseService(uid: uid).updateGlucose(trend);
+              await DatabaseService(uid: uid).updateGlucose(history);
 
               await NfcManager.instance.stopSession();
               f(result);
