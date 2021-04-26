@@ -2,9 +2,11 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttericon/rpg_awesome_icons.dart';
 import 'package:provider/provider.dart';
 import 'package:quantify_app/customWidgets/bottomNavbar.dart';
 import 'package:quantify_app/customWidgets/expandingFAB.dart';
+import 'package:quantify_app/models/training.dart';
 //import 'package:quantify_app/loading.dart';
 import 'package:quantify_app/models/userClass.dart';
 import 'package:quantify_app/screens/ActivityFormScreen.dart';
@@ -40,6 +42,21 @@ class HomeScreen extends StatefulWidget {
 }
 
 GlobalKey overviewKey = new GlobalKey();
+
+List<IconData> iconList = [
+  Icons.directions_bike,
+  Icons.directions_run,
+  Icons.directions_walk,
+  Icons.sports_hockey,
+  Icons.sports_baseball,
+  Icons.sports_basketball,
+  Icons.sports_football,
+  Icons.sports_soccer,
+  Icons.sports_tennis,
+  Icons.sports_handball,
+  Icons.miscellaneous_services,
+  RpgAwesome.muscle_up,
+];
 
 class _HomeScreenState extends State<HomeScreen>
     with SingleTickerProviderStateMixin {
@@ -163,7 +180,7 @@ class _HomeScreenState extends State<HomeScreen>
                   true,
                   _mealData.docId))).then((values) => setData([values, false]));
     } else {
-      List activityData = await showDialog(
+      TrainingData activityData = await showDialog(
           context: context,
           builder: (context) => ActivityPopup(
               keyRef: _trainingData.trainingid,
@@ -172,7 +189,8 @@ class _HomeScreenState extends State<HomeScreen>
               subtitle: _trainingData.description,
               date: _trainingData.date,
               duration: _trainingData.duration.inMilliseconds,
-              intensity: _trainingData.intensity)).then((values) => setData([
+              intensity: _trainingData.intensity,
+              category: _trainingData.category)).then((values) => setData([
             new TrainingDiaryData(
                 trainingid: values[5],
                 name: values[0],
@@ -183,12 +201,13 @@ class _HomeScreenState extends State<HomeScreen>
           ]));
       final user = Provider.of<UserClass>(context, listen: false);
       await DatabaseService(uid: user.uid).updateTrainingDiaryData(
-        activityData[5], //ID
-        activityData[0], //name
-        activityData[1], //description
-        activityData[2], //date
-        activityData[3], //duration
-        activityData[4], //Intensity
+        activityData.trainingid, //ID
+        activityData.name, //name
+        activityData.description, //description
+        activityData.date, //date
+        activityData.duration, //duration
+        activityData.intensity, //Intensity
+        activityData.category,
       );
     }
   }
@@ -284,7 +303,7 @@ class _HomeScreenState extends State<HomeScreen>
                       width: MediaQuery.of(context).size.width * 0.45,
                       child: FittedBox(
                           fit: BoxFit.fitWidth,
-                          child: Icon(Icons.directions_run))),
+                          child: Icon(iconList[_trainingData.category]))),
                   Container(
                     height: MediaQuery.of(context).size.height * 0.2,
                     width: MediaQuery.of(context).size.width * 0.45,

@@ -33,6 +33,7 @@ class ActivityPopup extends StatefulWidget {
   final DateTime date;
   final int duration;
   final int intensity;
+  final int category;
 
   final keyRef;
   ActivityPopup(
@@ -43,12 +44,13 @@ class ActivityPopup extends StatefulWidget {
       @required this.date,
       @required this.duration,
       @required this.intensity,
-      @required this.keyRef})
+      @required this.keyRef,
+      @required this.category})
       : super(key: key);
 
   @override
   _ActivityPopupState createState() => _ActivityPopupState(
-      isAdd, titlevalue, subtitle, date, duration, intensity, keyRef);
+      isAdd, titlevalue, subtitle, date, duration, intensity, keyRef, category);
 }
 
 class _ActivityPopupState extends State<ActivityPopup> {
@@ -73,10 +75,11 @@ class _ActivityPopupState extends State<ActivityPopup> {
   String subtitle;
   DateTime date;
   int duration;
+  int category;
 
   int intensity;
   _ActivityPopupState(this.isAdd, this.titlevalue, this.subtitle, this.date,
-      this.duration, this.intensity, this.keyRef);
+      this.duration, this.intensity, this.keyRef, this.category);
 
   @override
   void dispose() {
@@ -88,6 +91,7 @@ class _ActivityPopupState extends State<ActivityPopup> {
   @override
   void initState() {
     super.initState();
+    _currentSliderValue = intensity.roundToDouble();
     selectedDate = date;
     selectedTime = Duration(milliseconds: duration);
     _fillController(titlecontroller, titlevalue);
@@ -127,7 +131,7 @@ class _ActivityPopupState extends State<ActivityPopup> {
   buildMaterialTimePicker(BuildContext context) async {
     final Duration picked = await showDurationPicker(
       context: context,
-      initialTime: selectedTime,
+      initialTime: Duration(hours: duration, minutes: duration),
     );
     if (picked != null && picked != selectedTime)
       setState(() {
@@ -149,6 +153,7 @@ class _ActivityPopupState extends State<ActivityPopup> {
                     height: MediaQuery.of(context).size.height * 0.3,
                     color: Colors.white,
                     child: CupertinoTimerPicker(
+                        initialTimerDuration: Duration(milliseconds: duration),
                         mode: CupertinoTimerPickerMode.hm,
                         onTimerDurationChanged: (picked) {
                           if (picked != null && picked != selectedTime)
@@ -264,6 +269,23 @@ class _ActivityPopupState extends State<ActivityPopup> {
       }
     });
     return contr;
+  }
+
+  List<IconData> listSort(list) {
+    List<IconData> newList = [];
+    if (_category != list.length) {
+      for (int i = _category; i <= iconList.length - 1; i++) {
+        print('i = $i');
+        newList.add(list[i]);
+      }
+    }
+    if (_category != 0) {
+      for (int i = _category - 1; i > 0; i--) {
+        newList.add(list[i]);
+        print('loop2');
+      }
+    }
+    return newList;
   }
 
   Widget formBody(context) {
@@ -401,6 +423,7 @@ class _ActivityPopupState extends State<ActivityPopup> {
                             width: MediaQuery.of(context).size.width * 0.45,
                             child: CarouselSlider(
                               options: CarouselOptions(
+                                  initialPage: category,
                                   onPageChanged: (index, reason) {
                                     setState(() {
                                       _category = index;
@@ -433,7 +456,7 @@ class _ActivityPopupState extends State<ActivityPopup> {
                         child: SleekCircularSlider(
                             min: 1,
                             max: 10,
-                            initialValue: 5,
+                            initialValue: intensity.roundToDouble(),
                             appearance: CircularSliderAppearance(
                                 infoProperties:
                                     InfoProperties(modifier: sliderModifier),
@@ -487,6 +510,7 @@ class _ActivityPopupState extends State<ActivityPopup> {
                             intensity: _currentSliderValue.round(),
                             listtype: 2,
                             inHistory: true,
+                            category: _category,
                           ));
                     }
                   },
@@ -498,219 +522,16 @@ class _ActivityPopupState extends State<ActivityPopup> {
   }
 
   String sliderModifier(double value) {
-    final roundedValue = value.ceil().toInt().toString();
+    final roundedValue = value.round().toInt().toString();
     return '$roundedValue / 10';
   }
 
   @override
   Widget build(BuildContext context) {
-    //  isAdd = this.isAdd;
-    // selectedTime = this.selectedTime;
-    // _titlevalidate = this._titlevalidate;
     return Scaffold(
+        resizeToAvoidBottomInset: false,
         appBar: CustomAppBar(),
-        body: formBody(
-            context) /*Padding(
-          padding: EdgeInsets.only(
-              left: (MediaQuery.of(context).size.width * 0.05),
-              right: MediaQuery.of(context).size.height * 0.05),
-          child: SingleChildScrollView(
-            child: Stack(
-              clipBehavior: Clip.hardEdge,
-              children: <Widget>[
-                Positioned(
-                  right: -40.0,
-                  top: -40.0,
-                  child: InkResponse(
-                    onTap: () {
-                      Navigator.pop(
-                        context,
-                      );
-                    },
-                    child: CircleAvatar(
-                      child: Icon(Icons.close),
-                      backgroundColor: Colors.red,
-                    ),
-                  ),
-                ),
-                Form(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: <Widget>[
-                      Container(
-                        alignment: Alignment.topLeft,
-                        child: Padding(
-                          padding: EdgeInsets.only(top: 14, left: 8, right: 8),
-                          child: Text(
-                            'Activity name',
-                            textAlign: TextAlign.left,
-                            style: TextStyle(),
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.all(8.0),
-                        child: TextFormField(
-                          maxLength: 15,
-                          //focusNode: isAdd ? AlwaysDisabledFocusNode() : FocusNode(),
-                          decoration: InputDecoration(
-                            errorText:
-                                _titlevalidate ? 'Value Can\'t Be Empty' : null,
-                          ),
-                          controller: titlecontroller,
-                        ),
-                      ),
-                      Container(
-                        alignment: Alignment.bottomLeft,
-                        child: Padding(
-                          padding: EdgeInsets.only(top: 8, left: 8, right: 8),
-                          child: Text(
-                            'Short Description',
-                            textAlign: TextAlign.left,
-                            style: TextStyle(),
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.all(8.0),
-                        child: TextFormField(
-                            maxLength: 128,
-                            //focusNode: isAdd ? AlwaysDisabledFocusNode() : FocusNode(),
-                            controller: descriptioncontroller),
-                      ),
-                      Container(
-                        alignment: Alignment.topLeft,
-                        child: Padding(
-                          padding: EdgeInsets.only(
-                              top: 20.0, bottom: 8, left: 8, right: 8),
-                          child: Text(
-                            'Start time',
-                            textAlign: TextAlign.left,
-                            style: TextStyle(),
-                          ),
-                        ),
-                      ),
-                      Container(
-                        child: TextField(
-                          onTap: () {
-                            _selectDate(context);
-                          },
-                          focusNode: AlwaysDisabledFocusNode(),
-                          decoration: InputDecoration(
-                              counterText: "",
-                              border: OutlineInputBorder(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(20)),
-                              ),
-                              labelText: isAdd
-                                  ? DateFormat('EEE, M/d/y - HH:mm')
-                                      .format(selectedDate)
-                                  : DateFormat('EEE, M/d/y - HH:mm')
-                                      .format(today)),
-                        ),
-                        height: MediaQuery.of(context).size.height * 0.1,
-                        width: MediaQuery.of(context).size.width * 0.5,
-                      ),
-                      Container(
-                        alignment: Alignment.bottomLeft,
-                        child: Padding(
-                          padding:
-                              EdgeInsets.only(bottom: 8, left: 8, right: 8),
-                          child: Text(
-                            'Duration',
-                            textAlign: TextAlign.left,
-                            style: TextStyle(),
-                          ),
-                        ),
-                      ),
-                      Container(
-                        child: TextField(
-                          onTap: () {
-                            _selectTime(context);
-                          },
-                          focusNode: AlwaysDisabledFocusNode(),
-                          decoration: InputDecoration(
-                            counterText: "",
-                            border: OutlineInputBorder(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(20)),
-                            ),
-                            labelText: selectedTime.toString().substring(0, 4),
-                          ),
-                        ),
-                        height: MediaQuery.of(context).size.height * 0.1,
-                        width: MediaQuery.of(context).size.width * 0.5,
-                      ),
-                      Container(
-                          child: Slider(
-                        value: _currentSliderValue,
-                        activeColor: Color(0xFF99163D),
-                        inactiveColor: Colors.grey[500],
-                        min: 1,
-                        max: 10,
-                        divisions: 10,
-                        label: _currentSliderValue.round().toString(),
-                        onChanged: (double value) {
-                          setState(() {
-                            _currentSliderValue = value;
-                          });
-                        },
-                      )),
-                      Padding(
-                        padding: const EdgeInsets.only(
-                            left: 8.0, right: 8, bottom: 8),
-                        child: Container(child: Text('Intensity')),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: ElevatedButton(
-                          child:
-                              Text(isAdd ? "Add Activty" : "Create Activity"),
-                          style: ButtonStyle(
-                            backgroundColor:
-                                MaterialStateProperty.resolveWith<Color>(
-                              (Set<MaterialState> states) {
-                                if (states.contains(MaterialState.pressed))
-                                  return Color(0xDD99163D);
-                                else
-                                  return Color(0xFF99163D);
-                              },
-                            ),
-                          ),
-                          onPressed: () {
-                            titlecontroller.text.isEmpty
-                                ? _titlevalidate = true
-                                : _titlevalidate = false;
-                            if (_titlevalidate) {
-                              setState(() {});
-                            }
-
-                            if (titlecontroller.text.isNotEmpty) {
-                              Navigator.pop(
-                                  context,
-                                  TrainingData(
-                                    trainingid: keyRef.toString(),
-                                    name: titlecontroller.text.toString(),
-                                    description:
-                                        descriptioncontroller.text.toString(),
-                                    date: selectedDate,
-                                    duration: selectedTime,
-                                    intensity: _currentSliderValue.round(),
-                                    listtype: 2,
-                                    inHistory: true,
-                                  ));
-                            }
-                          },
-                        ),
-                      )
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        )*/
-        );
+        body: formBody(context));
   }
 }
 

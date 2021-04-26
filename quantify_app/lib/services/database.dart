@@ -193,8 +193,14 @@ class DatabaseService {
   final CollectionReference trainingDiaryData =
       FirebaseFirestore.instance.collection('activityDiary');
 
-  Future<void> createTrainingData(String name, String description,
-      DateTime date, int intensity, int listtype, bool inHistory) async {
+  Future<void> createTrainingData(
+      String name,
+      String description,
+      DateTime date,
+      int intensity,
+      int listtype,
+      bool inHistory,
+      int category) async {
     return await userInfo.doc(uid).collection('training').doc().set({
       'name': name,
       'description': description,
@@ -202,6 +208,7 @@ class DatabaseService {
       'intensity': intensity,
       'listtype': listtype,
       'inHistory': inHistory,
+      'category': category
     });
   }
 
@@ -212,7 +219,8 @@ class DatabaseService {
       DateTime date,
       int intensity,
       int listtype,
-      bool inHistory) async {
+      bool inHistory,
+      int category) async {
     return await userInfo
         .doc(uid)
         .collection('training')
@@ -243,7 +251,8 @@ class DatabaseService {
         description: snapshot.get('description'),
         date: snapshot.get('date'),
         intensity: snapshot.get('date'),
-        listtype: snapshot.get('listtype'));
+        listtype: snapshot.get('listtype'),
+        category: snapshot.get('category'));
   }
 
   Stream<TrainingDiaryData> get activityDiaryDatasave {
@@ -257,7 +266,8 @@ class DatabaseService {
         description: snapshot.get('description'),
         date: snapshot.get('date'),
         duration: snapshot.get('duration'),
-        intensity: snapshot.get('intensity'));
+        intensity: snapshot.get('intensity'),
+        category: snapshot.get('category'));
   }
   //String key = firebase_storage.FirebaseStorage.instance.ref().child('users').child().push().getKey();
 
@@ -267,6 +277,7 @@ class DatabaseService {
     DateTime date,
     Duration duration,
     int intensity,
+    int category,
   ) async {
     return await userInfo.doc(uid).collection('trainingDiary').doc().set({
       'name': name,
@@ -274,10 +285,9 @@ class DatabaseService {
       'date': date.millisecondsSinceEpoch,
       'duration': duration.inMilliseconds,
       'intensity': intensity,
+      'category': category
     });
   }
-
-
 
   Future<void> updateTrainingDiaryData(
     String trainingid,
@@ -286,6 +296,7 @@ class DatabaseService {
     DateTime date,
     Duration duration,
     int intensity,
+    int category,
   ) async {
     return await userInfo
         .doc(uid)
@@ -298,9 +309,9 @@ class DatabaseService {
       'name': name,
       'description': description,
       'intensity': intensity,
+      'category': category
     });
   }
-
 
   Future<void> removeDir({String ref = ""}) async {
     print("Hello: " + ref);

@@ -10,13 +10,14 @@ class TrainingData {
   DateTime date;
   Duration duration;
   int intensity;
+  int category;
 
-  TrainingData({
-    this.trainingid,
-    this.name,
-    this.description,
-    this.date,
-    this.duration,
-    this.intensity,
-  });
+  TrainingData(
+      {this.trainingid,
+      this.name,
+      this.description,
+      this.date,
+      this.duration,
+      this.intensity,
+      this.category});
 }

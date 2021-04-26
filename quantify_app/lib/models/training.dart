@@ -12,6 +12,7 @@ class TrainingData {
   int intensity;
   int listtype;
   bool inHistory;
+  int category;
 
   TrainingData(
       {this.trainingid,
@@ -21,5 +22,6 @@ class TrainingData {
       this.duration,
       this.intensity,
       this.listtype,
-      this.inHistory});
+      this.inHistory,
+      this.category});
 }

@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttericon/rpg_awesome_icons.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:quantify_app/loading.dart';
@@ -26,23 +27,34 @@ class DiaryDetailsScreen extends StatefulWidget {
   final bool isIos;
   final String localPath;
   final String imgRef;
+  final int category;
 
-  const DiaryDetailsScreen({
-    Key key,
-    @required this.keyRef,
-    @required this.titlevalue,
-    @required this.subtitle,
-    @required this.dateTime,
-    @required this.duration,
-    @required this.intensity,
-    @required this.isIos,
-    @required this.localPath,
-    @required this.imgRef,
-  }) : super(key: key);
+  const DiaryDetailsScreen(
+      {Key key,
+      @required this.keyRef,
+      @required this.titlevalue,
+      @required this.subtitle,
+      @required this.dateTime,
+      @required this.duration,
+      @required this.intensity,
+      @required this.isIos,
+      @required this.localPath,
+      @required this.imgRef,
+      @required this.category})
+      : super(key: key);
 
   @override
-  _DiaryDetailsState createState() => _DiaryDetailsState(keyRef, titlevalue,
-      subtitle, dateTime, duration, intensity, isIos, localPath, imgRef);
+  _DiaryDetailsState createState() => _DiaryDetailsState(
+      keyRef,
+      titlevalue,
+      subtitle,
+      dateTime,
+      duration,
+      intensity,
+      isIos,
+      localPath,
+      imgRef,
+      category);
 }
 
 class _DiaryDetailsState extends State<DiaryDetailsScreen> {
@@ -55,9 +67,33 @@ class _DiaryDetailsState extends State<DiaryDetailsScreen> {
   bool isIos;
   String localPath;
   String imgRef;
-  _DiaryDetailsState(this.keyRef, this.titlevalue, this.subtitle, this.dateTime,
-      this.duration, this.intensity, this.isIos, this.localPath, this.imgRef);
+  int category;
+  _DiaryDetailsState(
+      this.keyRef,
+      this.titlevalue,
+      this.subtitle,
+      this.dateTime,
+      this.duration,
+      this.intensity,
+      this.isIos,
+      this.localPath,
+      this.imgRef,
+      this.category);
 
+  List<IconData> iconList = [
+    Icons.directions_bike,
+    Icons.directions_run,
+    Icons.directions_walk,
+    Icons.sports_hockey,
+    Icons.sports_baseball,
+    Icons.sports_basketball,
+    Icons.sports_football,
+    Icons.sports_soccer,
+    Icons.sports_tennis,
+    Icons.sports_handball,
+    Icons.miscellaneous_services,
+    RpgAwesome.muscle_up,
+  ];
   void _removeActivity(ValueKey dismissKey) {
     print('keyvalue is ${dismissKey.value}');
     final user = Provider.of<UserClass>(context, listen: false);
@@ -95,13 +131,14 @@ class _DiaryDetailsState extends State<DiaryDetailsScreen> {
     print(activityData);
     final user = Provider.of<UserClass>(context, listen: false);
     await DatabaseService(uid: user.uid).updateTrainingDiaryData(
-      activityData.trainingid, //ID
-      activityData.name, //name
-      activityData.description, //description
-      activityData.date, //date
-      activityData.duration, //duration
-      activityData.intensity, //Intensity
-    );
+        activityData.trainingid, //ID
+        activityData.name, //name
+        activityData.description, //description
+        activityData.date, //date
+        activityData.duration, //duration
+        activityData.intensity, //Intensity
+        activityData.category //category
+        );
   }
 
   String convertTime(int time) {
@@ -111,19 +148,23 @@ class _DiaryDetailsState extends State<DiaryDetailsScreen> {
     time ~/= 60;
     int hours = time;
     if (hours == 1) {
-      return "$hours Hour and\n ${_twoDigits(minutes)} Minutes";
+      if (minutes == 0) {
+        return "$hours Hour";
+      } else {
+        return "$hours Hour and $minutes Minutes";
+      }
     }
     if (hours > 1) {
-      return "$hours Hours and\n ${_twoDigits(minutes)} Minutes";
+      if (minutes == 0) {
+        return "$hours Hours";
+      } else {
+        return "$hours Hours and $minutes Minutes";
+      }
     } else if (minutes > 0) {
       return "$minutes Minutes";
     } else {
       return "No duration";
     }
-  }
-
-  String _twoDigits(int time) {
-    return "${time < 10 ? '0' : ''}$time";
   }
 
   Widget mealImage(context, String imageRef, String localPath, bool _isIos) {
@@ -139,7 +180,11 @@ class _DiaryDetailsState extends State<DiaryDetailsScreen> {
         });
   }
 
-  Widget activityImage(context, int duration, int intensity) {
+  Widget activityImage(context, int duration, int intensity, int category) {
+    print('icon is');
+
+    print('category $category');
+    print(Icon(iconList[category]));
     return Container(
       color: Color(0xFF99163D),
       child: Container(
@@ -150,7 +195,7 @@ class _DiaryDetailsState extends State<DiaryDetailsScreen> {
               child: Container(
                   child: FittedBox(
                 fit: BoxFit.fill,
-                child: Icon(Icons.directions_run),
+                child: Icon(iconList[category]),
               ))),
           Expanded(
             flex: 1,
@@ -237,7 +282,8 @@ class _DiaryDetailsState extends State<DiaryDetailsScreen> {
       String localPath,
       String imgRef,
       int duration,
-      int intensity}) {
+      int intensity,
+      int category}) {
     return Scaffold(
       appBar: CustomAppBar(),
       body: Center(
@@ -260,7 +306,8 @@ class _DiaryDetailsState extends State<DiaryDetailsScreen> {
                     : Container(
                         height: MediaQuery.of(context).size.height,
                         width: MediaQuery.of(context).size.width,
-                        child: activityImage(context, duration, intensity),
+                        child: activityImage(
+                            context, duration, intensity, category),
                       ),
                 Container(
                     color: Colors.black.withOpacity(0.5),
@@ -365,19 +412,23 @@ class _DiaryDetailsState extends State<DiaryDetailsScreen> {
 
                                     if (!isMeal) {
                                       TrainingData activityData =
-                                          await showDialog(
-                                              context: context,
-                                              builder: (_) => ActivityPopup(
-                                                  keyRef:
-                                                      keyRef.value.toString(),
-                                                  isAdd: true,
-                                                  titlevalue: titlevalue,
-                                                  subtitle: subtitle,
-                                                  date: DateTime
-                                                      .fromMillisecondsSinceEpoch(
-                                                          dateTime),
-                                                  duration: duration,
-                                                  intensity: intensity));
+                                          await Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      ActivityPopup(
+                                                          keyRef: keyRef.value
+                                                              .toString(),
+                                                          isAdd: true,
+                                                          titlevalue:
+                                                              titlevalue,
+                                                          subtitle: subtitle,
+                                                          date: DateTime
+                                                              .fromMillisecondsSinceEpoch(
+                                                                  dateTime),
+                                                          duration: duration,
+                                                          intensity: intensity,
+                                                          category: category)));
                                       if (activityData != null) {
                                         updateActivity(context, activityData);
                                       }
@@ -412,7 +463,7 @@ class _DiaryDetailsState extends State<DiaryDetailsScreen> {
   Widget build(BuildContext context) {
     if (localPath == 'activity') {
       return overlayView(false, titlevalue, subtitle, dateTime,
-          duration: duration, intensity: intensity);
+          duration: duration, intensity: intensity, category: category);
     } else {
       return overlayView(true, titlevalue, subtitle, dateTime,
           isIos: isIos, localPath: localPath, imgRef: imgRef);
