@@ -237,7 +237,7 @@ class _AddActivityScreenState extends State<AddActivityScreen>
         height: MediaQuery.of(context).size.height * 0.1,
         child: Slidable(
           actionPane: SlidableDrawerActionPane(),
-          actionExtentRatio: 0.25,
+          actionExtentRatio: _selectedIndex != 2 ? 0.25 : 0,
           child: Card(
             child: ListTile(
                 title: Text(name),
