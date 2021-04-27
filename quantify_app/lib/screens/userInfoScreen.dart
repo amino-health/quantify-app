@@ -1,9 +1,12 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import 'package:quantify_app/loading.dart';
 import 'package:quantify_app/models/userClass.dart';
 import 'package:quantify_app/services/database.dart';
+import 'package:flutter_picker/flutter_picker.dart';
 
 //import 'package:flutter_svg/flutter_svg.dart';
 
@@ -26,6 +29,8 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
   final _heighttext = TextEditingController();
   //bool _heightvalidate = false;
   //bool _weightvalidate = false;
+  final GlobalKey<ScaffoldState> _scaffoldkey = new GlobalKey<ScaffoldState>();
+  static const PickerData = '''['Gender', 'Male', 'Female']''';
 
   @override
   void dispose() {
@@ -110,6 +115,21 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
     );
   }
 
+  showPicker(BuildContext context) {
+    Picker picker = new Picker(
+        adapter: PickerDataAdapter<String>(
+            pickerdata: new JsonDecoder().convert(PickerData)),
+        changeToFirst: true,
+        textAlign: TextAlign.left,
+        title: Text("Gender"),
+        columnPadding: const EdgeInsets.all(8.0),
+        onConfirm: (Picker picker, List value) {
+          print(value.toString());
+          print(picker.getSelectedValues());
+        });
+    picker.show(_scaffoldkey.currentState);
+  }
+
   @override
   Widget build(BuildContext context) {
     final user = Provider.of<UserClass>(context);
@@ -119,6 +139,7 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
           if (snapshot.hasData) {
             UserData userData = snapshot.data;
             return Scaffold(
+              key: _scaffoldkey,
               resizeToAvoidBottomInset: false,
               body: Container(
                 padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 60.0),
@@ -196,39 +217,9 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
                         child: Container(
                           //width: 400.0,
                           // margin: EdgeInsets.fromLTRB(30.0, 10.0, 20.0, 10.0),
-                          child: DropdownButtonHideUnderline(
-                            child: Container(
-                              padding: EdgeInsets.fromLTRB(85.0, 0, 85.0, 0),
-                              decoration: ShapeDecoration(
-                                shape: RoundedRectangleBorder(
-                                    side: BorderSide(
-                                        width: 1.0, color: Colors.grey),
-                                    borderRadius: BorderRadius.all(
-                                        Radius.circular(32.0))),
-                              ),
-                              child: DropdownButton<String>(
-                                hint: Text('Gender'),
-                                value: dropdownValue,
-                                icon: const Icon(Icons.arrow_downward),
-                                onChanged: (String newValue) {
-                                  FocusScope.of(context).unfocus();
-                                  setState(() {
-                                    dropdownValue = newValue;
-                                  });
-                                },
-                                items: <String>[
-                                  'Gender',
-                                  'Male',
-                                  'Female',
-                                  "Don't want to say"
-                                ].map<DropdownMenuItem<String>>((String value) {
-                                  return DropdownMenuItem<String>(
-                                    value: value,
-                                    child: Text(value),
-                                  );
-                                }).toList(),
-                              ),
-                            ),
+                          child: ElevatedButton(
+                            onPressed: showPicker(context),
+                            child: Text("Button"),
                           ),
                         ),
                       ),
