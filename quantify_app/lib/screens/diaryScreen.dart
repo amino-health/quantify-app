@@ -128,7 +128,7 @@ class _DiaryScreenState extends State<DiaryScreen> {
 /*  
 Depending on if user pressed graph button on meal or training data, call 
 goToGraph with a datetime which switches to graph view and pans the graph to 
-the desired location. 
+the desired location by setting min and max x axis values. 
 
 Also display information about either meal or activity with 'update' method under
 graph.
