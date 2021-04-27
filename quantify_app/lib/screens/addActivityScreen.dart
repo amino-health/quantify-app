@@ -286,6 +286,8 @@ class _AddActivityScreenState extends State<AddActivityScreen>
       activityList = myActivityList;
     }
     if (_selectedIndex == 2) {
+      allActivityList
+          .sort((a, b) => a[1].toString().compareTo(b[1].toString()));
       activityList = allActivityList;
     }
 
