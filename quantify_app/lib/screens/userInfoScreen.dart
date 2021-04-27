@@ -217,6 +217,7 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
                                   });
                                 },
                                 items: <String>[
+                                  'Gender',
                                   'Male',
                                   'Female',
                                   "Don't want to say"

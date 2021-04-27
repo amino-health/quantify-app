@@ -4,9 +4,11 @@ import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttericon/rpg_awesome_icons.dart';
 import 'package:intl/intl.dart';
 import 'package:quantify_app/loading.dart';
 import 'package:quantify_app/models/activityDiary.dart';
+import 'package:quantify_app/models/training.dart';
 import 'package:quantify_app/screens/ActivityFormScreen.dart';
 import 'package:quantify_app/screens/addMealScreen.dart';
 import 'package:quantify_app/screens/diaryDetailsScreen.dart';
@@ -35,6 +37,21 @@ class _DiaryScreenState extends State<DiaryScreen> {
   final ValueChanged<DateTime> goToGraph;
   final ValueChanged<List<dynamic>> update;
   _DiaryScreenState({this.goToGraph, this.update});
+
+  List<IconData> iconList = [
+    Icons.directions_bike,
+    Icons.directions_run,
+    Icons.directions_walk,
+    Icons.sports_hockey,
+    Icons.sports_baseball,
+    Icons.sports_basketball,
+    Icons.sports_football,
+    Icons.sports_soccer,
+    Icons.sports_tennis,
+    Icons.sports_handball,
+    Icons.miscellaneous_services,
+    RpgAwesome.muscle_up,
+  ];
 
   void _removeActivity(ValueKey dismissKey) {
     setState(() {
@@ -76,12 +93,13 @@ class _DiaryScreenState extends State<DiaryScreen> {
   Future updateActivity(context, activityData) async {
     final user = Provider.of<UserClass>(context, listen: false);
     await DatabaseService(uid: user.uid).updateTrainingDiaryData(
-      activityData[5], //ID
-      activityData[0], //name
-      activityData[1], //description
-      activityData[2], //date
-      activityData[3], //duration
-      activityData[4], //Intensity
+      activityData.trainingid, //ID
+      activityData.name, //name
+      activityData.description, //description
+      activityData.date, //date
+      activityData.duration, //duration
+      activityData.intensity, //Intensity
+      activityData.category, //category
     );
     //setState(() {});
   }
@@ -121,7 +139,7 @@ class _DiaryScreenState extends State<DiaryScreen> {
   }
 
   activityItem(BuildContext context, String name, String _subtitle, int date,
-      int duration, int intensity, ValueKey newKey) {
+      int duration, int intensity, ValueKey newKey, int category) {
     return Padding(
         padding: const EdgeInsets.symmetric(vertical: 4.0),
         child: Slidable(
@@ -142,7 +160,8 @@ class _DiaryScreenState extends State<DiaryScreen> {
                         isIos: false,
                         localPath: 'activity',
                         imgRef: 'activity',
-                        intensity: intensity)),
+                        intensity: intensity,
+                        category: category)),
               );
             },
             child: Container(
@@ -160,7 +179,7 @@ class _DiaryScreenState extends State<DiaryScreen> {
                               fit: BoxFit.fill,
                               child: Row(
                                 children: [
-                                  Icon(Icons.directions_run, size: 60),
+                                  Icon(iconList[category], size: 60),
                                   CircleAvatar(
                                       backgroundColor: Color(0xFF99163D),
                                       radius: 12,
@@ -288,17 +307,21 @@ class _DiaryScreenState extends State<DiaryScreen> {
                 color: Colors.grey[600],
                 icon: Icons.edit,
                 onTap: () async {
-                  List<Object> activityData = await showDialog(
-                      context: context,
-                      builder: (_) => ActivityPopup(
-                          keyRef: newKey.value.toString(),
-                          isAdd: true,
-                          titlevalue: name,
-                          subtitle: _subtitle,
-                          date: DateTime.fromMillisecondsSinceEpoch(date),
-                          duration: duration,
-                          intensity: intensity));
-                  updateActivity(context, activityData);
+                  TrainingData activityData = await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => ActivityPopup(
+                              keyRef: newKey.value.toString(),
+                              isAdd: true,
+                              titlevalue: name,
+                              subtitle: _subtitle,
+                              date: DateTime.fromMillisecondsSinceEpoch(date),
+                              duration: duration,
+                              intensity: intensity,
+                              category: category)));
+                  if (activityData != null) {
+                    updateActivity(context, activityData);
+                  }
                 }),
           ],
         ));
@@ -335,6 +358,7 @@ class _DiaryScreenState extends State<DiaryScreen> {
                           isIos: _isIos,
                           localPath: localPath,
                           imgRef: imageRef,
+                          category: null,
                         )),
               );
             },
@@ -569,7 +593,8 @@ class _DiaryScreenState extends State<DiaryScreen> {
               entry['date'],
               entry['duration'],
               entry['intensity'],
-              ValueKey(entry.id)),
+              ValueKey(entry.id),
+              entry['category']),
         );
       } catch (e) {
         diaryList.add(mealItem(context, entry['date'], entry['imageRef'],

@@ -150,8 +150,8 @@ class AuthService {
       await DatabaseService(uid: user.uid).updateUserData(
           user.uid, user.email, true, '0', '0', '0', false, "male");
 
-      await DatabaseService(uid: user.uid)
-          .createTrainingData('Running', 'Sprint', DateTime.now(), 0, 3, false);
+      await DatabaseService(uid: user.uid).createTrainingData(
+          'Running', 'Sprint', DateTime.now(), 0, 3, false, 0);
     } catch (error) {
       print('HEJ');
       print(error.toString());

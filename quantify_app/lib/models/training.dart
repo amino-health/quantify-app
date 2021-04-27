@@ -8,16 +8,20 @@ class TrainingData {
   String name;
   String description;
   DateTime date;
+  Duration duration;
   int intensity;
   int listtype;
   bool inHistory;
+  int category;
 
   TrainingData(
       {this.trainingid,
       this.name,
       this.description,
       this.date,
+      this.duration,
       this.intensity,
       this.listtype,
-      this.inHistory});
+      this.inHistory,
+      this.category});
 }

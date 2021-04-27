@@ -4,10 +4,12 @@ import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttericon/rpg_awesome_icons.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:quantify_app/loading.dart';
 import 'package:quantify_app/models/mealData.dart';
+import 'package:quantify_app/models/training.dart';
 import 'package:quantify_app/models/userClass.dart';
 import 'package:quantify_app/screens/ActivityFormScreen.dart';
 import 'package:quantify_app/screens/addMealScreen.dart';
@@ -25,23 +27,34 @@ class DiaryDetailsScreen extends StatefulWidget {
   final bool isIos;
   final String localPath;
   final String imgRef;
+  final int category;
 
-  const DiaryDetailsScreen({
-    Key key,
-    @required this.keyRef,
-    @required this.titlevalue,
-    @required this.subtitle,
-    @required this.dateTime,
-    @required this.duration,
-    @required this.intensity,
-    @required this.isIos,
-    @required this.localPath,
-    @required this.imgRef,
-  }) : super(key: key);
+  const DiaryDetailsScreen(
+      {Key key,
+      @required this.keyRef,
+      @required this.titlevalue,
+      @required this.subtitle,
+      @required this.dateTime,
+      @required this.duration,
+      @required this.intensity,
+      @required this.isIos,
+      @required this.localPath,
+      @required this.imgRef,
+      @required this.category})
+      : super(key: key);
 
   @override
-  _DiaryDetailsState createState() => _DiaryDetailsState(keyRef, titlevalue,
-      subtitle, dateTime, duration, intensity, isIos, localPath, imgRef);
+  _DiaryDetailsState createState() => _DiaryDetailsState(
+      keyRef,
+      titlevalue,
+      subtitle,
+      dateTime,
+      duration,
+      intensity,
+      isIos,
+      localPath,
+      imgRef,
+      category);
 }
 
 class _DiaryDetailsState extends State<DiaryDetailsScreen> {
@@ -54,9 +67,33 @@ class _DiaryDetailsState extends State<DiaryDetailsScreen> {
   bool isIos;
   String localPath;
   String imgRef;
-  _DiaryDetailsState(this.keyRef, this.titlevalue, this.subtitle, this.dateTime,
-      this.duration, this.intensity, this.isIos, this.localPath, this.imgRef);
+  int category;
+  _DiaryDetailsState(
+      this.keyRef,
+      this.titlevalue,
+      this.subtitle,
+      this.dateTime,
+      this.duration,
+      this.intensity,
+      this.isIos,
+      this.localPath,
+      this.imgRef,
+      this.category);
 
+  List<IconData> iconList = [
+    Icons.directions_bike,
+    Icons.directions_run,
+    Icons.directions_walk,
+    Icons.sports_hockey,
+    Icons.sports_baseball,
+    Icons.sports_basketball,
+    Icons.sports_football,
+    Icons.sports_soccer,
+    Icons.sports_tennis,
+    Icons.sports_handball,
+    Icons.miscellaneous_services,
+    RpgAwesome.muscle_up,
+  ];
   void _removeActivity(ValueKey dismissKey) {
     print('keyvalue is ${dismissKey.value}');
     final user = Provider.of<UserClass>(context, listen: false);
@@ -94,13 +131,14 @@ class _DiaryDetailsState extends State<DiaryDetailsScreen> {
     print(activityData);
     final user = Provider.of<UserClass>(context, listen: false);
     await DatabaseService(uid: user.uid).updateTrainingDiaryData(
-      activityData[5], //ID
-      activityData[0], //name
-      activityData[1], //description
-      activityData[2], //date
-      activityData[3], //duration
-      activityData[4], //Intensity
-    );
+        activityData.trainingid, //ID
+        activityData.name, //name
+        activityData.description, //description
+        activityData.date, //date
+        activityData.duration, //duration
+        activityData.intensity, //Intensity
+        activityData.category //category
+        );
   }
 
   String convertTime(int time) {
@@ -110,19 +148,23 @@ class _DiaryDetailsState extends State<DiaryDetailsScreen> {
     time ~/= 60;
     int hours = time;
     if (hours == 1) {
-      return "$hours Hour and\n ${_twoDigits(minutes)} Minutes";
+      if (minutes == 0) {
+        return "$hours Hour";
+      } else {
+        return "$hours Hour and $minutes Minutes";
+      }
     }
     if (hours > 1) {
-      return "$hours Hours and\n ${_twoDigits(minutes)} Minutes";
+      if (minutes == 0) {
+        return "$hours Hours";
+      } else {
+        return "$hours Hours and $minutes Minutes";
+      }
     } else if (minutes > 0) {
       return "$minutes Minutes";
     } else {
       return "No duration";
     }
-  }
-
-  String _twoDigits(int time) {
-    return "${time < 10 ? '0' : ''}$time";
   }
 
   Widget mealImage(context, String imageRef, String localPath, bool _isIos) {
@@ -138,7 +180,11 @@ class _DiaryDetailsState extends State<DiaryDetailsScreen> {
         });
   }
 
-  Widget activityImage(context, int duration, int intensity) {
+  Widget activityImage(context, int duration, int intensity, int category) {
+    print('icon is');
+
+    print('category $category');
+    print(Icon(iconList[category]));
     return Container(
       color: Color(0xFF99163D),
       child: Container(
@@ -149,7 +195,7 @@ class _DiaryDetailsState extends State<DiaryDetailsScreen> {
               child: Container(
                   child: FittedBox(
                 fit: BoxFit.fill,
-                child: Icon(Icons.directions_run),
+                child: Icon(iconList[category]),
               ))),
           Expanded(
             flex: 1,
@@ -198,115 +244,6 @@ class _DiaryDetailsState extends State<DiaryDetailsScreen> {
     );
   }
 
-  bottomButton(BuildContext context, String _title) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: [
-        Container(
-            child: FittedBox(
-                fit: BoxFit.fitWidth,
-                child: Padding(
-                    padding: const EdgeInsets.only(
-                        left: 20.0, right: 20.0, bottom: 6.0),
-                    child: ElevatedButton(
-                        style: ButtonStyle(
-                            backgroundColor:
-                                MaterialStateProperty.resolveWith<Color>(
-                              (Set<MaterialState> states) {
-                                if (states.contains(MaterialState.pressed))
-                                  return Colors.grey[800];
-                                else
-                                  return Colors.grey[700];
-                              },
-                            ),
-                            shape: MaterialStateProperty.all<
-                                RoundedRectangleBorder>(RoundedRectangleBorder(
-                              borderRadius: BorderRadius.zero,
-                            ))),
-                        child: Padding(
-                          padding: const EdgeInsets.only(
-                              left: 25.0, right: 25.0, top: 8, bottom: 8),
-                          child: Text(
-                            'Edit ' + _title,
-                            style: TextStyle(fontFamily: 'roboto-bold'),
-                          ),
-                        ),
-                        onPressed: () async {
-                          print('keyref is $keyRef');
-
-                          if (_title == 'Activity') {
-                            List<Object> activityData = await showDialog(
-                                context: context,
-                                builder: (_) => ActivityPopup(
-                                    keyRef: keyRef.value.toString(),
-                                    isAdd: true,
-                                    titlevalue: titlevalue,
-                                    subtitle: subtitle,
-                                    date: DateTime.fromMillisecondsSinceEpoch(
-                                        dateTime),
-                                    duration: duration,
-                                    intensity: intensity));
-                            updateActivity(context, activityData);
-                            if (Navigator.canPop(context)) {
-                              Navigator.pop(context);
-                            }
-                          } else {
-                            updateMeal(new MealData(
-                                subtitle,
-                                DateTime.fromMillisecondsSinceEpoch(dateTime),
-                                imgRef,
-                                keyRef.value,
-                                localPath));
-                          }
-                          /*while (Navigator.canPop(context)) {
-                            Navigator.pop(context);
-                          }*/
-                        })))),
-        Container(
-            child: FittedBox(
-                fit: BoxFit.fitWidth,
-                child: Padding(
-                    padding: const EdgeInsets.only(
-                        left: 20.0, right: 20.0, bottom: 6.0),
-                    child: ElevatedButton(
-                        style: ButtonStyle(
-                            backgroundColor:
-                                MaterialStateProperty.resolveWith<Color>(
-                              (Set<MaterialState> states) {
-                                if (states.contains(MaterialState.pressed))
-                                  return Color(0xDD99163D);
-                                else
-                                  return Color(0xFF99163D);
-                              },
-                            ),
-                            shape: MaterialStateProperty.all<
-                                RoundedRectangleBorder>(RoundedRectangleBorder(
-                              borderRadius: BorderRadius.zero,
-                            ))),
-                        child: Padding(
-                          padding: const EdgeInsets.only(
-                              left: 25.0, right: 25.0, top: 8, bottom: 8),
-                          child: Text(
-                            'Delete ' + _title,
-                            style: TextStyle(fontFamily: 'roboto-bold'),
-                          ),
-                        ),
-                        onPressed: () async {
-                          print('keyref is $keyRef');
-                          _title == 'Activity'
-                              ? _removeActivity(keyRef)
-                              : _removeMeal(new MealData(
-                                  subtitle,
-                                  DateTime.fromMillisecondsSinceEpoch(dateTime),
-                                  imgRef,
-                                  keyRef.value,
-                                  localPath));
-                          Navigator.of(context).pop();
-                        })))),
-      ],
-    );
-  }
-
   Future<Widget> displayImage(BuildContext context, bool _isIos,
       String localPath, String imgRef) async {
     if (localPath != null) {
@@ -340,113 +277,13 @@ class _DiaryDetailsState extends State<DiaryDetailsScreen> {
           );
   }
 
-  activityView(String titlevalue, String subtitle, int dateTime, int duration,
-      int intensity) {
-    return Scaffold(
-      appBar: CustomAppBar(),
-      body: Center(
-          child: Column(
-        children: [
-          Expanded(
-            flex: 4,
-            child: Row(
-              children: [
-                Expanded(
-                  child: FittedBox(
-                      fit: BoxFit.fill, child: Icon(Icons.directions_run)),
-                  flex: 5,
-                ),
-                Expanded(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 20.0),
-                        child: Container(
-                          alignment: Alignment.bottomLeft,
-                          child: FittedBox(
-                              fit: BoxFit.fitWidth,
-                              child: Text(
-                                  DateFormat('EEE, M/d/y\nHH:mm').format(
-                                      DateTime.fromMillisecondsSinceEpoch(
-                                          dateTime)),
-                                  textAlign: TextAlign.left,
-                                  style: TextStyle(fontSize: 25))),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 20.0),
-                        child: Container(
-                            alignment: Alignment.bottomLeft,
-                            child: FittedBox(
-                                fit: BoxFit.fitWidth,
-                                child: Text(
-                                    'Duration: ' +
-                                        (Duration(milliseconds: duration)
-                                                    .inMinutes /
-                                                60)
-                                            .toString() +
-                                        ':' +
-                                        (Duration(milliseconds: duration)
-                                                    .inMinutes %
-                                                60)
-                                            .toString() +
-                                        ' Hrs',
-                                    style: TextStyle(fontSize: 25)))),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 20.0),
-                        child: Container(
-                          alignment: Alignment.bottomLeft,
-                          child: FittedBox(
-                              fit: BoxFit.fitWidth,
-                              child: Text('Intensity: ' + intensity.toString(),
-                                  style: TextStyle(fontSize: 25))),
-                        ),
-                      ),
-                    ],
-                  ),
-                  flex: 5,
-                )
-              ],
-            ),
-          ),
-          Expanded(
-            flex: 1,
-            child: Padding(
-              padding: const EdgeInsets.only(left: 12.0),
-              child: Container(
-                alignment: Alignment.topLeft,
-                child: Text(
-                  titlevalue,
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                  textScaleFactor: 2,
-                ),
-              ),
-            ),
-          ),
-          Expanded(
-            flex: 5,
-            child: Padding(
-              padding: const EdgeInsets.all(12.0),
-              child: Container(
-                child: Text(subtitle, style: TextStyle(fontSize: 25)),
-                alignment: Alignment.topLeft,
-              ),
-            ),
-          ),
-          bottomButton(context, 'Activity')
-        ],
-      )),
-    );
-  }
-
   overlayView(bool isMeal, String titlevalue, String subtitle, int dateTime,
       {bool isIos,
       String localPath,
       String imgRef,
       int duration,
-      int intensity}) {
+      int intensity,
+      int category}) {
     return Scaffold(
       appBar: CustomAppBar(),
       body: Center(
@@ -469,7 +306,8 @@ class _DiaryDetailsState extends State<DiaryDetailsScreen> {
                     : Container(
                         height: MediaQuery.of(context).size.height,
                         width: MediaQuery.of(context).size.width,
-                        child: activityImage(context, duration, intensity),
+                        child: activityImage(
+                            context, duration, intensity, category),
                       ),
                 Container(
                     color: Colors.black.withOpacity(0.5),
@@ -573,21 +411,27 @@ class _DiaryDetailsState extends State<DiaryDetailsScreen> {
                                     print('keyref is $keyRef');
 
                                     if (!isMeal) {
-                                      List<Object> activityData =
-                                          await showDialog(
-                                              context: context,
-                                              builder: (_) => ActivityPopup(
-                                                  keyRef:
-                                                      keyRef.value.toString(),
-                                                  isAdd: true,
-                                                  titlevalue: titlevalue,
-                                                  subtitle: subtitle,
-                                                  date: DateTime
-                                                      .fromMillisecondsSinceEpoch(
-                                                          dateTime),
-                                                  duration: duration,
-                                                  intensity: intensity));
-                                      updateActivity(context, activityData);
+                                      TrainingData activityData =
+                                          await Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      ActivityPopup(
+                                                          keyRef: keyRef.value
+                                                              .toString(),
+                                                          isAdd: true,
+                                                          titlevalue:
+                                                              titlevalue,
+                                                          subtitle: subtitle,
+                                                          date: DateTime
+                                                              .fromMillisecondsSinceEpoch(
+                                                                  dateTime),
+                                                          duration: duration,
+                                                          intensity: intensity,
+                                                          category: category)));
+                                      if (activityData != null) {
+                                        updateActivity(context, activityData);
+                                      }
                                       if (Navigator.canPop(context)) {
                                         Navigator.pop(context);
                                       }
@@ -619,7 +463,7 @@ class _DiaryDetailsState extends State<DiaryDetailsScreen> {
   Widget build(BuildContext context) {
     if (localPath == 'activity') {
       return overlayView(false, titlevalue, subtitle, dateTime,
-          duration: duration, intensity: intensity);
+          duration: duration, intensity: intensity, category: category);
     } else {
       return overlayView(true, titlevalue, subtitle, dateTime,
           isIos: isIos, localPath: localPath, imgRef: imgRef);

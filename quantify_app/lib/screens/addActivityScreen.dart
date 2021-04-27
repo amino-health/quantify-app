@@ -3,7 +3,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:fluttericon/rpg_awesome_icons.dart';
 import 'package:provider/provider.dart';
+import 'package:quantify_app/models/training.dart';
 //import 'package:quantify_app/loading.dart';
 import 'package:quantify_app/models/userClass.dart';
 //import 'package:quantify_app/screens/homeSkeleton.dart';
@@ -42,6 +44,21 @@ class _AddActivityScreenState extends State<AddActivityScreen>
           child:
               Text('Basic Activities', style: TextStyle(color: Colors.black))),
     ),
+  ];
+
+  List<IconData> iconList = [
+    Icons.directions_bike,
+    Icons.directions_run,
+    Icons.directions_walk,
+    Icons.sports_hockey,
+    Icons.sports_baseball,
+    Icons.sports_basketball,
+    Icons.sports_football,
+    Icons.sports_soccer,
+    Icons.sports_tennis,
+    Icons.sports_handball,
+    Icons.miscellaneous_services,
+    RpgAwesome.muscle_up,
   ];
 
   //Temporary lists for activity cards
@@ -141,18 +158,22 @@ class _AddActivityScreenState extends State<AddActivityScreen>
                       ),
                     ),
                     onPressed: () async {
-                      List<Object> activityData = await showDialog(
-                          context: context,
-                          builder: (_) => ActivityPopup(
-                                keyRef: '',
-                                isAdd: false,
-                                titlevalue: '',
-                                subtitle: '',
-                                date: DateTime.now(),
-                                duration: 0,
-                                intensity: 5,
-                              ));
-                      addItem(context, activityData);
+                      TrainingData activityData = await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => ActivityPopup(
+                                    keyRef: '',
+                                    isAdd: false,
+                                    titlevalue: '',
+                                    subtitle: '',
+                                    date: DateTime.now(),
+                                    duration: 0,
+                                    intensity: 5,
+                                    category: 0,
+                                  )));
+                      if (activityData != null) {
+                        addItem(context, activityData);
+                      }
                     }))));
   }
 
@@ -188,7 +209,8 @@ class _AddActivityScreenState extends State<AddActivityScreen>
                 DateTime.fromMicrosecondsSinceEpoch(historyActivityList[i][2]),
                 0,
                 0,
-                false);
+                false,
+                null);
             historyActivityList.remove(historyActivityList[i]);
             j += 1;
           }
@@ -215,7 +237,7 @@ class _AddActivityScreenState extends State<AddActivityScreen>
 
   //Returns a container item with key _name and a child slider with a numbered key
   activityItem(BuildContext context, String name, String _subtitle, int date,
-      int intensity, String keyRef) {
+      int intensity, String keyRef, int category) {
     return Container(
         key: ValueKey(keyRef),
         width: MediaQuery.of(context).size.width * 0.95,
@@ -231,18 +253,21 @@ class _AddActivityScreenState extends State<AddActivityScreen>
                 subtitle: Text(_subtitle),
                 isThreeLine: false,
                 onTap: () async {
-                  List<Object> activityData = await showDialog(
-                      context: context,
-                      builder: (_) => ActivityPopup(
-                            keyRef: keyRef,
-                            isAdd: true,
-                            titlevalue: name,
-                            subtitle: _subtitle,
-                            date: DateTime.now(),
-                            duration: 0,
-                            intensity: intensity,
-                          ));
-                  addActivity(context, activityData);
+                  TrainingData activityData = await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => ActivityPopup(
+                              keyRef: keyRef,
+                              isAdd: true,
+                              titlevalue: name,
+                              subtitle: _subtitle,
+                              date: DateTime.now(),
+                              duration: 0,
+                              intensity: intensity,
+                              category: category)));
+                  if (activityData != null) {
+                    addActivity(context, activityData);
+                  }
                 }),
           ),
           secondaryActions: <Widget>[
@@ -294,22 +319,25 @@ class _AddActivityScreenState extends State<AddActivityScreen>
 
   //Is called whenever a user presses Done in add activity view
   Future addActivity(context, activityData) async {
+    print('in add activity');
     final user = Provider.of<UserClass>(context, listen: false);
     print(activityData);
     await DatabaseService(uid: user.uid).updateTrainingData(
-        activityData[5],
-        activityData[0], //name
-        activityData[1], //description
-        activityData[2], //date
-        activityData[4], //Intensity
+        activityData.trainingid,
+        activityData.name, //name
+        activityData.description, //description
+        activityData.date, //date
+        activityData.intensity, //Intensity
         _selectedIndex + 1,
-        true);
+        true,
+        activityData.category);
     await DatabaseService(uid: user.uid).createTrainingDiaryData(
-      activityData[0], //name
-      activityData[1], //description
-      activityData[2], //date
-      activityData[3], //duration
-      activityData[4], //Intensity
+      activityData.name, //name
+      activityData.description, //description
+      activityData.date, //date
+      activityData.duration, //duration
+      activityData.intensity, //Intensity
+      activityData.category, //category
     );
     while (Navigator.canPop(context)) {
       Navigator.pop(context);
@@ -330,7 +358,7 @@ class _AddActivityScreenState extends State<AddActivityScreen>
       if (entry['inHistory']) {
         historyActivityList.insert(0, [
           activityItem(context, entry['name'], entry['description'],
-              entry['date'], entry['intensity'], entry.id),
+              entry['date'], entry['intensity'], entry.id, entry['category']),
           entry['name'] + entry['description'],
           entry['date']
         ]);
@@ -340,7 +368,7 @@ class _AddActivityScreenState extends State<AddActivityScreen>
 
         myActivityList.insert(0, [
           activityItem(context, entry['name'], entry['description'],
-              entry['date'], entry['intensity'], entry.id),
+              entry['date'], entry['intensity'], entry.id, entry['category']),
           entry['name'] + entry['description']
         ]);
       } else if (entry['listtype'] == 3) {
@@ -348,7 +376,7 @@ class _AddActivityScreenState extends State<AddActivityScreen>
 
         allActivityList.insert(0, [
           activityItem(context, entry['name'], entry['description'],
-              entry['date'], entry['intensity'], entry.id),
+              entry['date'], entry['intensity'], entry.id, entry['category']),
           entry['name'] + entry['description']
         ]);
       }
@@ -356,21 +384,23 @@ class _AddActivityScreenState extends State<AddActivityScreen>
   }
 
   void addItem(context, activityData) async {
+    print('In add item');
     final user = Provider.of<UserClass>(context, listen: false);
     await DatabaseService(uid: user.uid).createTrainingData(
-        activityData[0], //name
-        activityData[1], //desc
-        activityData[2], //date
-        activityData[4], //intensity
+        activityData.name, //name
+        activityData.description, //desc
+        activityData.date, //date
+        activityData.intensity, //intensity
         2,
-        true);
+        true,
+        activityData.category);
     await DatabaseService(uid: user.uid).createTrainingDiaryData(
-      activityData[0], //name
-      activityData[1], //description
-      activityData[2], //date
-      activityData[3], //duration
-      activityData[4], //Intensity
-    );
+        activityData.name, //name
+        activityData.description, //description
+        activityData.date, //date
+        activityData.duration, //duration
+        activityData.intensity, //Intensity
+        activityData.category);
     while (Navigator.canPop(context)) {
       Navigator.pop(context);
     }

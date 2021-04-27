@@ -53,7 +53,12 @@ dependencies:
   flutter_search_bar: ^2.1.0
   dio: 1.0.0
   stream_transform: ^2.0.0
+  carousel_slider: ^3.0.0
+  sleek_circular_slider: ^2.0.0
+  fluttericon: ^2.0.0
+  font_awesome_flutter: ^9.0.0
   nfc_manager: ^3.0.0+1
+
 
 dev_dependencies:
   flutter_test:
