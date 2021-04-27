@@ -13,6 +13,10 @@ import 'package:quantify_app/screens/graphs.dart';
 
 import 'package:stream_transform/stream_transform.dart';
 
+import '../screens/graphs.dart';
+import '../screens/graphs.dart';
+import '../screens/graphs.dart';
+
 //refrence
 //
 //
@@ -173,6 +177,16 @@ class DatabaseService {
     return snapshot.docs.toList();
   }
 
+  List<GlucoseData> _getGlucose(QuerySnapshot snapshot) {
+    List<GlucoseData> result = [];
+    snapshot.docs.forEach((element) {
+      result.add(GlucoseData(
+          DateTime.fromMillisecondsSinceEpoch(element['date']),
+          element['glucose']));
+    });
+    return result;
+  }
+
   Stream get userDiary {
     Stream mealData = userInfo
         .doc(uid)
@@ -185,7 +199,10 @@ class DatabaseService {
         .snapshots()
         .map(_userActivityFromSnapshot);
 
-    return activityData.combineLatestAll([mealData]);
+    Stream glucoseData =
+        userInfo.doc(uid).collection('glucose').snapshots().map(_getGlucose);
+
+    return activityData.combineLatestAll([mealData, glucoseData]);
   }
 
   final CollectionReference trainingData =

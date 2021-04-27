@@ -110,11 +110,11 @@ class Sensor {
     return 6;
   }
 
-  int getHistoryIndex() {
+  int getTrendIndex() {
     return data[26];
   }
 
-  int getTrendIndex() {
+  int getHistoryIndex() {
     return data[27];
   }
 
