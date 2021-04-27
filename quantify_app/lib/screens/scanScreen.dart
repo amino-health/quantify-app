@@ -14,24 +14,82 @@ class ScanScreen extends StatefulWidget {
 class _ScanScreenState extends State<ScanScreen> {
   Sensor sensor = new Sensor();
   int returnValue;
+  String _message = 'Scan the sensor';
 
   void callbackResult(int result) {
     returnValue = result;
     print(returnValue);
+
+    switch (returnValue) {
+      case 1:
+        setState(
+          () {
+            _message = 'Sensor has not started yet';
+          },
+        );
+        break;
+      case 2:
+        setState(
+          () {
+            _message = 'Wait sixty minutes before using sensor';
+          },
+        );
+        break;
+      case 3:
+        setState(
+          () {
+            _message = 'Scan done';
+          },
+        );
+        break;
+      case 4:
+        setState(
+          () {
+            _message = 'Sensor is more than 14 days old';
+          },
+        );
+        break;
+      case 5:
+        setState(
+          () {
+            _message = 'Sensor is dead';
+          },
+        );
+        break;
+      case 6:
+        setState(
+          () {
+            _message = 'Sensor failed';
+          },
+        );
+        break;
+      default:
+        setState(
+          () {
+            _message = 'Scanning failed';
+          },
+        );
+    }
     List<GlucoseData> lg = sensor.getTrendData();
     lg.forEach((element) {
-      print("g: " +
-          element.glucoseVal.toString() +
-          " t: " +
-          element.time.toString());
+      print(
+        "g: " +
+            element.glucoseVal.toString() +
+            " t: " +
+            element.time.toString(),
+      );
     });
     List<GlucoseData> hg = sensor.getHistoryData();
-    hg.forEach((element) {
-      print("g: " +
-          element.glucoseVal.toString() +
-          " t: " +
-          element.time.toString());
-    });
+    hg.forEach(
+      (element) {
+        print(
+          "g: " +
+              element.glucoseVal.toString() +
+              " t: " +
+              element.time.toString(),
+        );
+      },
+    );
   }
 
   @override
@@ -44,22 +102,13 @@ class _ScanScreenState extends State<ScanScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Text(
-              'No sensor paired',
+              _message,
               textScaleFactor: 3,
             ),
-            Padding(
-              padding: const EdgeInsets.only(left: 30, right: 30),
-              child: Text(
-                  'To start tracking use your device to scan the glucose sensor',
-                  textScaleFactor: 1.5,
-                  textAlign: TextAlign.center),
-            ),
-            Icon(Icons.nfc,
-                size: MediaQuery.of(context).size.height * 0.3,
-                color: Color(0xFF99163D)),
-            Text(
-              'Waiting for sensor...',
-              textScaleFactor: 2,
+            Icon(
+              Icons.nfc,
+              size: MediaQuery.of(context).size.height * 0.3,
+              color: Color(0xFF99163D),
             ),
             ElevatedButton(
               onPressed: () async {
@@ -69,25 +118,6 @@ class _ScanScreenState extends State<ScanScreen> {
               },
               child: Text("Scan"),
             ),
-            ElevatedButton(
-                onPressed: () async {
-                  print(returnValue);
-                  List<GlucoseData> lg = sensor.getTrendData();
-                  lg.forEach((element) {
-                    print("g: " +
-                        element.glucoseVal.toString() +
-                        " t: " +
-                        element.time.toString());
-                  });
-                  List<GlucoseData> hg = sensor.getHistoryData();
-                  hg.forEach((element) {
-                    print("g: " +
-                        element.glucoseVal.toString() +
-                        " t: " +
-                        element.time.toString());
-                  });
-                },
-                child: Text("Print")),
           ],
         )));
   }
