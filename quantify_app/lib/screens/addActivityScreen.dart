@@ -45,7 +45,9 @@ class _AddActivityScreenState extends State<AddActivityScreen>
               Text('Basic Activities', style: TextStyle(color: Colors.black))),
     ),
   ];
-
+/*
+  This list is used when rendering the image linked to the activity's categories. 
+*/
   List<IconData> iconList = [
     Icons.directions_bike,
     Icons.directions_run,
@@ -78,6 +80,7 @@ class _AddActivityScreenState extends State<AddActivityScreen>
   //END
   //
 
+  //Changes the appbar search logo into a TextField for search input.
   void _searchPressed() {
     setState(() {
       if (this._searchIcon.icon == Icons.search) {
@@ -126,6 +129,7 @@ class _AddActivityScreenState extends State<AddActivityScreen>
     super.dispose();
   }
 
+  //Create activity button widget
   bottomButton(BuildContext context, String _title) {
     return Container(
         child: FittedBox(
@@ -183,6 +187,7 @@ class _AddActivityScreenState extends State<AddActivityScreen>
     });
   }
 
+  //
   void _removeItem(ValueKey dismissKey) {
     setState(() {});
 
@@ -195,13 +200,8 @@ class _AddActivityScreenState extends State<AddActivityScreen>
     final user = Provider.of<UserClass>(context, listen: false);
     for (int j = 0; j < activityList.length; j++) {
       for (int i = 0; i < activityList[j].length; i++) {
-        print(activityList[j][i][0].key.value);
-        print(dismissKey.value);
-        print(j);
         if (activityList[j][i][0].key.value == (dismissKey.value)) {
           if (j == 0) {
-            print('list item is');
-            print(historyActivityList[i][1]);
             DatabaseService(uid: user.uid).updateTrainingData(
                 (dismissKey.value.toString()),
                 '',
@@ -215,11 +215,9 @@ class _AddActivityScreenState extends State<AddActivityScreen>
             j += 1;
           }
           if (j == 1 && j == _selectedIndex) {
-            print(' J == 1');
             myActivityList.remove(myActivityList[i][1]);
             DatabaseService(uid: user.uid).removeActivity(dismissKey.value);
           } else if (j == 2 && j == _selectedIndex) {
-            print(' J == 2');
             allActivityList.remove(allActivityList[i]);
             DatabaseService(uid: user.uid).removeActivity(dismissKey.value);
           }
