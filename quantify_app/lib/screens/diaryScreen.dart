@@ -1,6 +1,7 @@
 //import 'package:dio/dio.dart';
 import 'dart:io';
 
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -167,7 +168,7 @@ class _DiaryScreenState extends State<DiaryScreen> {
             child: Container(
               color: Colors.grey[200],
               child: SizedBox(
-                  height: 85,
+                  height: MediaQuery.of(context).size.height * 0.1,
                   child: Row(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: <Widget>[
@@ -209,24 +210,25 @@ class _DiaryScreenState extends State<DiaryScreen> {
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
                                         children: <Widget>[
-                                          Text(
-                                            name,
-                                            maxLines: 2,
-                                            overflow: TextOverflow.ellipsis,
-                                            style: const TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontFamily: 'rubik',
+                                          FittedBox(
+                                            fit: BoxFit.fitHeight,
+                                            child: Text(
+                                              name,
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: const TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontFamily: 'rubik',
+                                              ),
                                             ),
                                           ),
-                                          const Padding(
-                                              padding:
-                                                  EdgeInsets.only(bottom: 2.0)),
-                                          Text(
+                                          AutoSizeText(
                                             _subtitle,
+                                            minFontSize: 8,
                                             maxLines: 1,
                                             overflow: TextOverflow.ellipsis,
                                             style: const TextStyle(
-                                              fontSize: 12.0,
+                                              //fontSize: 12.0,
                                               color: Colors.black54,
                                             ),
                                           ),
@@ -270,8 +272,10 @@ class _DiaryScreenState extends State<DiaryScreen> {
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Icon(Icons.arrow_back_ios_outlined),
-                                  Icon(Icons.arrow_forward_ios_outlined)
+                                  Icon(Icons.arrow_back_ios_outlined,
+                                      color: Colors.grey[300]),
+                                  Icon(Icons.arrow_forward_ios_outlined,
+                                      color: Colors.grey[300])
                                 ],
                               ),
                             ))
@@ -365,7 +369,7 @@ class _DiaryScreenState extends State<DiaryScreen> {
             child: Container(
               color: Colors.grey[200],
               child: SizedBox(
-                  height: 85,
+                  height: MediaQuery.of(context).size.height * 0.1,
                   child: Row(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: <Widget>[
@@ -374,7 +378,7 @@ class _DiaryScreenState extends State<DiaryScreen> {
                           child: AspectRatio(
                             aspectRatio: 1.4,
                             child: FittedBox(
-                              fit: BoxFit.fill,
+                              fit: BoxFit.fitWidth,
                               child: Row(
                                 children: [
                                   Padding(
@@ -428,18 +432,18 @@ class _DiaryScreenState extends State<DiaryScreen> {
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
                                         children: <Widget>[
-                                          Text(
-                                            'Meal',
-                                            maxLines: 2,
-                                            overflow: TextOverflow.ellipsis,
-                                            style: const TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontFamily: 'rubik',
+                                          FittedBox(
+                                            fit: BoxFit.fitHeight,
+                                            child: Text(
+                                              'Meal',
+                                              maxLines: 2,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: const TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontFamily: 'rubik',
+                                              ),
                                             ),
                                           ),
-                                          const Padding(
-                                              padding:
-                                                  EdgeInsets.only(bottom: 2.0)),
                                           Text(
                                             note,
                                             maxLines: 1,
@@ -460,25 +464,31 @@ class _DiaryScreenState extends State<DiaryScreen> {
                                         mainAxisAlignment:
                                             MainAxisAlignment.end,
                                         children: <Widget>[
-                                          Text(
-                                            DateFormat('HH:mm').format(DateTime
-                                                .fromMillisecondsSinceEpoch(
-                                                    date)),
-                                            style: const TextStyle(
-                                              fontSize: 12.0,
-                                              color: Colors.black87,
+                                          FittedBox(
+                                            fit: BoxFit.fitHeight,
+                                            child: Text(
+                                              DateFormat('HH:mm').format(DateTime
+                                                  .fromMillisecondsSinceEpoch(
+                                                      date)),
+                                              style: const TextStyle(
+                                                fontSize: 12.0,
+                                                color: Colors.black87,
+                                              ),
                                             ),
                                           ),
-                                          Text(
-                                            DateFormat('EEE, M/d/y').format(
-                                                DateTime
-                                                    .fromMillisecondsSinceEpoch(
-                                                        date)),
-                                            style: const TextStyle(
-                                              fontSize: 12.0,
-                                              color: Colors.black54,
+                                          FittedBox(
+                                            fit: BoxFit.fitHeight,
+                                            child: Text(
+                                              DateFormat('EEE, M/d/y').format(
+                                                  DateTime
+                                                      .fromMillisecondsSinceEpoch(
+                                                          date)),
+                                              style: const TextStyle(
+                                                fontSize: 12.0,
+                                                color: Colors.black54,
+                                              ),
                                             ),
-                                          ),
+                                          )
                                         ],
                                       ),
                                     ),
@@ -491,8 +501,10 @@ class _DiaryScreenState extends State<DiaryScreen> {
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Icon(Icons.arrow_back_ios_outlined),
-                                  Icon(Icons.arrow_forward_ios_outlined)
+                                  Icon(Icons.arrow_back_ios_outlined,
+                                      color: Colors.grey[300]),
+                                  Icon(Icons.arrow_forward_ios_outlined,
+                                      color: Colors.grey[300])
                                 ],
                               ),
                             ))

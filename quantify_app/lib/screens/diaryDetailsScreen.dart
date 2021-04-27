@@ -314,15 +314,18 @@ class _DiaryDetailsState extends State<DiaryDetailsScreen> {
                     height: MediaQuery.of(context).size.height * 0.07,
                     width: MediaQuery.of(context).size.width,
                     alignment: Alignment.center,
-                    child: Text(
-                        DateFormat('HH:mm\nEEEE - d MMMM').format(
-                            DateTime.fromMillisecondsSinceEpoch(dateTime)),
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                            fontFamily: 'rubik',
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white.withOpacity(0.8)))),
+                    child: FittedBox(
+                      fit: BoxFit.fitHeight,
+                      child: Text(
+                          DateFormat('HH:mm\nEEEE - d MMMM').format(
+                              DateTime.fromMillisecondsSinceEpoch(dateTime)),
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                              fontFamily: 'rubik',
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white.withOpacity(0.8))),
+                    )),
               ],
             )), //displayImage(context, isIos, localPath, imgRef))),
         Expanded(

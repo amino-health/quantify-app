@@ -78,6 +78,7 @@ class _ActivityPopupState extends State<ActivityPopup> {
   int category;
 
   int intensity;
+
   _ActivityPopupState(this.isAdd, this.titlevalue, this.subtitle, this.date,
       this.duration, this.intensity, this.keyRef, this.category);
 
@@ -92,6 +93,7 @@ class _ActivityPopupState extends State<ActivityPopup> {
   void initState() {
     super.initState();
     _currentSliderValue = intensity.roundToDouble();
+    _category = category;
     selectedDate = date;
     selectedTime = Duration(milliseconds: duration);
     _fillController(titlecontroller, titlevalue);
@@ -343,13 +345,13 @@ class _ActivityPopupState extends State<ActivityPopup> {
                         flex: 1,
                         child: Padding(
                           padding: EdgeInsets.only(
-                              bottom: 10,
+                              bottom: 0,
                               right: MediaQuery.of(context).size.width * 0.15,
                               left: MediaQuery.of(context).size.width * 0.15),
                           child: Container(
                               child: TextFormField(
-                                  maxLines: null,
-                                  expands: true,
+                                  maxLines: 1,
+                                  expands: false,
                                   maxLength: 128,
                                   decoration: InputDecoration(
                                     filled: true,
@@ -368,7 +370,8 @@ class _ActivityPopupState extends State<ActivityPopup> {
                         flex: 1,
                         child: Padding(
                           padding: EdgeInsets.only(
-                              bottom: 10,
+                              top: 5,
+                              bottom: 5,
                               right: MediaQuery.of(context).size.width * 0.15,
                               left: MediaQuery.of(context).size.width * 0.15),
                           child: Container(
@@ -423,16 +426,15 @@ class _ActivityPopupState extends State<ActivityPopup> {
                             width: MediaQuery.of(context).size.width * 0.45,
                             child: CarouselSlider(
                               options: CarouselOptions(
-                                  initialPage: category,
-                                  onPageChanged: (index, reason) {
-                                    setState(() {
-                                      _category = index;
-                                    });
-                                  },
-                                  viewportFraction: 0.5,
-                                  enlargeCenterPage: true,
-                                  enlargeStrategy:
-                                      CenterPageEnlargeStrategy.height),
+                                initialPage: category,
+                                onPageChanged: (index, reason) {
+                                  setState(() {
+                                    _category = index;
+                                  });
+                                },
+                                viewportFraction: 0.5,
+                                enlargeCenterPage: true,
+                              ),
                               items: iconList.map((i) {
                                 return Builder(
                                   builder: (BuildContext context) {
