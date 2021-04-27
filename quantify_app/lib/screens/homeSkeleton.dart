@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:quantify_app/screens/addActivityScreen.dart';
-import 'package:quantify_app/screens/firstScanScreen.dart';
+import 'package:quantify_app/screens/scanScreen.dart';
 import 'package:quantify_app/screens/addMealScreen.dart';
 
 class CustomAppBar extends StatefulWidget implements PreferredSizeWidget {
@@ -103,7 +103,7 @@ class _SmartButtonState extends State<SmartButton> {
                                                 context,
                                                 MaterialPageRoute(
                                                     builder: (context) =>
-                                                        FirstScanScreen()),
+                                                        ScanScreen()),
                                               );
                                             },
                                           ),

@@ -5,7 +5,7 @@ import 'package:quantify_app/customWidgets/globals.dart' as globals;
 import 'package:flutter/material.dart';
 import 'package:quantify_app/screens/addActivityScreen.dart';
 import 'package:quantify_app/screens/addMealScreen.dart';
-import 'package:quantify_app/screens/firstScanScreen.dart';
+import 'package:quantify_app/screens/scanScreen.dart';
 
 @immutable
 class ExampleExpandableFab extends StatelessWidget {
@@ -125,7 +125,7 @@ class _ExpandableFabState extends State<ExpandableFab>
               _toggle();
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => FirstScanScreen()),
+                MaterialPageRoute(builder: (context) => ScanScreen()),
               );
             },
             child: const Icon(Icons.nfc, size: 50, color: Color(0xFF99163D)),
