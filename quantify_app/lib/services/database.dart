@@ -9,6 +9,7 @@ import 'package:quantify_app/models/activityDiary.dart';
 import 'package:quantify_app/models/userClass.dart';
 
 import 'package:quantify_app/models/mealData.dart';
+import 'package:quantify_app/screens/graphs.dart';
 
 import 'package:stream_transform/stream_transform.dart';
 
@@ -347,6 +348,25 @@ class DatabaseService {
         .collection('trainingDiary')
         .doc(diaryid)
         .delete();
+  }
+
+  Future<bool> updateGlucose(List<GlucoseData> list) async {
+    bool result = true;
+    try {
+      list.forEach((element) async {
+        await userInfo
+            .doc(uid)
+            .collection('glucose')
+            .doc(element.time.millisecondsSinceEpoch.toString())
+            .set({
+          'date': element.time.millisecondsSinceEpoch,
+          'glucose': element.glucoseVal,
+        });
+      });
+    } catch (e) {
+      result = false;
+    }
+    return result;
   }
 }
 
