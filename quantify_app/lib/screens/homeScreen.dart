@@ -77,6 +77,8 @@ class _HomeScreenState extends State<HomeScreen>
 
   setData(Object data) {
     List castedData = data as List;
+    print('data is ');
+    print(castedData[0].category);
     dynamic toSet;
     if (castedData.last) {
       toSet = overviewKey.currentState;
@@ -192,12 +194,13 @@ class _HomeScreenState extends State<HomeScreen>
               intensity: _trainingData.intensity,
               category: _trainingData.category)).then((values) => setData([
             new TrainingDiaryData(
-                trainingid: values[5],
-                name: values[0],
-                description: values[1],
-                date: values[2],
-                duration: values[3],
-                intensity: values[4])
+                trainingid: values.trainingid,
+                name: values.name,
+                description: values.description,
+                date: values.date,
+                duration: values.duration,
+                intensity: values.intensity,
+                category: values.category)
           ]));
       final user = Provider.of<UserClass>(context, listen: false);
       await DatabaseService(uid: user.uid).updateTrainingDiaryData(
