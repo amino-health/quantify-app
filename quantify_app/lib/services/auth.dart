@@ -153,7 +153,6 @@ class AuthService {
       await DatabaseService(uid: user.uid).createTrainingData(
           'Running', 'Sprint', DateTime.now(), 0, 3, false, 0);
     } catch (error) {
-      print('HEJ');
       print(error.toString());
       return null;
     }
