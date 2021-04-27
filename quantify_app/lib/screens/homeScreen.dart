@@ -100,7 +100,6 @@ class _HomeScreenState extends State<HomeScreen>
         showMeal = false;
       });
     }
-    /**/
   }
 
   Future<void> delete({@required bool isMeal}) {

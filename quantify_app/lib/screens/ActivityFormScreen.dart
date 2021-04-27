@@ -10,6 +10,9 @@ import 'package:sleek_circular_slider/sleek_circular_slider.dart';
 
 import 'package:fluttericon/rpg_awesome_icons.dart';
 
+/*
+  This list is used when rendering the image linked to the activity's categories. 
+*/
 List<IconData> iconList = [
   Icons.directions_bike,
   Icons.directions_run,
@@ -64,10 +67,6 @@ class _ActivityPopupState extends State<ActivityPopup> {
   final DateTime today = DateTime.now();
   TimeOfDay newTime;
 
-  //^^^^This variable is updated in the inline else case
-  //since flutter requires an else case in the 'done'
-  //button onPressed attribute
-
   bool _titlevalidate = false;
   bool isAdd;
   String keyRef;
@@ -100,6 +99,7 @@ class _ActivityPopupState extends State<ActivityPopup> {
     _fillController(descriptioncontroller, subtitle);
   }
 
+//Switch cases meant to return different widgets for different platforms
   _selectTime(BuildContext context) async {
     final ThemeData theme = Theme.of(context);
     assert(theme.platform != null);
@@ -130,6 +130,7 @@ class _ActivityPopupState extends State<ActivityPopup> {
     }
   }
 
+//Build the duration selector for Android
   buildMaterialTimePicker(BuildContext context) async {
     final Duration picked = await showDurationPicker(
       context: context,
@@ -141,7 +142,7 @@ class _ActivityPopupState extends State<ActivityPopup> {
       });
   }
 
-  /// This builds cupertion date picker in iOS
+  /// This builds duration cupertion date picker in iOS
   buildCupertinoTimePicker(BuildContext context) {
     showCupertinoModalPopup(
         context: context,
@@ -178,6 +179,7 @@ class _ActivityPopupState extends State<ActivityPopup> {
               ),
             ));
   }
+//Build the start date selector for Android
 
   buildMaterialDatePicker(BuildContext context) async {
     final DateTime picked = await showDatePicker(
@@ -198,7 +200,7 @@ class _ActivityPopupState extends State<ActivityPopup> {
       });
   }
 
-  /// This builds cupertion date picker in iOS
+//Build the start date selector for iOS
   buildCupertinoDatePicker(BuildContext context) {
     showCupertinoModalPopup(
         context: context,
@@ -237,6 +239,7 @@ class _ActivityPopupState extends State<ActivityPopup> {
             ));
   }
 
+//Converts duration in milliseconds to hours and minutes and formats string value
   String convertTime(int time) {
     time ~/= 1000; //To centiseconds
     time ~/= 60; //to seconds
@@ -263,6 +266,8 @@ class _ActivityPopupState extends State<ActivityPopup> {
     }
   }
 
+  //Update the textform fields with the data they had last time if user
+  //tries to add an activity they have added before
   TextEditingController _fillController(
       TextEditingController contr, String fillertext) {
     setState(() {
@@ -273,23 +278,7 @@ class _ActivityPopupState extends State<ActivityPopup> {
     return contr;
   }
 
-  List<IconData> listSort(list) {
-    List<IconData> newList = [];
-    if (_category != list.length) {
-      for (int i = _category; i <= iconList.length - 1; i++) {
-        print('i = $i');
-        newList.add(list[i]);
-      }
-    }
-    if (_category != 0) {
-      for (int i = _category - 1; i > 0; i--) {
-        newList.add(list[i]);
-        print('loop2');
-      }
-    }
-    return newList;
-  }
-
+//Widget that contains all textforms and pickers for view.
   Widget formBody(context) {
     return Column(
       children: [
@@ -324,8 +313,6 @@ class _ActivityPopupState extends State<ActivityPopup> {
                           child: Container(
                               child: TextFormField(
                             maxLength: 15,
-
-                            //focusNode: isAdd ? AlwaysDisabledFocusNode() : FocusNode(),
                             decoration: InputDecoration(
                               filled: true,
                               fillColor: Colors.white,
@@ -523,6 +510,7 @@ class _ActivityPopupState extends State<ActivityPopup> {
     );
   }
 
+//Formats text displayed inside rounded slider. double value is 0-100.
   String sliderModifier(double value) {
     final roundedValue = value.round().toInt().toString();
     return '$roundedValue / 10';
@@ -537,12 +525,8 @@ class _ActivityPopupState extends State<ActivityPopup> {
   }
 }
 
+//Assignable to focusnode attribute of textformfield to prohibit input.
 class AlwaysDisabledFocusNode extends FocusNode {
   @override
   bool get hasFocus => false;
-}
-
-class EnabledFocusNode extends FocusNode {
-  @override
-  bool get hasFocus => true;
 }

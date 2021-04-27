@@ -187,7 +187,8 @@ class _AddActivityScreenState extends State<AddActivityScreen>
     });
   }
 
-  //
+  //If user has removed an item from History list, Update the 'InHistory' field to false
+  //If the item was in another list, remove it from database completely
   void _removeItem(ValueKey dismissKey) {
     setState(() {});
 
@@ -224,16 +225,10 @@ class _AddActivityScreenState extends State<AddActivityScreen>
         }
       }
     }
-
-    //DatabaseService(uid: user.uid).removeActivity(dismissKey.value);
-    print('value for key is');
-    print(dismissKey.value);
   }
 
-  //This method returns a string converted integer higher than the highest
-  //existing key integer.
-
-  //Returns a container item with key _name and a child slider with a numbered key
+  //Build the widget containing information about activity in activity adding screen IE the tile in scrollview
+  //
   activityItem(BuildContext context, String name, String _subtitle, int date,
       int intensity, String keyRef, int category) {
     return Container(
@@ -243,8 +238,6 @@ class _AddActivityScreenState extends State<AddActivityScreen>
         child: Slidable(
           actionPane: SlidableDrawerActionPane(),
           actionExtentRatio: 0.25,
-          //_removeItem(newKey);
-
           child: Card(
             child: ListTile(
                 title: Text(name),
@@ -279,7 +272,8 @@ class _AddActivityScreenState extends State<AddActivityScreen>
         ));
   }
 
-  //This function controls which content list is displayed
+  //This function controls which content list is displayed.
+  //Is rendered on build
   customScrollview(BuildContext context) {
     List<dynamic> activityList = <dynamic>[];
     List<Widget> filteredActivityList = <Widget>[];
@@ -307,19 +301,17 @@ class _AddActivityScreenState extends State<AddActivityScreen>
     return Container(
       child: Expanded(
         child: SingleChildScrollView(
-          child: Column(
-              //mainAxisAlignment: MainAxisAlignment.end,
-              children: filteredActivityList),
+          child: Column(children: filteredActivityList),
         ),
       ),
     );
   }
 
   //Is called whenever a user presses Done in add activity view
+  //Updates the history list with the activity item
+  //Adds the activity to the diary collection in database
   Future addActivity(context, activityData) async {
-    print('in add activity');
     final user = Provider.of<UserClass>(context, listen: false);
-    print(activityData);
     await DatabaseService(uid: user.uid).updateTrainingData(
         activityData.trainingid,
         activityData.name, //name
@@ -370,7 +362,7 @@ class _AddActivityScreenState extends State<AddActivityScreen>
           entry['name'] + entry['description']
         ]);
       } else if (entry['listtype'] == 3) {
-        //1 = basicActivitiesData
+        //3 = basicActivitiesData
 
         allActivityList.insert(0, [
           activityItem(context, entry['name'], entry['description'],
@@ -381,8 +373,9 @@ class _AddActivityScreenState extends State<AddActivityScreen>
     }
   }
 
+  //Creates two objects. One activity for the 'add activity view'
+  //and one activity for the diary and adds them to the diary
   void addItem(context, activityData) async {
-    print('In add item');
     final user = Provider.of<UserClass>(context, listen: false);
     await DatabaseService(uid: user.uid).createTrainingData(
         activityData.name, //name
@@ -425,7 +418,6 @@ class _AddActivityScreenState extends State<AddActivityScreen>
         builder: (context, snapshot) {
           if (snapshot.data != null) {
             final List<DocumentSnapshot> documents = snapshot.data.docs;
-            //print('documents is ${documents}');
             structureData(context, documents);
           } else {
             print('No training data found for user');
@@ -433,7 +425,6 @@ class _AddActivityScreenState extends State<AddActivityScreen>
           return Scaffold(
             resizeToAvoidBottomInset: false,
             appBar: AppBar(
-              //elevation: 0.0,
               leading: Row(
                 children: [
                   Container(
