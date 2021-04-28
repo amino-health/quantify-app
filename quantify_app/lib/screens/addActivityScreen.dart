@@ -219,8 +219,9 @@ class _AddActivityScreenState extends State<AddActivityScreen>
             myActivityList.remove(myActivityList[i][1]);
             DatabaseService(uid: user.uid).removeActivity(dismissKey.value);
           } else if (j == 2 && j == _selectedIndex) {
-            allActivityList.remove(allActivityList[i]);
-            DatabaseService(uid: user.uid).removeActivity(dismissKey.value);
+            print('cant remove from basic list');
+            //allActivityList.remove(allActivityList[i]);
+            //DatabaseService(uid: user.uid).removeActivity(dismissKey.value);
           }
         }
       }
@@ -242,6 +243,7 @@ class _AddActivityScreenState extends State<AddActivityScreen>
             child: ListTile(
                 title: Text(name),
                 subtitle: Text(_subtitle),
+                trailing: Icon(iconList[category]),
                 isThreeLine: false,
                 onTap: () async {
                   TrainingData activityData = await Navigator.push(
@@ -380,13 +382,15 @@ class _AddActivityScreenState extends State<AddActivityScreen>
   void addItem(context, activityData) async {
     final user = Provider.of<UserClass>(context, listen: false);
     await DatabaseService(uid: user.uid).createTrainingData(
-        activityData.name, //name
-        activityData.description, //desc
-        activityData.date, //date
-        activityData.intensity, //intensity
-        2,
-        true,
-        activityData.category);
+      null,
+      activityData.name, //name
+      activityData.description, //desc
+      activityData.date, //date
+      activityData.intensity, //intensity
+      2,
+      activityData.category,
+      inHistory: true,
+    );
     await DatabaseService(uid: user.uid).createTrainingDiaryData(
         activityData.name, //name
         activityData.description, //description
@@ -411,15 +415,13 @@ class _AddActivityScreenState extends State<AddActivityScreen>
   Widget build(BuildContext context) {
     final user = Provider.of<UserClass>(context, listen: false);
 
-    return FutureBuilder<QuerySnapshot>(
-        future: FirebaseFirestore.instance
-            .collection('userData')
-            .doc(user.uid)
-            .collection('training')
-            .get(),
+    return StreamBuilder(
+        stream: DatabaseService(uid: user.uid).allActivities,
         builder: (context, snapshot) {
           if (snapshot.data != null) {
-            final List<DocumentSnapshot> documents = snapshot.data.docs;
+            List documents = snapshot.data.toList();
+            //documents = documents.expand((i) => i).toList();
+            //final List<DocumentSnapshot> documents = snapshot.data.docs;
             structureData(context, documents);
           } else {
             print('No training data found for user');

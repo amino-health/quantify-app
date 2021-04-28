@@ -41,6 +41,9 @@ class AuthService {
           password: password.trim()); //from firebase library
       User user = result.user;
       print(user);
+
+      await DatabaseService(uid: user.uid).copyTrainingData();
+
       return user;
     } catch (error) {
       print(error.code);
@@ -190,8 +193,9 @@ class AuthService {
       await DatabaseService(uid: user.uid).updateUserData(
           user.uid, user.email, true, '0', '0', '0', false, "male");
 
+/*
       for (TrainingData item in basicActivities) {
-        await DatabaseService(uid: user.uid).createTrainingData(
+        await DatabaseService(uid: user.uid).createBasicTrainingData(
             item.name,
             item.description,
             (DateTime.now().subtract(Duration(minutes: item.category))),
@@ -200,6 +204,7 @@ class AuthService {
             false,
             item.category);
       }
+      */
     } catch (error) {
       print(error.toString());
       return null;

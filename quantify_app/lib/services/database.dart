@@ -22,7 +22,9 @@ class DatabaseService {
   DatabaseService({this.uid});
 
   final CollectionReference userInfo =
-      FirebaseFirestore.instance.collection('userData'); //collection of info
+      FirebaseFirestore.instance.collection('userData');
+  final CollectionReference basicTraining = FirebaseFirestore.instance
+      .collection('basicTraining'); //collection of info
 
   Future<void> uploadImage(File imageFile, DateTime date, String note) async {
     String downloadURL;
@@ -173,6 +175,22 @@ class DatabaseService {
     return snapshot.docs.toList();
   }
 
+  List _basicActivityFromSnapshot(QuerySnapshot snapshot) {
+    return snapshot.docs.toList();
+  }
+
+  Stream get allActivities {
+    //  Stream basicTrainingData =
+    //   basicTraining.snapshots().map(_basicActivityFromSnapshot);
+    Stream activityData = userInfo
+        .doc(uid)
+        .collection('training')
+        .snapshots()
+        .map(_userActivityFromSnapshot);
+
+    return activityData;
+  }
+
   Stream get userDiary {
     Stream mealData = userInfo
         .doc(uid)
@@ -194,7 +212,9 @@ class DatabaseService {
   final CollectionReference trainingDiaryData =
       FirebaseFirestore.instance.collection('activityDiary');
 
-  Future<void> createTrainingData(
+//This code is only run once to fill the basicTraining collection
+/*
+  Future<void> createBasicTrainingData(
       String name,
       String description,
       DateTime date,
@@ -202,7 +222,7 @@ class DatabaseService {
       int listtype,
       bool inHistory,
       int category) async {
-    return await userInfo.doc(uid).collection('training').doc().set({
+    return await basicTraining.doc().set({
       'name': name,
       'description': description,
       'date': date.millisecondsSinceEpoch,
@@ -211,6 +231,50 @@ class DatabaseService {
       'inHistory': inHistory,
       'category': category
     });
+  }
+*/
+  Future<void> createTrainingData(
+      String trainingid,
+      String name,
+      String description,
+      DateTime date,
+      int intensity,
+      int listtype,
+      int category,
+      {bool inHistory}) async {
+    print("In history is $inHistory");
+    return await userInfo.doc(uid).collection('training').doc(trainingid).set({
+      'name': name,
+      'description': description,
+      'date': date.millisecondsSinceEpoch,
+      'intensity': intensity,
+      'listtype': listtype,
+      inHistory != null ?? 'inHistory': inHistory,
+      'category': category
+    });
+  }
+
+  Future<void> copyTrainingData() async {
+    print('In copy function');
+    FirebaseFirestore.instance
+        .collection("basicTraining")
+        .get()
+        .then((querySnapshot) {
+      querySnapshot.docs.forEach((result) {
+        createTrainingData(
+          result.id,
+          result['name'],
+          result['description'],
+          DateTime.now(),
+          result['intensity'],
+          result['listtype'],
+          result['category'],
+        );
+
+        print(result['name']);
+      });
+    });
+    print('leaving');
   }
 
   Future<void> updateTrainingData(
