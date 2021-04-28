@@ -212,27 +212,6 @@ class DatabaseService {
   final CollectionReference trainingDiaryData =
       FirebaseFirestore.instance.collection('activityDiary');
 
-//This code is only run once to fill the basicTraining collection
-/*
-  Future<void> createBasicTrainingData(
-      String name,
-      String description,
-      DateTime date,
-      int intensity,
-      int listtype,
-      bool inHistory,
-      int category) async {
-    return await basicTraining.doc().set({
-      'name': name,
-      'description': description,
-      'date': date.millisecondsSinceEpoch,
-      'intensity': intensity,
-      'listtype': listtype,
-      'inHistory': inHistory,
-      'category': category
-    });
-  }
-*/
   Future<void> createTrainingData(
       String trainingid,
       String name,
@@ -243,15 +222,57 @@ class DatabaseService {
       int category,
       {bool inHistory}) async {
     print("In history is $inHistory");
-    return await userInfo.doc(uid).collection('training').doc(trainingid).set({
-      'name': name,
-      'description': description,
-      'date': date.millisecondsSinceEpoch,
-      'intensity': intensity,
-      'listtype': listtype,
-      inHistory != null ?? 'inHistory': inHistory,
-      'category': category
+    if (inHistory != null) {
+      return await userInfo
+          .doc(uid)
+          .collection('training')
+          .doc(trainingid)
+          .set({
+        'name': name,
+        'description': description,
+        'date': date.millisecondsSinceEpoch,
+        'intensity': intensity,
+        'listtype': listtype,
+        'inHistory': inHistory,
+        'category': category
+      });
+    } else {
+      return await userInfo
+          .doc(uid)
+          .collection('training')
+          .doc(trainingid)
+          .update({
+        'name': name,
+        'description': description,
+        'date': date.millisecondsSinceEpoch,
+        'intensity': intensity,
+        'listtype': listtype,
+        'category': category
+      });
+    }
+  }
+
+  Future<void> createBasicTrainingData() async {
+    print('In create function');
+    FirebaseFirestore.instance
+        .collection("basicTraining")
+        .get()
+        .then((querySnapshot) {
+      querySnapshot.docs.forEach((result) {
+        createTrainingData(
+            result.id,
+            result['name'],
+            result['description'],
+            DateTime.now(),
+            result['intensity'],
+            result['listtype'],
+            result['category'],
+            inHistory: result['inHistory']);
+
+        print(result['name']);
+      });
     });
+    print('leaving');
   }
 
   Future<void> copyTrainingData() async {

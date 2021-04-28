@@ -95,6 +95,7 @@ class AuthService {
             await _auth.signInWithPopup(authProvider);
 
         user = userCredential.user;
+        await DatabaseService(uid: user.uid).createBasicTrainingData();
         print(user);
       } catch (e) {
         print("ERROR i google");
@@ -192,6 +193,8 @@ class AuthService {
 
       await DatabaseService(uid: user.uid).updateUserData(
           user.uid, user.email, true, '0', '0', '0', false, "male");
+
+      await DatabaseService(uid: user.uid).createBasicTrainingData();
 
 /*
       for (TrainingData item in basicActivities) {
