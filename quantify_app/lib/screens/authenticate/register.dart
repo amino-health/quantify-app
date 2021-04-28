@@ -133,7 +133,7 @@ class _RegisterState extends State<Register> {
                   height: 50,
                   width: 350,
                   child: ElevatedButton(
-                    child: Text("Sign in"),
+                    child: Text("Register"),
                     onPressed: () async {
                       if (_formKey.currentState.validate()) {
                         dynamic result =

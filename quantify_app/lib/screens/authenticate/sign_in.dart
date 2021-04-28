@@ -103,6 +103,8 @@ class _SignInState extends State<SignIn> {
                           setState(() {
                             error = result[1];
                           });
+                        } else {
+                          print('No error');
                         }
                       }
                     },
@@ -175,6 +177,7 @@ class _SignInState extends State<SignIn> {
                 padding: const EdgeInsets.all(4.0),
                 // ignore: missing_required_param
                 child: TextButton(
+                  key: Key('donthaveanaccountyet'),
                   onPressed: () => widget.toggleView(),
                   child: Text(
                     'Dont have an account yet? Sign up', //title

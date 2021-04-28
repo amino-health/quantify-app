@@ -1,11 +1,11 @@
+import 'dart:async';
 import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
 
-import 'package:flutter/material.dart';
 import 'package:nfc_manager/nfc_manager.dart';
 import 'package:nfc_manager/platform_tags.dart';
-import 'package:quantify_app/models/sensorWidgetList.dart';
+
 import 'package:quantify_app/screens/graphs.dart';
 import 'package:quantify_app/services/database.dart';
 

@@ -4,7 +4,6 @@ import 'package:quantify_app/loading.dart';
 import 'package:quantify_app/models/userClass.dart';
 import 'package:quantify_app/screens/homeSkeleton.dart';
 import 'package:lipsum/lipsum.dart' as lipsum;
-import 'package:google_fonts/google_fonts.dart';
 import 'package:quantify_app/services/database.dart';
 
 class TosScreen extends StatefulWidget {
@@ -51,8 +50,9 @@ class _TosScreenState extends State<TosScreen> {
                             padding: const EdgeInsets.all(10.0),
                             child: SingleChildScrollView(
                               controller: _scrollController,
-                              child: Text(lipsum.createText(numParagraphs: 5),
-                                  style: GoogleFonts.roboto(fontSize: 15)),
+                              child: Text(lipsum.createText(numParagraphs: 5)
+                                  //style: TextStyle(fontFamily: 'RobotoMono')
+                                  ),
                             ),
                           ),
                         ),
