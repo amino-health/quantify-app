@@ -42,7 +42,7 @@ class AuthService {
       User user = result.user;
       print(user);
 
-      await DatabaseService(uid: user.uid).copyTrainingData();
+      await DatabaseService(uid: user.uid).createBasicTrainingData();
 
       return user;
     } catch (error) {

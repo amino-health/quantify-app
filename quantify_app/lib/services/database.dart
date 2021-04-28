@@ -253,23 +253,41 @@ class DatabaseService {
   }
 
   Future<void> createBasicTrainingData() async {
+    bool existed = false;
     print('In create function');
     FirebaseFirestore.instance
         .collection("basicTraining")
         .get()
         .then((querySnapshot) {
-      querySnapshot.docs.forEach((result) {
-        createTrainingData(
-            result.id,
-            result['name'],
-            result['description'],
-            DateTime.now(),
-            result['intensity'],
-            result['listtype'],
-            result['category'],
-            inHistory: result['inHistory']);
-
-        print(result['name']);
+      querySnapshot.docs.forEach((basic) {
+        FirebaseFirestore.instance
+            .collection("userData")
+            .doc(uid)
+            .collection('training')
+            .get()
+            .then((querySnapshot) {
+          querySnapshot.docs.forEach((intraining) {
+            if (intraining.id == basic.id) {
+              print(intraining.id);
+              print(basic.id);
+              print('item already existed');
+              existed = true;
+            }
+          });
+          print(basic['name']);
+          if (!existed) {
+            createTrainingData(
+                basic.id,
+                basic['name'],
+                basic['description'],
+                DateTime.now(),
+                basic['intensity'],
+                basic['listtype'],
+                basic['category'],
+                inHistory: basic['inHistory']);
+          }
+          existed = false;
+        });
       });
     });
     print('leaving');
