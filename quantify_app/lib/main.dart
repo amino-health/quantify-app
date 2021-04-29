@@ -1,7 +1,9 @@
 //import 'dart:io';
 
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
+
 import 'package:provider/provider.dart';
 import 'package:quantify_app/loading.dart';
 import 'package:quantify_app/models/userClass.dart';
@@ -15,6 +17,8 @@ void main() {
   WidgetsFlutterBinding.ensureInitialized();
   runZonedGuarded<Future<void>>(() async {
     runApp(MyApp());
+
+    await Firebase.initializeApp();
   }, (error, stackTrace) {
     print('Caught Dart Error');
     bool isInDebugMode = true;
@@ -22,7 +26,8 @@ void main() {
       print('$error');
       print('$stackTrace');
     } else {
-      //TODO send to error tracking in production
+      //send to error tracking in production
+      FirebaseCrashlytics.instance.recordError(error, stackTrace);
     }
   });
 }
