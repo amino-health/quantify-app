@@ -19,7 +19,7 @@ class _TosScreenState extends State<TosScreen> {
   ScrollController _scrollController = ScrollController(keepScrollOffset: true);
 
   final _scaffoldKey = new GlobalKey<ScaffoldState>();
-
+//Boolean value that is checked when user presses continue.
   var _checked = false;
   Widget build(BuildContext context) {
     final user = Provider.of<UserClass>(context);

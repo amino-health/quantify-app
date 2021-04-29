@@ -1,10 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-//import 'package:google_fonts/google_fonts.dart';
-//import 'package:quantify_app/screens/userInfoScreen.dart';
 import 'package:quantify_app/screens/wrapper.dart';
-//import 'package:quantify_app/screens/main.dart';
-//import 'package:flutter_svg/flutter_svg.dart';
 
 class WelcomeScreen extends StatelessWidget {
   @override

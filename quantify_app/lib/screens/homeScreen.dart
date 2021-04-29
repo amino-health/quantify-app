@@ -77,8 +77,7 @@ class _HomeScreenState extends State<HomeScreen>
 
   setData(Object data) {
     List castedData = data as List;
-    print('data is ');
-    print(castedData[0].category);
+
     dynamic toSet;
     if (castedData.last) {
       toSet = overviewKey.currentState;
@@ -101,7 +100,6 @@ class _HomeScreenState extends State<HomeScreen>
         showMeal = false;
       });
     }
-    /**/
   }
 
   Future<void> delete({@required bool isMeal}) {
