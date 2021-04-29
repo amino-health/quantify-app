@@ -9,10 +9,22 @@ import 'package:flutter/services.dart';
 //import 'package:quantify_app/screens/authenticate/register.dart';
 import 'package:quantify_app/screens/welcomeScreen.dart';
 import 'package:quantify_app/services/auth.dart';
+import 'dart:async';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(MyApp());
+  runZonedGuarded<Future<void>>(() async {
+    runApp(MyApp());
+  }, (error, stackTrace) {
+    print('Caught Dart Error');
+    bool isInDebugMode = true;
+    if (isInDebugMode) {
+      print('$error');
+      print('$stackTrace');
+    } else {
+      //TODO send to error tracking in production
+    }
+  });
 }
 
 class MyApp extends StatelessWidget {
