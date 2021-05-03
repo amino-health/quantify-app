@@ -162,11 +162,13 @@ class _HomeScreenState extends State<HomeScreen>
 
   Future<void> edit({@required bool isMeal}) async {
     if (isMeal) {
-      File file;
-      if (_mealData.localPath != null) {
-        try {
-          file = File(_mealData.localPath);
-        } catch (e) {}
+      List<File> file = [];
+      for (String path in _mealData.localPath) {
+        if (path != null) {
+          try {
+            file.add(File(path));
+          } catch (e) {}
+        }
       }
       Navigator.push(
           context,
@@ -216,7 +218,7 @@ class _HomeScreenState extends State<HomeScreen>
   Future<Widget> displayImage(bool _isIos) async {
     if (_mealData.localPath != null) {
       try {
-        File imageFile = File(_mealData.localPath);
+        File imageFile = File(_mealData.localPath[0]);
         if (await imageFile.exists()) {
           Image img = Image.file(imageFile);
           return img;
@@ -231,7 +233,7 @@ class _HomeScreenState extends State<HomeScreen>
         ? CachedNetworkImage(
             progressIndicatorBuilder: (context, url, downProg) =>
                 CircularProgressIndicator(value: downProg.progress),
-            imageUrl: _mealData.mealImageUrl,
+            imageUrl: _mealData.mealImageUrl[0],
             errorWidget: (context, url, error) => Icon(_isIos
                 ? CupertinoIcons.exclamationmark_triangle_fill
                 : Icons.error),

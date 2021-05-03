@@ -141,9 +141,9 @@ class _GraphicalInterfaceState extends State<GraphicalInterface> {
                                 meal['note'],
                                 DateTime.fromMillisecondsSinceEpoch(
                                     meal['date']),
-                                meal['imageRef'],
+                                meal['imageRef'].cast<String>(),
                                 meal['docId'],
-                                meal['localPath']),
+                                meal['localPath'].cast<String>()),
                             true
                           ]);
                         } else if (args.seriesIndex == 2) {
