@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:quantify_app/models/activityDiaryItem.dart';
 import 'package:quantify_app/models/userClass.dart';
 import 'package:quantify_app/services/database.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
@@ -40,7 +41,12 @@ class AuthService {
           password: password.trim()); //from firebase library
       User user = result.user;
       print(user);
+
+
+      await DatabaseService(uid: user.uid).createBasicTrainingData();
+
       return [user];
+
     } catch (error) {
       print(error.code);
       switch (error.code) {
@@ -91,6 +97,7 @@ class AuthService {
             await _auth.signInWithPopup(authProvider);
 
         user = userCredential.user;
+        await DatabaseService(uid: user.uid).createBasicTrainingData();
         print(user);
       } catch (e) {
         print("ERROR i google");
@@ -139,6 +146,45 @@ class AuthService {
     return user;
   }
 
+  String trainingid;
+  String name;
+  String description;
+  DateTime date;
+  Duration duration;
+  int intensity;
+  int listtype;
+  bool inHistory;
+  int category;
+
+  List<TrainingData> basicActivities = [
+    TrainingData(name: 'Biking', description: 'Commute', category: 0),
+    TrainingData(name: 'Biking', description: 'Competetive', category: 0),
+    TrainingData(name: 'Running', description: 'Sprint', category: 1),
+    TrainingData(name: 'Running', description: 'Jogging', category: 1),
+    TrainingData(name: 'Walking', description: 'Regular', category: 2),
+    TrainingData(name: 'Walking', description: 'Powerwalk', category: 2),
+    TrainingData(name: 'Hockey', description: 'Friendly', category: 3),
+    TrainingData(name: 'Hockey', description: 'Competetive', category: 3),
+    TrainingData(name: 'Baseball', description: 'Friendly', category: 4),
+    TrainingData(name: 'Baseball', description: 'Competetive', category: 4),
+    TrainingData(name: 'Basketball', description: 'Friendly', category: 5),
+    TrainingData(name: 'Basketball', description: 'Competetive', category: 5),
+    TrainingData(name: 'Football', description: 'Friendly', category: 6),
+    TrainingData(name: 'Football', description: 'Competetive', category: 6),
+    TrainingData(name: 'Soccer', description: 'Friendly', category: 7),
+    TrainingData(name: 'Soccer', description: 'Competetive', category: 7),
+    TrainingData(name: 'Tennis', description: 'Friendly', category: 8),
+    TrainingData(name: 'Tennis', description: 'Competetive', category: 8),
+    TrainingData(name: 'Badminton', description: 'Friendly', category: 8),
+    TrainingData(name: 'Badminton', description: 'Competetive', category: 8),
+    TrainingData(name: 'Handball', description: 'Friendly', category: 9),
+    TrainingData(name: 'Handball', description: 'Competetive', category: 9),
+    TrainingData(
+        name: 'Strength training', description: 'Full body', category: 11),
+    TrainingData(
+        name: 'Strength training', description: 'Body Parts: ', category: 11),
+  ];
+
 //em
   Future registerWithEmailAndPassword(String email, String password) async {
     try {
@@ -150,10 +196,21 @@ class AuthService {
       await DatabaseService(uid: user.uid).updateUserData(
           user.uid, user.email, true, '0', '0', '0', false, "male");
 
-      await DatabaseService(uid: user.uid).createTrainingData(
-          'Running', 'Sprint', DateTime.now(), 0, 3, false, 0);
+      await DatabaseService(uid: user.uid).createBasicTrainingData();
+
+/*
+      for (TrainingData item in basicActivities) {
+        await DatabaseService(uid: user.uid).createBasicTrainingData(
+            item.name,
+            item.description,
+            (DateTime.now().subtract(Duration(minutes: item.category))),
+            1,
+            3,
+            false,
+            item.category);
+      }
+      */
     } catch (error) {
-      print('HEJ');
       print(error.toString());
       return null;
     }

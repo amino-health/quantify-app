@@ -24,7 +24,9 @@ class DatabaseService {
   DatabaseService({this.uid});
 
   final CollectionReference userInfo =
-      FirebaseFirestore.instance.collection('userData'); //collection of info
+      FirebaseFirestore.instance.collection('userData');
+  final CollectionReference basicTraining = FirebaseFirestore.instance
+      .collection('basicTraining'); //collection of info
 
   Future<void> uploadImage(File imageFile, DateTime date, String note) async {
     String downloadURL;
@@ -175,6 +177,22 @@ class DatabaseService {
     return snapshot.docs.toList();
   }
 
+  List _basicActivityFromSnapshot(QuerySnapshot snapshot) {
+    return snapshot.docs.toList();
+  }
+
+  Stream get allActivities {
+    //  Stream basicTrainingData =
+    //   basicTraining.snapshots().map(_basicActivityFromSnapshot);
+    Stream activityData = userInfo
+        .doc(uid)
+        .collection('training')
+        .snapshots()
+        .map(_userActivityFromSnapshot);
+
+    return activityData;
+  }
+
   Stream get userDiary {
     Stream mealData = userInfo
         .doc(uid)
@@ -197,22 +215,107 @@ class DatabaseService {
       FirebaseFirestore.instance.collection('activityDiary');
 
   Future<void> createTrainingData(
+      String trainingid,
       String name,
       String description,
       DateTime date,
       int intensity,
       int listtype,
-      bool inHistory,
-      int category) async {
-    return await userInfo.doc(uid).collection('training').doc().set({
-      'name': name,
-      'description': description,
-      'date': date.millisecondsSinceEpoch,
-      'intensity': intensity,
-      'listtype': listtype,
-      'inHistory': inHistory,
-      'category': category
+      int category,
+      {bool inHistory}) async {
+    print("In history is $inHistory");
+    if (inHistory != null) {
+      return await userInfo
+          .doc(uid)
+          .collection('training')
+          .doc(trainingid)
+          .set({
+        'name': name,
+        'description': description,
+        'date': date.millisecondsSinceEpoch,
+        'intensity': intensity,
+        'listtype': listtype,
+        'inHistory': inHistory,
+        'category': category
+      });
+    } else {
+      return await userInfo
+          .doc(uid)
+          .collection('training')
+          .doc(trainingid)
+          .update({
+        'name': name,
+        'description': description,
+        'date': date.millisecondsSinceEpoch,
+        'intensity': intensity,
+        'listtype': listtype,
+        'category': category
+      });
+    }
+  }
+
+  Future<void> createBasicTrainingData() async {
+    bool existed = false;
+    print('In create function');
+    FirebaseFirestore.instance
+        .collection("basicTraining")
+        .get()
+        .then((querySnapshot) {
+      querySnapshot.docs.forEach((basic) {
+        FirebaseFirestore.instance
+            .collection("userData")
+            .doc(uid)
+            .collection('training')
+            .get()
+            .then((querySnapshot) {
+          querySnapshot.docs.forEach((intraining) {
+            if (intraining.id == basic.id) {
+              print(intraining.id);
+              print(basic.id);
+              print('item already existed');
+              existed = true;
+            }
+          });
+          print(basic['name']);
+          if (!existed) {
+            createTrainingData(
+                basic.id,
+                basic['name'],
+                basic['description'],
+                DateTime.now(),
+                basic['intensity'],
+                basic['listtype'],
+                basic['category'],
+                inHistory: basic['inHistory']);
+          }
+          existed = false;
+        });
+      });
     });
+    print('leaving');
+  }
+
+  Future<void> copyTrainingData() async {
+    print('In copy function');
+    FirebaseFirestore.instance
+        .collection("basicTraining")
+        .get()
+        .then((querySnapshot) {
+      querySnapshot.docs.forEach((result) {
+        createTrainingData(
+          result.id,
+          result['name'],
+          result['description'],
+          DateTime.now(),
+          result['intensity'],
+          result['listtype'],
+          result['category'],
+        );
+
+        print(result['name']);
+      });
+    });
+    print('leaving');
   }
 
   Future<void> updateTrainingData(

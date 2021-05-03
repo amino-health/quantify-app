@@ -9,7 +9,6 @@ import 'package:quantify_app/screens/reauthenticate/changeemail.dart';
 import 'package:quantify_app/screens/reauthenticate/changepassword.dart';
 import 'package:quantify_app/screens/tos.dart';
 import 'package:quantify_app/screens/wrapper.dart';
-//import 'package:quantify_app/screens/welcomeScreen.dart';
 import 'package:quantify_app/services/auth.dart';
 import 'package:quantify_app/services/database.dart';
 import 'package:settings_ui/settings_ui.dart';
