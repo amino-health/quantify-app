@@ -1,6 +1,8 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:quantify_app/loading.dart';
 import 'package:quantify_app/models/mealData.dart';
 import 'package:quantify_app/models/userClass.dart';
 import 'package:quantify_app/screens/homeSkeleton.dart';
@@ -67,8 +69,19 @@ class _AddMealScreenState extends State<AddMealScreen> {
     while (_image.length < 4) {
       _image.add(File(''));
     }
+    while (_imageUrl.length < 4) {
+      _imageUrl.add(null);
+    }
     imageList = _image;
-    //imageList.sort((a, b) => a == null ? 1 : 0);
+
+    print('_image is');
+    for (File img in _image) {
+      print(img);
+    }
+    print('_imageurl is');
+    for (String img in _imageUrl) {
+      print(img);
+    }
   }
 
   @override
@@ -127,9 +140,44 @@ class _AddMealScreenState extends State<AddMealScreen> {
     );
   }
 
+  Future<Widget> fetchImage(BuildContext context, bool _isIos, String localPath,
+      String imgRef) async {
+    if (localPath != null) {
+      try {
+        File imageFile = File(localPath);
+        if (await imageFile.exists()) {
+          Image img = Image.file(imageFile);
+          return img;
+        }
+      } on FileSystemException {
+        print("Couldn't find local image");
+      } catch (e) {
+        print(e);
+      }
+    }
+    return imgRef != null
+        ? CachedNetworkImage(
+            width: 85,
+            progressIndicatorBuilder: (context, url, downProg) =>
+                CircularProgressIndicator(value: downProg.progress),
+            imageUrl: imgRef,
+            errorWidget: (context, url, error) => Icon(_isIos
+                ? CupertinoIcons.exclamationmark_triangle_fill
+                : Icons.error),
+          )
+        : Container(
+            child: Icon(
+              Icons.image_not_supported,
+              size: 60,
+            ),
+          );
+  }
+
   Widget emptyImageContainer(
-      BuildContext context, DecorationImage displayImage, int index) {
-    print(displayImage);
+    BuildContext context,
+    DecorationImage displayImage,
+    int index,
+  ) {
     if (index != 0 &&
         _image[index - 1].path != '' &&
         _image[index].path == '') {
@@ -154,19 +202,20 @@ class _AddMealScreenState extends State<AddMealScreen> {
             child: ClipRRect(
                 borderRadius: BorderRadius.circular(8.0),
                 child: Container(
-                    child: FittedBox(
-                        fit: BoxFit.fitWidth,
-                        child: _image[index].path == ''
-                            ? Icon(Icons.control_camera)
-                            : null),
                     height: MediaQuery.of(context).size.width * 0.2,
                     width: MediaQuery.of(context).size.width * 0.2,
-                    color: _image[index].path == ''
-                        ? Colors.grey[400]
-                        : Colors.grey.withOpacity(0),
-                    decoration: _image[index].path == ''
-                        ? null
-                        : BoxDecoration(image: displayImage))),
+                    child: FutureBuilder(
+                        future: fetchImage(context, false, _image[index].path,
+                            _imageUrl[index]),
+                        builder:
+                            (BuildContext context, AsyncSnapshot snapshot) {
+                          if (!snapshot.hasData) {
+                            Loading();
+                          } else {
+                            return snapshot.data;
+                          }
+                          return Container();
+                        }))),
             onTap: () async {
               _image[index].path == ''
                   ? _getImageGallery(index)
@@ -182,6 +231,7 @@ class _AddMealScreenState extends State<AddMealScreen> {
   void removeImage() {
     if (_index < 4) {
       setState(() {
+        _imageChanged = true;
         _displayImage = null;
         _image[_index] = File('');
         _index = 5;
@@ -201,8 +251,8 @@ class _AddMealScreenState extends State<AddMealScreen> {
 
     List<dynamic> displayImageList = [null, null, null, null];
     int i = 0;
-    for (File image in imageList) {
-      if (image != null) {
+    for (File image in _image) {
+      if (image.path != '') {
         displayImageList[i] = (DecorationImage(image: FileImage(image)));
       } else if (_imageUrl.length > i && _imageUrl[i] != null) {
         displayImageList[i] =
@@ -212,7 +262,6 @@ class _AddMealScreenState extends State<AddMealScreen> {
       }
       i++;
     }
-    print('displayimagelist is $displayImageList');
     return Container(
       child: StreamBuilder<UserClass>(
           stream: null,
@@ -220,15 +269,28 @@ class _AddMealScreenState extends State<AddMealScreen> {
             var children = [
               Stack(children: [
                 Container(
-                  //This container contains the grey area for the photo, changes to the image if one is taken.
-                  height: MediaQuery.of(context).size.height * 0.3,
-                  width: MediaQuery.of(context).size.height * 0.3,
-                  decoration: BoxDecoration(
+                    //This container contains the grey area for the photo, changes to the image if one is taken.
+                    height: MediaQuery.of(context).size.height * 0.3,
+                    width: MediaQuery.of(context).size.height * 0.3,
+                    decoration: BoxDecoration(
                       color: _displayImage == null
                           ? Colors.grey
                           : Color(0x00000000),
-                      image: _displayImage != null ? _displayImage : null),
-                ),
+                    ),
+                    child: _displayImage != null
+                        ? FutureBuilder(
+                            future: fetchImage(context, false,
+                                _image[_index].path, _imageUrl[_index]),
+                            builder:
+                                (BuildContext context, AsyncSnapshot snapshot) {
+                              if (!snapshot.hasData) {
+                                Loading();
+                              } else {
+                                return snapshot.data;
+                              }
+                              return Container();
+                            })
+                        : null),
                 ClipRRect(
                   borderRadius: BorderRadius.circular(40),
                   child: Container(
@@ -529,7 +591,6 @@ class _AddMealScreenState extends State<AddMealScreen> {
 
   _getImageGallery(int index) async {
     var image = await ImagePicker().getImage(source: ImageSource.gallery);
-    print('open gallery');
     File croppedFile;
     //File result;
     if (image != null) {
@@ -546,7 +607,6 @@ class _AddMealScreenState extends State<AddMealScreen> {
 
   _getImageCamera(int index) async {
     var image = await ImagePicker().getImage(source: ImageSource.camera);
-    print('open camera');
     File croppedFile;
     //File result;
     if (image != null) {
@@ -559,7 +619,6 @@ class _AddMealScreenState extends State<AddMealScreen> {
         _displayImage = DecorationImage(image: FileImage(_image[index]));
         _imageChanged = true;
       });
-      print('imageList is $imageList');
     }
   }
 
@@ -634,10 +693,6 @@ class _AddMealScreenState extends State<AddMealScreen> {
       DatabaseService(uid: user.uid)
           .editMeal(_docId, _image, _timeStamp, _note, _imageChanged);
     } else {
-      print('calling database');
-      print('imageList is before $imageList');
-      //imageList.removeWhere((value) => value == null);
-      print('list is after$imageList');
       DatabaseService(uid: user.uid).uploadImage(imageList, _timeStamp, _note);
     }
 

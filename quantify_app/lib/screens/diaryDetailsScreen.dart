@@ -80,7 +80,7 @@ class _DiaryDetailsState extends State<DiaryDetailsScreen> {
       this.localPath,
       this.imgRef,
       this.category);
-
+  int _current = 0;
   List<IconData> iconList = [
     Icons.directions_bike,
     Icons.directions_run,
@@ -313,22 +313,51 @@ class _DiaryDetailsState extends State<DiaryDetailsScreen> {
 
   Widget verticalSlider(BuildContext context) {
     List<Widget> imgList = buildCarousel(context, imgRef, localPath);
-    return Container(
-      width: MediaQuery.of(context).size.width,
-      height: MediaQuery.of(context).size.width,
-      child: CarouselSlider(
-        items: buildCarousel(context, imgRef, localPath),
-        options: CarouselOptions(
-            height: MediaQuery.of(context).size.height,
-            autoPlay: true,
-            viewportFraction: 1,
-            enlargeCenterPage: true,
-            aspectRatio: 1,
-            onPageChanged: (index, reason) {
-              setState(() {});
-            }),
+
+    return Stack(children: [
+      Container(
+        width: MediaQuery.of(context).size.width,
+        height: MediaQuery.of(context).size.width,
+        child: CarouselSlider(
+          items: buildCarousel(context, imgRef, localPath),
+          options: CarouselOptions(
+              height: MediaQuery.of(context).size.height,
+              autoPlay: true,
+              viewportFraction: 1,
+              enlargeCenterPage: true,
+              aspectRatio: 1,
+              onPageChanged: (index, reason) {
+                setState(() {
+                  _current = index;
+                  print('current updated : $_current');
+                });
+              }),
+        ),
       ),
-    );
+      Container(
+        height: MediaQuery.of(context).size.width,
+        width: MediaQuery.of(context).size.width,
+        alignment: Alignment.bottomCenter,
+        child: Padding(
+          padding: EdgeInsets.only(bottom: 10),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: imgList.map((url) {
+              int index = imgList.indexOf(url);
+              return Container(
+                width: 8.0,
+                height: 8.0,
+                margin: EdgeInsets.symmetric(vertical: 10.0, horizontal: 2.0),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: index == _current ? Colors.white : Colors.black,
+                ),
+              );
+            }).toList(),
+          ),
+        ),
+      )
+    ]);
   }
 
 /*
