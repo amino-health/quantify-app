@@ -213,324 +213,317 @@ class _AddMealScreenState extends State<AddMealScreen> {
       i++;
     }
     print('displayimagelist is $displayImageList');
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 10.0),
-      child: Container(
-        decoration: BoxDecoration(
-            color: Color(0xFFFFFFF6),
-            boxShadow: [
-              BoxShadow(
-                  offset: Offset(3, 8),
-                  color: Colors.black.withOpacity(0.5),
-                  spreadRadius: 5,
-                  blurRadius: 8)
-            ],
-            borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(50),
-                bottomRight: Radius.circular(50))),
-        child: StreamBuilder<UserClass>(
-            stream: null,
-            builder: (context, snapshot) {
-              var children = [
-                Stack(children: [
-                  Container(
-                    //This container contains the grey area for the photo, changes to the image if one is taken.
-                    height: MediaQuery.of(context).size.height * 0.3,
-                    width: MediaQuery.of(context).size.height * 0.3,
-                    decoration: BoxDecoration(
-                        color: _displayImage == null
-                            ? Colors.grey
-                            : Color(0x00000000),
-                        image: _displayImage != null ? _displayImage : null),
-                  ),
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(40),
-                    child: Container(
-                      color: Colors.white.withOpacity(0.5),
-                      child: IconButton(
-                          icon: Icon(Icons.delete),
-                          onPressed: () => removeImage()),
-                    ),
-                  )
-                ]),
-                Padding(
-                  padding: EdgeInsets.all(10),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      FutureBuilder<String>(builder: (BuildContext context,
-                          AsyncSnapshot<String> snapshot) {
-                        return emptyImageContainer(
-                            context, displayImageList[0], 0);
-                      }),
-                      FutureBuilder<String>(builder: (BuildContext context,
-                          AsyncSnapshot<String> snapshot) {
-                        return emptyImageContainer(
-                            context, displayImageList[1], 1);
-                      }),
-                      FutureBuilder<String>(builder: (BuildContext context,
-                          AsyncSnapshot<String> snapshot) {
-                        return emptyImageContainer(
-                            context, displayImageList[2], 2);
-                      }),
-                      FutureBuilder<String>(builder: (BuildContext context,
-                          AsyncSnapshot<String> snapshot) {
-                        return emptyImageContainer(
-                            context, displayImageList[3], 3);
-                      }),
-                    ],
-                  ),
-                ),
+    return Container(
+      child: StreamBuilder<UserClass>(
+          stream: null,
+          builder: (context, snapshot) {
+            var children = [
+              Stack(children: [
                 Container(
-                  padding: EdgeInsets.only(top: 10, bottom: 10),
-                  width: MediaQuery.of(context).size.width * 0.8,
-                  child: TextField(
-                    textCapitalization: TextCapitalization.sentences,
-                    textInputAction: TextInputAction.go,
-                    focusNode: myFocusNode,
-                    controller: textController,
-                    maxLines: null,
-                    onSubmitted: (value) {
-                      textController.text = value;
-                    },
-                    keyboardType: TextInputType.text,
-                    maxLength: 128,
-                    decoration: InputDecoration(
-                        border: OutlineInputBorder(),
-                        hintText: "Write something about your meal!",
-                        hintStyle: TextStyle(fontFamily: 'Roboto-Medium')),
-                  ),
+                  //This container contains the grey area for the photo, changes to the image if one is taken.
+                  height: MediaQuery.of(context).size.height * 0.3,
+                  width: MediaQuery.of(context).size.height * 0.3,
+                  decoration: BoxDecoration(
+                      color: _displayImage == null
+                          ? Colors.grey
+                          : Color(0x00000000),
+                      image: _displayImage != null ? _displayImage : null),
                 ),
-                Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                  Container(
-                    //This container is for picking date
-                    color: Color(0x00f0f0f0),
-                    child: FittedBox(
-                      fit: BoxFit.fitWidth,
-                      child: ElevatedButton(
-                        style: ButtonStyle(backgroundColor:
-                            MaterialStateProperty.resolveWith<Color>(
-                                (Set<MaterialState> states) {
-                          return const Color(0xFF99163D);
-                        })),
-                        onPressed: () async {
-                          FocusScope.of(context).unfocus();
-
-                          DateTime newDate;
-                          if (_isIos) {
-                            await showCupertinoModalPopup(
-                              context: context,
-                              builder: (BuildContext context) => Container(
-                                color: Colors.white,
-                                height:
-                                    MediaQuery.of(context).size.height * 0.6,
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  children: [
-                                    Container(
-                                      color: Colors.white,
-                                      height:
-                                          MediaQuery.of(context).size.height *
-                                              0.5,
-                                      child: CupertinoDatePicker(
-                                        mode: CupertinoDatePickerMode.date,
-                                        onDateTimeChanged: (picked) {
-                                          FocusScope.of(context).unfocus();
-                                          newDate = picked;
-                                        },
-                                        maximumDate: DateTime.now(),
-                                        initialDateTime: _date,
-                                        minimumDate: DateTime(2000),
-                                      ),
-                                    ),
-                                    CupertinoButton(
-                                        child: Text(
-                                          'OK',
-                                          style: TextStyle(color: Colors.black),
-                                        ),
-                                        onPressed: () {
-                                          FocusScope.of(context).unfocus();
-
-                                          Navigator.of(context).pop();
-                                        })
-                                  ],
-                                ),
-                              ),
-                            );
-                          } else {
-                            FocusScope.of(context).unfocus();
-                            newDate = await showDatePicker(
-                                context: context,
-                                initialDate: _date,
-                                firstDate: DateTime(2000),
-                                lastDate: DateTime.now());
-                          }
-                          if (newDate != null) {
-                            setState(() {
-                              _date = newDate;
-                            });
-                          }
-                        },
-                        child: Text(
-                          _date.year.toString() +
-                              "-" +
-                              (_date.month < 10 ? "0" : "") +
-                              _date.month.toString() +
-                              "-" +
-                              (_date.day < 10 ? "0" : "") +
-                              _date.day.toString(),
-                          style: TextStyle(
-                              fontSize: 22, fontFamily: 'Roboto-Medium'),
-                        ),
-                      ),
-                    ),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(40),
+                  child: Container(
+                    color: Colors.white.withOpacity(0.5),
+                    child: IconButton(
+                        icon: Icon(Icons.delete),
+                        onPressed: () => removeImage()),
                   ),
-                  Container(
-                    child: Text(
-                      ":",
-                      style:
-                          TextStyle(fontSize: 22, fontFamily: 'Roboto-Medium'),
-                    ),
-                  ),
-                  Container(
-                    //This container is for picking time
-                    color: Color(0x00f0f0f0),
-                    child: FittedBox(
-                      fit: BoxFit.fitWidth,
-                      child: ElevatedButton(
-                        style: ButtonStyle(backgroundColor:
-                            MaterialStateProperty.resolveWith<Color>(
-                                (Set<MaterialState> states) {
-                          return const Color(0xFF99163D);
-                        })),
-                        onPressed: () async {
-                          FocusScope.of(context).unfocus();
-
-                          TimeOfDay newTime;
-                          if (_isIos) {
-                            await showCupertinoModalPopup(
-                                context: context,
-                                builder: (BuildContext context) => Container(
-                                      color: Colors.white,
-                                      height:
-                                          MediaQuery.of(context).size.height *
-                                              0.6,
-                                      child: Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.end,
-                                        children: [
-                                          Container(
-                                            height: MediaQuery.of(context)
-                                                    .size
-                                                    .height *
-                                                0.5,
-                                            color: Colors.white,
-                                            child: CupertinoDatePicker(
-                                                use24hFormat: true,
-                                                mode: CupertinoDatePickerMode
-                                                    .time,
-                                                initialDateTime: DateTime(
-                                                    today.year,
-                                                    today.month,
-                                                    today.day,
-                                                    _time.hour,
-                                                    _time.minute),
-                                                onDateTimeChanged: (picked) {
-                                                  newTime =
-                                                      TimeOfDay.fromDateTime(
-                                                          picked);
-                                                }),
-                                          ),
-                                          CupertinoButton(
-                                              child: Text(
-                                                'OK',
-                                                style: TextStyle(
-                                                    color: Colors.black),
-                                              ),
-                                              onPressed: () {
-                                                FocusScope.of(context)
-                                                    .unfocus();
-
-                                                Navigator.of(context).pop();
-                                              })
-                                        ],
-                                      ),
-                                    ));
-                          } else {
-                            FocusScope.of(context).unfocus();
-
-                            newTime = await showTimePicker(
-                                context: context, initialTime: _time);
-                          }
-                          if (newTime != null) {
-                            setState(() {
-                              _time = newTime;
-                            });
-                          }
-                        },
-                        child: Text(
-                          (_time.hour < 10 ? "0" : "") +
-                              _time.hour.toString() +
-                              ":" +
-                              (_time.minute < 10 ? "0" : "") +
-                              _time.minute.toString(),
-                          style: TextStyle(
-                              fontSize: 22, fontFamily: 'Roboto-Medium'),
-                        ),
-                      ),
-                    ),
-                  ),
-                ]),
+                )
+              ]),
+              Padding(
+                padding: EdgeInsets.all(10),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    FutureBuilder<String>(builder:
+                        (BuildContext context, AsyncSnapshot<String> snapshot) {
+                      return emptyImageContainer(
+                          context, displayImageList[0], 0);
+                    }),
+                    FutureBuilder<String>(builder:
+                        (BuildContext context, AsyncSnapshot<String> snapshot) {
+                      return emptyImageContainer(
+                          context, displayImageList[1], 1);
+                    }),
+                    FutureBuilder<String>(builder:
+                        (BuildContext context, AsyncSnapshot<String> snapshot) {
+                      return emptyImageContainer(
+                          context, displayImageList[2], 2);
+                    }),
+                    FutureBuilder<String>(builder:
+                        (BuildContext context, AsyncSnapshot<String> snapshot) {
+                      return emptyImageContainer(
+                          context, displayImageList[3], 3);
+                    }),
+                  ],
+                ),
+              ),
+              Container(
+                padding: EdgeInsets.only(top: 10, bottom: 10),
+                width: MediaQuery.of(context).size.width * 0.8,
+                child: TextField(
+                  textCapitalization: TextCapitalization.sentences,
+                  textInputAction: TextInputAction.go,
+                  focusNode: myFocusNode,
+                  controller: textController,
+                  maxLines: null,
+                  onSubmitted: (value) {
+                    textController.text = value;
+                  },
+                  keyboardType: TextInputType.text,
+                  maxLength: 128,
+                  decoration: InputDecoration(
+                      border: OutlineInputBorder(),
+                      hintText: "Write something about your meal!",
+                      hintStyle: TextStyle(fontFamily: 'Roboto-Medium')),
+                ),
+              ),
+              Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                 Container(
-                    padding: EdgeInsets.only(
-                        top: (MediaQuery.of(context).size.height * 0.05),
-                        bottom: MediaQuery.of(context).viewInsets.bottom),
+                  //This container is for picking date
+                  color: Color(0x00f0f0f0),
+                  child: FittedBox(
+                    fit: BoxFit.fitWidth,
                     child: ElevatedButton(
-                      onPressed: () {
-                        _note = textController.text;
-                        if (_note == "" && _image[0].path == '') {
-                          _removeWarning(user);
+                      style: ButtonStyle(backgroundColor:
+                          MaterialStateProperty.resolveWith<Color>(
+                              (Set<MaterialState> states) {
+                        return const Color(0xFF99163D);
+                      })),
+                      onPressed: () async {
+                        FocusScope.of(context).unfocus();
+
+                        DateTime newDate;
+                        if (_isIos) {
+                          await showCupertinoModalPopup(
+                            context: context,
+                            builder: (BuildContext context) => Container(
+                              color: Colors.white,
+                              height: MediaQuery.of(context).size.height * 0.6,
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  Container(
+                                    color: Colors.white,
+                                    height: MediaQuery.of(context).size.height *
+                                        0.5,
+                                    child: CupertinoDatePicker(
+                                      mode: CupertinoDatePickerMode.date,
+                                      onDateTimeChanged: (picked) {
+                                        FocusScope.of(context).unfocus();
+                                        newDate = picked;
+                                      },
+                                      maximumDate: DateTime.now(),
+                                      initialDateTime: _date,
+                                      minimumDate: DateTime(2000),
+                                    ),
+                                  ),
+                                  CupertinoButton(
+                                      child: Text(
+                                        'OK',
+                                        style: TextStyle(color: Colors.black),
+                                      ),
+                                      onPressed: () {
+                                        FocusScope.of(context).unfocus();
+
+                                        Navigator.of(context).pop();
+                                      })
+                                ],
+                              ),
+                            ),
+                          );
                         } else {
-                          _uploadMealAndNavigate(user);
+                          FocusScope.of(context).unfocus();
+                          newDate = await showDatePicker(
+                              context: context,
+                              initialDate: _date,
+                              firstDate: DateTime(2000),
+                              lastDate: DateTime.now());
+                        }
+                        if (newDate != null) {
+                          setState(() {
+                            _date = newDate;
+                          });
                         }
                       },
-                      style: ButtonStyle(
-                        backgroundColor:
-                            MaterialStateProperty.resolveWith<Color>(
-                          (Set<MaterialState> states) {
-                            if (states.contains(MaterialState.pressed))
-                              return Color(0xDD99163D);
-                            else
-                              return Color(0xFF99163D);
-                          },
-                        ),
+                      child: Text(
+                        _date.year.toString() +
+                            "-" +
+                            (_date.month < 10 ? "0" : "") +
+                            _date.month.toString() +
+                            "-" +
+                            (_date.day < 10 ? "0" : "") +
+                            _date.day.toString(),
+                        style: TextStyle(
+                            fontSize: 22, fontFamily: 'Roboto-Medium'),
                       ),
-                      child: Padding(
-                        padding: const EdgeInsets.only(
-                            left: 45.0, right: 45.0, top: 12.0, bottom: 12.0),
-                        child: (Text(_edit ? "Edit" : 'Add meal',
-                            style: TextStyle(
-                                fontFamily: 'Roboto-Medium', fontSize: 16.0))),
+                    ),
+                  ),
+                ),
+                Container(
+                  child: Text(
+                    ":",
+                    style: TextStyle(fontSize: 22, fontFamily: 'Roboto-Medium'),
+                  ),
+                ),
+                Container(
+                  //This container is for picking time
+                  color: Color(0x00f0f0f0),
+                  child: FittedBox(
+                    fit: BoxFit.fitWidth,
+                    child: ElevatedButton(
+                      style: ButtonStyle(backgroundColor:
+                          MaterialStateProperty.resolveWith<Color>(
+                              (Set<MaterialState> states) {
+                        return const Color(0xFF99163D);
+                      })),
+                      onPressed: () async {
+                        FocusScope.of(context).unfocus();
+
+                        TimeOfDay newTime;
+                        if (_isIos) {
+                          await showCupertinoModalPopup(
+                              context: context,
+                              builder: (BuildContext context) => Container(
+                                    color: Colors.white,
+                                    height: MediaQuery.of(context).size.height *
+                                        0.6,
+                                    child: Column(
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      children: [
+                                        Container(
+                                          height: MediaQuery.of(context)
+                                                  .size
+                                                  .height *
+                                              0.5,
+                                          color: Colors.white,
+                                          child: CupertinoDatePicker(
+                                              use24hFormat: true,
+                                              mode:
+                                                  CupertinoDatePickerMode.time,
+                                              initialDateTime: DateTime(
+                                                  today.year,
+                                                  today.month,
+                                                  today.day,
+                                                  _time.hour,
+                                                  _time.minute),
+                                              onDateTimeChanged: (picked) {
+                                                newTime =
+                                                    TimeOfDay.fromDateTime(
+                                                        picked);
+                                              }),
+                                        ),
+                                        CupertinoButton(
+                                            child: Text(
+                                              'OK',
+                                              style: TextStyle(
+                                                  color: Colors.black),
+                                            ),
+                                            onPressed: () {
+                                              FocusScope.of(context).unfocus();
+
+                                              Navigator.of(context).pop();
+                                            })
+                                      ],
+                                    ),
+                                  ));
+                        } else {
+                          FocusScope.of(context).unfocus();
+
+                          newTime = await showTimePicker(
+                              context: context, initialTime: _time);
+                        }
+                        if (newTime != null) {
+                          setState(() {
+                            _time = newTime;
+                          });
+                        }
+                      },
+                      child: Text(
+                        (_time.hour < 10 ? "0" : "") +
+                            _time.hour.toString() +
+                            ":" +
+                            (_time.minute < 10 ? "0" : "") +
+                            _time.minute.toString(),
+                        style: TextStyle(
+                            fontSize: 22, fontFamily: 'Roboto-Medium'),
                       ),
-                    ))
-              ];
-              return new Scaffold(
-                resizeToAvoidBottomInset: false,
-                appBar: CustomAppBar(),
-                body: GestureDetector(
-                  onTap: () =>
-                      FocusScope.of(context).requestFocus(new FocusNode()),
-                  child: Center(
-                    child: SingleChildScrollView(
-                      padding: EdgeInsets.only(bottom: 15),
-                      reverse: true,
+                    ),
+                  ),
+                ),
+              ]),
+              Container(
+                  padding: EdgeInsets.only(
+                      top: (MediaQuery.of(context).size.height * 0.05),
+                      bottom: MediaQuery.of(context).viewInsets.bottom),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      _note = textController.text;
+                      if (_note == "" && _image[0].path == '') {
+                        _removeWarning(user);
+                      } else {
+                        _uploadMealAndNavigate(user);
+                      }
+                    },
+                    style: ButtonStyle(
+                      backgroundColor: MaterialStateProperty.resolveWith<Color>(
+                        (Set<MaterialState> states) {
+                          if (states.contains(MaterialState.pressed))
+                            return Color(0xDD99163D);
+                          else
+                            return Color(0xFF99163D);
+                        },
+                      ),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.only(
+                          left: 45.0, right: 45.0, top: 12.0, bottom: 12.0),
+                      child: (Text(_edit ? "Edit" : 'Add meal',
+                          style: TextStyle(
+                              fontFamily: 'Roboto-Medium', fontSize: 16.0))),
+                    ),
+                  ))
+            ];
+            return new Scaffold(
+              resizeToAvoidBottomInset: false,
+              appBar: CustomAppBar(),
+              body: GestureDetector(
+                onTap: () =>
+                    FocusScope.of(context).requestFocus(new FocusNode()),
+                child: Center(
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 10.0),
+                    child: Container(
+                      height: MediaQuery.of(context).size.height,
+                      width: MediaQuery.of(context).size.width,
+                      decoration: BoxDecoration(
+                          color: Color(0xFFFFFFF6),
+                          boxShadow: [
+                            BoxShadow(
+                                offset: Offset(3, 8),
+                                color: Colors.black.withOpacity(0.5),
+                                spreadRadius: 5,
+                                blurRadius: 8)
+                          ],
+                          borderRadius: BorderRadius.only(
+                              bottomLeft: Radius.circular(50),
+                              bottomRight: Radius.circular(50))),
                       child: Column(children: children),
                     ),
                   ),
                 ),
-              );
-            }),
-      ),
+              ),
+            );
+          }),
     );
   }
 

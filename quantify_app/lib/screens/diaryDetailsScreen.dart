@@ -314,13 +314,14 @@ class _DiaryDetailsState extends State<DiaryDetailsScreen> {
   Widget verticalSlider(BuildContext context) {
     List<Widget> imgList = buildCarousel(context, imgRef, localPath);
     return Container(
-      width: MediaQuery.of(context).size.width * 2.4,
-      height: MediaQuery.of(context).size.height,
+      width: MediaQuery.of(context).size.width,
+      height: MediaQuery.of(context).size.width,
       child: CarouselSlider(
         items: buildCarousel(context, imgRef, localPath),
         options: CarouselOptions(
             height: MediaQuery.of(context).size.height,
             autoPlay: true,
+            viewportFraction: 1,
             enlargeCenterPage: true,
             aspectRatio: 1,
             onPageChanged: (index, reason) {
