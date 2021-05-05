@@ -1,10 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-//import 'package:google_fonts/google_fonts.dart';
-//import 'package:quantify_app/screens/userInfoScreen.dart';
 import 'package:quantify_app/screens/wrapper.dart';
-//import 'package:quantify_app/screens/main.dart';
-//import 'package:flutter_svg/flutter_svg.dart';
 
 class WelcomeScreen extends StatelessWidget {
   @override
@@ -14,7 +10,7 @@ class WelcomeScreen extends StatelessWidget {
             child:
                 Column(mainAxisAlignment: MainAxisAlignment.start, children: [
       Padding(
-        padding: const EdgeInsets.only(top: 50),
+        padding: const EdgeInsets.only(top: 100),
         child: Container(
             height: MediaQuery.of(context).size.height * 0.25,
             alignment: Alignment.center,
@@ -34,7 +30,7 @@ class WelcomeScreen extends StatelessWidget {
           //height: MediaQuery.of(context).size.height * 0.04),
           ),
       Padding(
-        padding: const EdgeInsets.only(left: 50, right: 50),
+        padding: const EdgeInsets.only(left: 50, right: 50, top: 10),
         child: Text('Are you ready to take your life to the next level?',
             textAlign: TextAlign.center,
             style: TextStyle(
@@ -43,7 +39,7 @@ class WelcomeScreen extends StatelessWidget {
       ),
       Padding(
         padding:
-            EdgeInsets.only(top: (MediaQuery.of(context).size.height * 0.25)),
+            EdgeInsets.only(top: (MediaQuery.of(context).size.height * 0.1)),
         child: ElevatedButton(
             style: ButtonStyle(
               backgroundColor: MaterialStateProperty.resolveWith<Color>(

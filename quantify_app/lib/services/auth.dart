@@ -1,10 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:quantify_app/models/activityDiaryItem.dart';
 import 'package:quantify_app/models/userClass.dart';
 import 'package:quantify_app/services/database.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
-
 
 class AuthService {
   static String uEmail, uPassword;
@@ -31,6 +31,7 @@ class AuthService {
     return _auth.authStateChanges().map(_userFromFirebaseUser);
   }
 
+  String errorCode;
 //Sign in
   Future<dynamic> signInWithEmailAndPassword(
       String email, String password) async {
@@ -40,14 +41,45 @@ class AuthService {
           password: password.trim()); //from firebase library
       User user = result.user;
       print(user);
+
+      await DatabaseService(uid: user.uid).createBasicTrainingData();
+
       return user;
-    } catch (e) {
-      switch (e.code) {
+    } catch (error) {
+      print(error.code);
+      switch (error.code) {
+        case "ERROR_EMAIL_ALREADY_IN_USE":
+        case "account-exists-with-different-credential":
+        case "email-already-in-use":
+          errorCode = "Email already used. Go to login page.";
+          return [null, errorCode];
+        case "ERROR_WRONG_PASSWORD":
+        case "wrong-password":
+          errorCode = "Wrong email/password combination.";
+          return [null, errorCode];
+        case "ERROR_USER_NOT_FOUND":
+        case "user-not-found":
+          errorCode = "No user found with this email.";
+          return [null, errorCode];
+        case "ERROR_USER_DISABLED":
+        case "user-disabled":
+          errorCode = "User disabled.";
+          return [null, errorCode];
+        case "ERROR_TOO_MANY_REQUESTS":
+        case "operation-not-allowed":
+          errorCode = "Too many requests to log into this account.";
+          return [null, errorCode];
+        case "ERROR_OPERATION_NOT_ALLOWED":
+        case "operation-not-allowed":
+          errorCode = "Server error, please try again later.";
+          return [null, errorCode];
         case "ERROR_INVALID_EMAIL":
-          return e.message;
-          break;
+        case "invalid-email":
+          errorCode = "Email address is invalid.";
+          return [null, errorCode];
         default:
-          return null;
+          errorCode = "Login failed. Please try again.";
+          return [null, errorCode];
       }
     }
   }
@@ -63,6 +95,7 @@ class AuthService {
             await _auth.signInWithPopup(authProvider);
 
         user = userCredential.user;
+        await DatabaseService(uid: user.uid).createBasicTrainingData();
         print(user);
       } catch (e) {
         print("ERROR i google");
@@ -111,6 +144,45 @@ class AuthService {
     return user;
   }
 
+  String trainingid;
+  String name;
+  String description;
+  DateTime date;
+  Duration duration;
+  int intensity;
+  int listtype;
+  bool inHistory;
+  int category;
+
+  List<TrainingData> basicActivities = [
+    TrainingData(name: 'Biking', description: 'Commute', category: 0),
+    TrainingData(name: 'Biking', description: 'Competetive', category: 0),
+    TrainingData(name: 'Running', description: 'Sprint', category: 1),
+    TrainingData(name: 'Running', description: 'Jogging', category: 1),
+    TrainingData(name: 'Walking', description: 'Regular', category: 2),
+    TrainingData(name: 'Walking', description: 'Powerwalk', category: 2),
+    TrainingData(name: 'Hockey', description: 'Friendly', category: 3),
+    TrainingData(name: 'Hockey', description: 'Competetive', category: 3),
+    TrainingData(name: 'Baseball', description: 'Friendly', category: 4),
+    TrainingData(name: 'Baseball', description: 'Competetive', category: 4),
+    TrainingData(name: 'Basketball', description: 'Friendly', category: 5),
+    TrainingData(name: 'Basketball', description: 'Competetive', category: 5),
+    TrainingData(name: 'Football', description: 'Friendly', category: 6),
+    TrainingData(name: 'Football', description: 'Competetive', category: 6),
+    TrainingData(name: 'Soccer', description: 'Friendly', category: 7),
+    TrainingData(name: 'Soccer', description: 'Competetive', category: 7),
+    TrainingData(name: 'Tennis', description: 'Friendly', category: 8),
+    TrainingData(name: 'Tennis', description: 'Competetive', category: 8),
+    TrainingData(name: 'Badminton', description: 'Friendly', category: 8),
+    TrainingData(name: 'Badminton', description: 'Competetive', category: 8),
+    TrainingData(name: 'Handball', description: 'Friendly', category: 9),
+    TrainingData(name: 'Handball', description: 'Competetive', category: 9),
+    TrainingData(
+        name: 'Strength training', description: 'Full body', category: 11),
+    TrainingData(
+        name: 'Strength training', description: 'Body Parts: ', category: 11),
+  ];
+
 //em
   Future registerWithEmailAndPassword(String email, String password) async {
     try {
@@ -122,12 +194,21 @@ class AuthService {
       await DatabaseService(uid: user.uid).updateUserData(
           user.uid, user.email, true, '0', '0', '0', false, "male");
 
-      await DatabaseService(uid: user.uid)
-          .createTrainingData('Running', 'Sprint', DateTime.now(), 0, 3, false);
+      await DatabaseService(uid: user.uid).createBasicTrainingData();
 
-
+/*
+      for (TrainingData item in basicActivities) {
+        await DatabaseService(uid: user.uid).createBasicTrainingData(
+            item.name,
+            item.description,
+            (DateTime.now().subtract(Duration(minutes: item.category))),
+            1,
+            3,
+            false,
+            item.category);
+      }
+      */
     } catch (error) {
-      print('HEJ');
       print(error.toString());
       return null;
     }
