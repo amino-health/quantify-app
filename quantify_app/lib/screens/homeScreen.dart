@@ -63,7 +63,9 @@ class _HomeScreenState extends State<HomeScreen>
   MealData _mealData = new MealData("", DateTime.now(), null, null, null);
 
   TrainingDiaryData _trainingData = new TrainingDiaryData();
-  MealData latestMeal = new MealData("", DateTime.now(), null, null, null);
+  MealData latestMeal = new MealData("", null, null, null, null);
+  TrainingDiaryData latestTraining = new TrainingDiaryData(date: null);
+
   bool showMeal = false;
   bool showActivity = false;
   bool showWelcome = true;
@@ -102,10 +104,11 @@ class _HomeScreenState extends State<HomeScreen>
     }
   }
 
-  getLatestMeal(MealData latestMeal) {
+  getLatest(latest) {
     Future.delayed(Duration.zero, () {
       overviewKey.currentState.setState(() {
-        this.latestMeal = latestMeal;
+        this.latestMeal = latest[0];
+        this.latestTraining = latest[1];
       });
     });
   }
@@ -170,11 +173,13 @@ class _HomeScreenState extends State<HomeScreen>
 
   Future<void> edit({@required bool isMeal}) async {
     if (isMeal) {
-      File file;
-      if (_mealData.localPath != null) {
-        try {
-          file = File(_mealData.localPath);
-        } catch (e) {}
+      List<File> file = [];
+      for (String path in _mealData.localPath) {
+        if (path != null) {
+          try {
+            file.add(File(path));
+          } catch (e) {}
+        }
       }
       Navigator.push(
           context,
@@ -228,9 +233,9 @@ class _HomeScreenState extends State<HomeScreen>
     } else {
       selectedMeal = _mealData;
     }
-    if (selectedMeal.localPath != null) {
+    if (selectedMeal != null && selectedMeal.localPath != null) {
       try {
-        File imageFile = File(selectedMeal.localPath);
+        File imageFile = File(_mealData.localPath[0]);
         if (await imageFile.exists()) {
           Image img = Image.file(imageFile);
           return img;
@@ -241,20 +246,22 @@ class _HomeScreenState extends State<HomeScreen>
         print(e);
       }
     }
-    return selectedMeal.mealImageUrl != null
+    return (selectedMeal != null && selectedMeal.mealImageUrl != null)
         ? CachedNetworkImage(
             progressIndicatorBuilder: (context, url, downProg) =>
                 CircularProgressIndicator(value: downProg.progress),
-            imageUrl: selectedMeal.mealImageUrl,
+            imageUrl: _mealData.mealImageUrl[0],
             errorWidget: (context, url, error) => Icon(_isIos
                 ? CupertinoIcons.exclamationmark_triangle_fill
                 : Icons.error),
           )
         : Container(
-            child: Icon(
-            Icons.image_not_supported,
-            size: MediaQuery.of(context).size.height * 0.1,
-          ));
+            child: latest
+                ? null
+                : Icon(
+                    Icons.image_not_supported,
+                    size: MediaQuery.of(context).size.height * 0.1,
+                  ));
   }
 
   String _printDuration(Duration duration) {
@@ -477,10 +484,10 @@ class _HomeScreenState extends State<HomeScreen>
                         flex: 1,
                         child: InkWell(
                           onTap: () {
-                            findGraphPoint(latestMeal.mealDate);
-                            print("After findgraph" + graphPos.toString());
-                            setData([latestMeal, false]);
-                            setState(() {});
+                            if (latestMeal != null &&
+                                latestMeal.mealDate != null) {
+                              setData([latestMeal, false]);
+                            }
                           },
                           child: Container(
                             child: Column(
@@ -519,10 +526,13 @@ class _HomeScreenState extends State<HomeScreen>
                                         );
                                       }),
                                 ),
-                                Text(
-                                    DateFormat("dd MMM: HH:mm")
-                                        .format(latestMeal.mealDate),
-                                    style: TextStyle(color: Colors.black)),
+                                (latestMeal != null &&
+                                        latestMeal.mealDate != null)
+                                    ? Text(
+                                        DateFormat("dd MMM: HH:mm")
+                                            .format(latestMeal.mealDate),
+                                        style: TextStyle(color: Colors.black))
+                                    : Container(),
                               ],
                             ),
                           ),
@@ -535,15 +545,49 @@ class _HomeScreenState extends State<HomeScreen>
                       ),
                       Expanded(
                         flex: 1,
-                        child: Container(
-                          child: Column(
-                            children: [
-                              Text(
-                                "Your latest exercise:",
-                                textScaleFactor: 1.2,
-                                style: TextStyle(color: Colors.black),
-                              )
-                            ],
+                        child: InkWell(
+                          onTap: () {
+                            if (latestTraining != null &&
+                                latestTraining.date != null) {
+                              setData([latestTraining, false]);
+                            }
+                          },
+                          child: Container(
+                            child: Column(
+                              children: [
+                                Text(
+                                  "Your latest exercise:",
+                                  textScaleFactor: 1.2,
+                                  style: TextStyle(color: Colors.black),
+                                ),
+                                Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: (latestTraining != null &&
+                                            latestTraining.category != null)
+                                        ? Container(
+                                            width: MediaQuery.of(context)
+                                                    .size
+                                                    .width *
+                                                0.2,
+                                            height: MediaQuery.of(context)
+                                                    .size
+                                                    .width *
+                                                0.2,
+                                            child: FittedBox(
+                                                fit: BoxFit.fitWidth,
+                                                child: Icon(iconList[
+                                                    latestTraining.category])),
+                                          )
+                                        : null),
+                                (latestTraining != null &&
+                                        latestTraining.date != null)
+                                    ? Text(
+                                        DateFormat("dd MMM: HH:mm")
+                                            .format(latestTraining.date),
+                                        style: TextStyle(color: Colors.black))
+                                    : Container(),
+                              ],
+                            ),
                           ),
                         ),
                       )
@@ -671,34 +715,6 @@ class _HomeScreenState extends State<HomeScreen>
                           style: TextStyle(
                               color: Colors.white, fontStyle: FontStyle.italic),
                         ),
-                        Container(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Align(
-                                alignment: Alignment.center,
-                                child: Text(
-                                  "Score: ",
-                                  textScaleFactor: 1.5,
-                                  style: TextStyle(color: Colors.white),
-                                ),
-                              ),
-                              Container(
-                                child: Padding(
-                                  padding: const EdgeInsets.all(10.0),
-                                  child: Text(
-                                    "93",
-                                    textScaleFactor: 1.5,
-                                    style: TextStyle(color: Colors.white),
-                                  ),
-                                ),
-                                decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: Color(0xff62991D)),
-                              )
-                            ],
-                          ),
-                        )
                       ],
                     ),
                   ),
@@ -719,10 +735,9 @@ class _HomeScreenState extends State<HomeScreen>
     }
     GraphicalInterface graph = GraphicalInterface(
       update: setData,
-      latestMeal: getLatestMeal,
+      latest: getLatest,
       graphPosSetter: graphPos,
     );
-    print("homescreen: " + graph.graphPosSetter.toString());
     final List<Widget> _children = [
       Center(
         child: Column(

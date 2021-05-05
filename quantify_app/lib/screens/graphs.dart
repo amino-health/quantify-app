@@ -2,7 +2,6 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:quantify_app/customWidgets/globals.dart' as globals;
 import 'package:quantify_app/loading.dart';
 import 'package:quantify_app/models/activityDiary.dart';
 import 'package:quantify_app/models/userClass.dart';
@@ -13,16 +12,15 @@ import 'package:quantify_app/models/mealData.dart';
 
 class GraphicalInterface extends StatefulWidget {
   final ValueChanged update;
-  final ValueChanged<MealData> latestMeal;
-  GraphicalInterface(
-      {this.update, this.latestMeal, @required this.graphPosSetter});
+  final ValueChanged latest;
+  GraphicalInterface({this.update, this.latest, @required this.graphPosSetter});
   final DateTime graphPosSetter;
 
   //GraphicalInterface({Key key});
 
   @override
   _GraphicalInterfaceState createState() => _GraphicalInterfaceState(
-      update: update, latestMeal: latestMeal, graphPosSetter: graphPosSetter);
+      update: update, latest: latest, graphPosSetter: graphPosSetter);
 }
 
 class _GraphicalInterfaceState extends State<GraphicalInterface> {
@@ -31,9 +29,9 @@ class _GraphicalInterfaceState extends State<GraphicalInterface> {
   TooltipBehavior _tooltipBehavior;
   bool alreadyRandom = false;
   final ValueChanged<List<dynamic>> update;
-  final ValueChanged<MealData> latestMeal;
+  final ValueChanged latest;
 
-  _GraphicalInterfaceState({this.update, this.latestMeal, this.graphPosSetter});
+  _GraphicalInterfaceState({this.update, this.latest, this.graphPosSetter});
   DateTime graphPosSetter;
 
   @override
@@ -91,17 +89,7 @@ class _GraphicalInterfaceState extends State<GraphicalInterface> {
             data['docId'] = e.id;
             return data;
           }).toList();
-          if (mealData.length > 0) {
-            mealData.sort(
-                (b, a) => a['date'].toString().compareTo(b['date'].toString()));
-            var meal = mealData[0];
-            latestMeal(new MealData(
-                meal['note'],
-                DateTime.fromMillisecondsSinceEpoch(meal['date']),
-                meal['imageRef'],
-                meal['docId'],
-                meal['localPath']));
-          }
+
           activityData = activityData.map((e) {
             var data = e.data();
             data['docId'] = e.id;
@@ -120,8 +108,35 @@ class _GraphicalInterfaceState extends State<GraphicalInterface> {
                   DateTime.fromMillisecondsSinceEpoch(item['date']), 10.0);
             });
           }
+          mealData.sort(
+              (b, a) => a['date'].toString().compareTo(b['date'].toString()));
+          activityData.sort(
+              (b, a) => a['date'].toString().compareTo(b['date'].toString()));
+          var latestMeal;
+          var latestAct;
+          if (mealData.length > 0) {
+            latestMeal = mealData[0];
 
-          print("Graphpos in graph.dart: " + graphPosSetter.toString());
+            latestMeal = MealData(
+                latestMeal['note'],
+                DateTime.fromMillisecondsSinceEpoch(latestMeal['date']),
+                latestMeal['imageRef'].cast<String>(),
+                latestMeal['docId'],
+                latestMeal['localPath'].cast<String>());
+          }
+          if (activityData.length > 0) {
+            latestAct = activityData[0];
+            latestAct = TrainingDiaryData(
+                trainingid: latestAct['docId'],
+                name: latestAct['name'],
+                description: latestAct['description'],
+                date: DateTime.fromMillisecondsSinceEpoch(latestAct['date']),
+                duration: Duration(milliseconds: latestAct['duration']),
+                intensity: latestAct['intensity'],
+                category: latestAct['category']);
+          }
+
+          latest([latestMeal, latestAct]);
           GlobalKey titleKey = new GlobalKey();
           return Scaffold(
             body: Center(
@@ -145,15 +160,15 @@ class _GraphicalInterfaceState extends State<GraphicalInterface> {
                       zoomPanBehavior: _zoomPanBehavior,
                       onPointTapped: (PointTapArgs args) {
                         if (args.seriesIndex == 1) {
-                          var meal = mealData[args.pointIndex];
+                          var latestMeal = mealData[args.pointIndex];
                           update([
                             new MealData(
-                                meal['note'],
+                                latestMeal['note'],
                                 DateTime.fromMillisecondsSinceEpoch(
-                                    meal['date']),
-                                meal['imageRef'],
-                                meal['docId'],
-                                meal['localPath']),
+                                    latestMeal['date']),
+                                latestMeal['imageRef'].cast<String>(),
+                                latestMeal['docId'],
+                                latestMeal['localPath'].cast<String>()),
                             true
                           ]);
                         } else if (args.seriesIndex == 2) {
