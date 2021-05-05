@@ -60,14 +60,16 @@ dependencies:
   carousel_slider: ^3.0.0
   sleek_circular_slider: ^2.0.0
   fluttericon: ^2.0.0
-  font_awesome_flutter: ^9.0.0
+  
   nfc_manager: ^3.0.0+1
   #webdriver: ^3.0.0
+
 
 dependency_overrides:
   archive: 3.0.0
   crypto: 2.1.5
   webdriver: 2.1.2
+
 
 dev_dependencies:
   flutter_driver:

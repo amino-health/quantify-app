@@ -6,7 +6,6 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttericon/rpg_awesome_icons.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:quantify_app/loading.dart';
@@ -94,7 +93,7 @@ class _DiaryDetailsState extends State<DiaryDetailsScreen> {
     Icons.sports_tennis,
     Icons.sports_handball,
     Icons.miscellaneous_services,
-    RpgAwesome.muscle_up,
+    Icons.fitness_center
   ];
   //remove activity from diary by deleting in database
   void _removeActivity(ValueKey dismissKey) {

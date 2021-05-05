@@ -5,7 +5,6 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:fluttericon/rpg_awesome_icons.dart';
 import 'package:provider/provider.dart';
 import 'package:quantify_app/models/training.dart';
 //import 'package:quantify_app/loading.dart';
@@ -62,7 +61,7 @@ class _AddActivityScreenState extends State<AddActivityScreen>
     Icons.sports_tennis,
     Icons.sports_handball,
     Icons.miscellaneous_services,
-    RpgAwesome.muscle_up,
+    Icons.fitness_center
   ];
 
   //Temporary lists for activity cards

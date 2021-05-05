@@ -211,10 +211,6 @@ class DatabaseService {
     return snapshot.docs.toList();
   }
 
-  List _basicActivityFromSnapshot(QuerySnapshot snapshot) {
-    return snapshot.docs.toList();
-  }
-
   Stream get allActivities {
     //  Stream basicTrainingData =
     //   basicTraining.snapshots().map(_basicActivityFromSnapshot);

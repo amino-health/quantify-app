@@ -1,14 +1,11 @@
-import 'package:duration_picker/duration_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:intl/intl.dart';
+import 'package:quantify_app/customWidgets/timeAndDate.dart';
 import 'package:quantify_app/models/training.dart';
 import 'package:quantify_app/screens/homeSkeleton.dart';
 //import 'package:duration_picker/duration_picker.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:sleek_circular_slider/sleek_circular_slider.dart';
-
-import 'package:fluttericon/rpg_awesome_icons.dart';
 
 /*
   This list is used when rendering the image linked to the activity's categories. 
@@ -25,7 +22,7 @@ List<IconData> iconList = [
   Icons.sports_tennis,
   Icons.sports_handball,
   Icons.miscellaneous_services,
-  RpgAwesome.muscle_up,
+  Icons.fitness_center
 ];
 
 class ActivityPopup extends StatefulWidget {
@@ -99,172 +96,20 @@ class _ActivityPopupState extends State<ActivityPopup> {
     _fillController(descriptioncontroller, subtitle);
   }
 
-//Switch cases meant to return different widgets for different platforms
-  _selectTime(BuildContext context) async {
-    final ThemeData theme = Theme.of(context);
-    assert(theme.platform != null);
-    switch (theme.platform) {
-      case TargetPlatform.android:
-      case TargetPlatform.fuchsia:
-      case TargetPlatform.windows:
-      case TargetPlatform.linux:
-        return buildMaterialTimePicker(context);
-      case TargetPlatform.iOS:
-      case TargetPlatform.macOS:
-        return buildCupertinoTimePicker(context);
-    }
+  void setDate(int dateTimeInt) {
+    print('datetime is $dateTimeInt');
+    DateTime dateTime = DateTime.fromMillisecondsSinceEpoch(dateTimeInt);
+    selectedDate = DateTime(dateTime.year, dateTime.month, dateTime.day,
+        dateTime.hour, dateTime.minute);
   }
 
-  _selectDate(BuildContext context) async {
-    final ThemeData theme = Theme.of(context);
-    assert(theme.platform != null);
-    switch (theme.platform) {
-      case TargetPlatform.android:
-      case TargetPlatform.fuchsia:
-      case TargetPlatform.windows:
-      case TargetPlatform.linux:
-        return buildMaterialDatePicker(context);
-      case TargetPlatform.iOS:
-      case TargetPlatform.macOS:
-        return buildCupertinoDatePicker(context);
-    }
-  }
-
-//Build the duration selector for Android
-  buildMaterialTimePicker(BuildContext context) async {
-    final Duration picked = await showDurationPicker(
-      context: context,
-      initialTime: Duration(hours: duration, minutes: duration),
-    );
-    if (picked != null && picked != selectedTime)
-      setState(() {
-        selectedTime = picked;
-      });
-  }
-
-  /// This builds duration cupertion date picker in iOS
-  buildCupertinoTimePicker(BuildContext context) {
-    showCupertinoModalPopup(
-        context: context,
-        builder: (BuildContext context) => Container(
-              color: Colors.white,
-              height: MediaQuery.of(context).size.height * 0.5,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Container(
-                    height: MediaQuery.of(context).size.height * 0.3,
-                    color: Colors.white,
-                    child: CupertinoTimerPicker(
-                        initialTimerDuration: Duration(milliseconds: duration),
-                        mode: CupertinoTimerPickerMode.hm,
-                        onTimerDurationChanged: (picked) {
-                          if (picked != null && picked != selectedTime)
-                            setState(() {
-                              selectedTime = picked;
-                            });
-                        }),
-                  ),
-                  CupertinoButton(
-                      child: Text(
-                        'OK',
-                        style: TextStyle(color: Colors.black),
-                      ),
-                      onPressed: () {
-                        FocusScope.of(context).unfocus();
-
-                        Navigator.of(context).pop();
-                      })
-                ],
-              ),
-            ));
-  }
-//Build the start date selector for Android
-
-  buildMaterialDatePicker(BuildContext context) async {
-    final DateTime picked = await showDatePicker(
-      context: context,
-      initialDate: selectedDate,
-      firstDate: DateTime(1900),
-      lastDate: DateTime.now(),
-      builder: (context, child) {
-        return Theme(
-          data: ThemeData.light(),
-          child: child,
-        );
-      },
-    );
-    if (picked != null && picked != selectedDate)
-      setState(() {
-        selectedDate = picked;
-      });
-  }
-
-//Build the start date selector for iOS
-  buildCupertinoDatePicker(BuildContext context) {
-    showCupertinoModalPopup(
-        context: context,
-        builder: (BuildContext context) => Container(
-              color: Colors.white,
-              height: MediaQuery.of(context).size.height * 0.5,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Container(
-                    height: MediaQuery.of(context).size.height * 0.3,
-                    color: Colors.white,
-                    child: CupertinoDatePicker(
-                        use24hFormat: true,
-                        mode: CupertinoDatePickerMode.dateAndTime,
-                        initialDateTime: selectedDate,
-                        onDateTimeChanged: (picked) {
-                          if (picked != null && picked != selectedDate)
-                            setState(() {
-                              selectedDate = picked;
-                            });
-                        }),
-                  ),
-                  CupertinoButton(
-                      child: Text(
-                        'OK',
-                        style: TextStyle(color: Colors.black),
-                      ),
-                      onPressed: () {
-                        FocusScope.of(context).unfocus();
-
-                        Navigator.of(context).pop();
-                      })
-                ],
-              ),
-            ));
+  void setDuration(int durationInt) {
+    print('duration is $durationInt');
+    selectedTime = Duration(milliseconds: durationInt);
+    duration = durationInt;
   }
 
 //Converts duration in milliseconds to hours and minutes and formats string value
-  String convertTime(int time) {
-    time ~/= 1000; //To centiseconds
-    time ~/= 60; //to seconds
-    int minutes = time % 60;
-    time ~/= 60;
-    int hours = time;
-    if (hours == 1) {
-      if (minutes == 0) {
-        return "$hours Hour";
-      } else {
-        return "$hours Hour and $minutes Minutes";
-      }
-    }
-    if (hours > 1) {
-      if (minutes == 0) {
-        return "$hours Hours";
-      } else {
-        return "$hours Hours and $minutes Minutes";
-      }
-    } else if (minutes > 0) {
-      return "$minutes Minutes";
-    } else {
-      return "No duration";
-    }
-  }
 
   //Update the textform fields with the data they had last time if user
   //tries to add an activity they have added before
@@ -362,23 +207,8 @@ class _ActivityPopupState extends State<ActivityPopup> {
                               right: MediaQuery.of(context).size.width * 0.15,
                               left: MediaQuery.of(context).size.width * 0.15),
                           child: Container(
-                              child: TextFormField(
-                            readOnly: true,
-                            onTap: () {
-                              _selectDate(context);
-                            },
-                            focusNode: AlwaysDisabledFocusNode(),
-                            decoration: InputDecoration(
-                              filled: true,
-                              fillColor: Colors.white,
-                              hintText: DateFormat('EEE, M/d/y - HH:mm')
-                                  .format(selectedDate),
-                              contentPadding:
-                                  EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
-                              border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(8.0)),
-                            ),
-                          )),
+                              child: TimeAndDatePicker(
+                                  updateTime: setDate, date: selectedDate)),
                         ),
                       ),
                       Expanded(
@@ -389,22 +219,10 @@ class _ActivityPopupState extends State<ActivityPopup> {
                               right: MediaQuery.of(context).size.width * 0.15,
                               left: MediaQuery.of(context).size.width * 0.15),
                           child: Container(
-                              child: TextField(
-                                  onTap: () {
-                                    _selectTime(context);
-                                  },
-                                  focusNode: AlwaysDisabledFocusNode(),
-                                  decoration: InputDecoration(
-                                      filled: true,
-                                      fillColor: Colors.white,
-                                      hintText: 'Duration',
-                                      counterText: "",
-                                      border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.all(
-                                            Radius.circular(8)),
-                                      ),
-                                      labelText: convertTime(
-                                          selectedTime.inMilliseconds)))),
+                              child: TimeAndDatePicker.duration(
+                                  updateTime: setDuration,
+                                  date: selectedDate,
+                                  duration: selectedTime.inMilliseconds)),
                         ),
                       ),
                       Expanded(
@@ -488,19 +306,19 @@ class _ActivityPopupState extends State<ActivityPopup> {
                     }
 
                     if (titlecontroller.text.isNotEmpty) {
-                      Navigator.pop(
-                          context,
-                          TrainingData(
-                            trainingid: keyRef.toString(),
-                            name: titlecontroller.text.toString(),
-                            description: descriptioncontroller.text.toString(),
-                            date: selectedDate,
-                            duration: selectedTime,
-                            intensity: _currentSliderValue.round(),
-                            listtype: 2,
-                            inHistory: true,
-                            category: _category,
-                          ));
+                      TrainingData dataToReturn = TrainingData(
+                        trainingid: keyRef.toString(),
+                        name: titlecontroller.text.toString(),
+                        description: descriptioncontroller.text.toString(),
+                        date: selectedDate,
+                        duration: selectedTime,
+                        intensity: _currentSliderValue.round(),
+                        listtype: 2,
+                        inHistory: true,
+                        category: _category,
+                      );
+                      print('returning ${dataToReturn.duration}');
+                      Navigator.pop(context, dataToReturn);
                     }
                   },
                 ),

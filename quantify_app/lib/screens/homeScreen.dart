@@ -3,23 +3,15 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttericon/rpg_awesome_icons.dart';
 import 'package:provider/provider.dart';
 import 'package:quantify_app/customWidgets/bottomNavbar.dart';
 import 'package:quantify_app/customWidgets/expandingFAB.dart';
-import 'package:quantify_app/models/training.dart';
-//import 'package:quantify_app/loading.dart';
 import 'package:quantify_app/models/userClass.dart';
 import 'package:quantify_app/screens/ActivityFormScreen.dart';
 import 'package:quantify_app/screens/diaryScreen.dart';
-//import 'package:quantify_app/screens/diaryScreen.dart';
 
 import 'package:quantify_app/screens/addMealScreen.dart';
 import 'package:quantify_app/customWidgets/globals.dart' as globals;
-
-//import 'package:flutter_svg/flutter_svg.dart';
-//import 'package:quantify_app/screens/firstScanScreen.dart';
-
 import 'package:quantify_app/models/activityDiary.dart';
 
 import 'package:quantify_app/screens/graphs.dart';
@@ -56,7 +48,7 @@ List<IconData> iconList = [
   Icons.sports_tennis,
   Icons.sports_handball,
   Icons.miscellaneous_services,
-  RpgAwesome.muscle_up,
+  Icons.fitness_center
 ];
 
 class _HomeScreenState extends State<HomeScreen>
@@ -197,7 +189,7 @@ class _HomeScreenState extends State<HomeScreen>
         return setData([values, false]);
       });
     } else {
-      TrainingData activityData = await showDialog(
+      await showDialog(
           context: context,
           builder: (context) => ActivityPopup(
               keyRef: _trainingData.trainingid,
@@ -215,17 +207,19 @@ class _HomeScreenState extends State<HomeScreen>
                 date: values.date,
                 duration: values.duration,
                 intensity: values.intensity,
-                category: values.category)
+                category: values.category),
+            false
           ]));
+
       final user = Provider.of<UserClass>(context, listen: false);
       await DatabaseService(uid: user.uid).updateTrainingDiaryData(
-        activityData.trainingid, //ID
-        activityData.name, //name
-        activityData.description, //description
-        activityData.date, //date
-        activityData.duration, //duration
-        activityData.intensity, //Intensity
-        activityData.category,
+        _trainingData.trainingid, //ID
+        _trainingData.name, //name
+        _trainingData.description, //description
+        _trainingData.date, //date
+        _trainingData.duration, //duration
+        _trainingData.intensity, //Intensity
+        _trainingData.category,
       );
     }
   }
