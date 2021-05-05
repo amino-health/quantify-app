@@ -136,8 +136,8 @@ class AuthService {
     final snapShot = await DatabaseService(uid: user.uid).userRegistered;
 
     if (snapShot == null || !snapShot.exists) {
-      await DatabaseService(uid: user.uid)
-          .updateUserData(user.uid, user.email, true, '0', '0', '0', false, '');
+      await DatabaseService(uid: user.uid).updateUserData(
+          user.displayName, user.uid, user.email, true, 0, '0', '0', false, '');
       return _userFromFirebaseUser(user);
     }
 
@@ -184,7 +184,8 @@ class AuthService {
   ];
 
 //em
-  Future registerWithEmailAndPassword(String email, String password) async {
+  Future registerWithEmailAndPassword(
+      String name, String email, String password) async {
     try {
       UserCredential result = await _auth.createUserWithEmailAndPassword(
           email: email, password: password);
@@ -192,7 +193,7 @@ class AuthService {
       //skapar nytt dokument kopplat till spesifikt user with this uid
 
       await DatabaseService(uid: user.uid).updateUserData(
-          user.uid, user.email, true, '0', '0', '0', false, "male");
+          name, user.uid, user.email, true, 0, '0', '0', false, "male");
 
       await DatabaseService(uid: user.uid).createBasicTrainingData();
 

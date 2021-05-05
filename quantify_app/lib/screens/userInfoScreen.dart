@@ -50,10 +50,10 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
   }
 
   buildMaterialDatePicker(BuildContext context) async {
-    final DateTime picked = await showDatePicker(
+    DateTime picked = await showDatePicker(
       context: context,
       initialDate: selectedDate,
-      firstDate: DateTime(1900),
+      firstDate: DateTime(1905),
       lastDate: selectedDate.add(Duration(minutes: 30)),
       builder: (context, child) {
         return Theme(
@@ -62,6 +62,8 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
         );
       },
     );
+
+    print(picked.millisecondsSinceEpoch);
     if (picked != null && picked != selectedDate)
       setState(() {
         selectedDate = picked;
@@ -139,8 +141,8 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
                         padding: const EdgeInsets.all(10.0),
                         child: TextFormField(
                           readOnly: true,
-                          onTap: () {
-                            _selectDate(context);
+                          onTap: () async {
+                            await _selectDate(context);
                           },
                           focusNode: AlwaysDisabledFocusNode(),
                           decoration: InputDecoration(
@@ -197,10 +199,11 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
                         padding: const EdgeInsets.all(10.0),
                         child: Container(
                           //width: 400.0,
-                          // margin: EdgeInsets.fromLTRB(30.0, 10.0, 20.0, 10.0),
+                          //margin: EdgeInsets.fromLTRB(30.0, 0, 20.0, 0),
                           child: DropdownButtonHideUnderline(
                             child: Container(
-                              padding: EdgeInsets.fromLTRB(85.0, 0, 85.0, 0),
+                              padding: EdgeInsets.fromLTRB(20, 0, 20, 0),
+                              width: MediaQuery.of(context).size.width * 0.6,
                               decoration: ShapeDecoration(
                                 shape: RoundedRectangleBorder(
                                     side: BorderSide(
@@ -212,6 +215,7 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
                                 hint: Text('Gender'),
                                 value: dropdownValue,
                                 icon: const Icon(Icons.arrow_downward),
+                                onTap: () => FocusScope.of(context).unfocus(),
                                 onChanged: (String newValue) {
                                   FocusScope.of(context).unfocus();
                                   setState(() {
@@ -245,10 +249,11 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
                               if (_formKey.currentState.validate()) {
                                 await DatabaseService(uid: user.uid)
                                     .updateUserData(
+                                        userData.name,
                                         userData.uid,
                                         userData.email,
                                         false,
-                                        userData.age,
+                                        selectedDate.millisecondsSinceEpoch,
                                         newweight,
                                         newheight,
                                         userData.consent,

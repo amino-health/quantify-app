@@ -78,6 +78,7 @@ class _TosScreenState extends State<TosScreen> {
                             if (_checked) {
                               await DatabaseService(uid: user.uid)
                                   .updateUserData(
+                                      userData.name,
                                       userData.uid,
                                       userData.email,
                                       false,
