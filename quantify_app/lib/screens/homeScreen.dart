@@ -250,7 +250,7 @@ class _HomeScreenState extends State<HomeScreen>
         ? CachedNetworkImage(
             progressIndicatorBuilder: (context, url, downProg) =>
                 CircularProgressIndicator(value: downProg.progress),
-            imageUrl: _mealData.mealImageUrl[0],
+            imageUrl: selectedMeal.mealImageUrl[0],
             errorWidget: (context, url, error) => Icon(_isIos
                 ? CupertinoIcons.exclamationmark_triangle_fill
                 : Icons.error),
@@ -660,7 +660,7 @@ class _HomeScreenState extends State<HomeScreen>
                               return Container(
                                 height:
                                     MediaQuery.of(context).size.height * 0.2,
-                                width: MediaQuery.of(context).size.width * 0.45,
+                                width: MediaQuery.of(context).size.height * 0.2,
                                 child: ClipRRect(
                                   borderRadius: BorderRadius.circular(15),
                                   child: FittedBox(
@@ -738,7 +738,8 @@ class _HomeScreenState extends State<HomeScreen>
       latest: getLatest,
       graphPosSetter: graphPos,
     );
-    final List<Widget> _children = [
+
+    List<Widget> _children = [
       Center(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -774,6 +775,7 @@ class _HomeScreenState extends State<HomeScreen>
     }
 
     return Scaffold(
+      key: globals.scaffoldKey,
       appBar: CustomAppBar(),
       body: _children[selectedIndex],
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
