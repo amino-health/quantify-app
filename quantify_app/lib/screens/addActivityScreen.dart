@@ -25,25 +25,24 @@ class AddActivityScreen extends StatefulWidget {
 class _AddActivityScreenState extends State<AddActivityScreen>
     with TickerProviderStateMixin {
   int _selectedIndex = 0;
-
   TabController _tabController;
 
   final List<Tab> _activityTabs = <Tab>[
     new Tab(
       child: FittedBox(
           fit: BoxFit.fitWidth,
-          child: Text('History', style: TextStyle(color: Colors.black))),
+          child: Text('History', style: TextStyle(color: Colors.white))),
     ),
     new Tab(
       child: FittedBox(
           fit: BoxFit.fitWidth,
-          child: Text('My Activities', style: TextStyle(color: Colors.black))),
+          child: Text('My Activities', style: TextStyle(color: Colors.white))),
     ),
     new Tab(
       child: FittedBox(
           fit: BoxFit.fitWidth,
           child:
-              Text('Basic Activities', style: TextStyle(color: Colors.black))),
+              Text('Basic Activities', style: TextStyle(color: Colors.white))),
     ),
   ];
 /*
@@ -184,6 +183,7 @@ class _AddActivityScreenState extends State<AddActivityScreen>
 
   void _onItemTapped(int index) {
     setState(() {
+      print(index);
       _selectedIndex = index;
     });
   }
@@ -205,21 +205,17 @@ class _AddActivityScreenState extends State<AddActivityScreen>
         if (activityList[j][i][0].key.value == (dismissKey.value)) {
           if (j == 0) {
             DatabaseService(uid: user.uid).updateTrainingData(
-                (dismissKey.value.toString()),
-                '',
-                '',
-                DateTime.fromMicrosecondsSinceEpoch(historyActivityList[i][2]),
-                0,
-                0,
-                false,
-                null);
+              dismissKey.value.toString(),
+              date: DateTime.fromMicrosecondsSinceEpoch(
+                  historyActivityList[i][2]),
+              inHistory: false,
+            );
             historyActivityList.remove(historyActivityList[i]);
             j += 1;
-          }
-          if (j == 1 && j == _selectedIndex) {
+          } else if (j == 1) {
             myActivityList.remove(myActivityList[i][1]);
             DatabaseService(uid: user.uid).removeActivity(dismissKey.value);
-          } else if (j == 2 && j == _selectedIndex) {
+          } else if (j == 2) {
             print('cant remove from basic list');
             //allActivityList.remove(allActivityList[i]);
             //DatabaseService(uid: user.uid).removeActivity(dismissKey.value);
@@ -232,14 +228,15 @@ class _AddActivityScreenState extends State<AddActivityScreen>
   //Build the widget containing information about activity in activity adding screen IE the tile in scrollview
   //
   activityItem(BuildContext context, String name, String _subtitle, int date,
-      int intensity, String keyRef, int category) {
+      int intensity, String keyRef, int category, bool deletable) {
     return Container(
         key: ValueKey(keyRef),
         width: MediaQuery.of(context).size.width * 0.95,
         height: MediaQuery.of(context).size.height * 0.1,
         child: Slidable(
           actionPane: SlidableDrawerActionPane(),
-          actionExtentRatio: _selectedIndex != 2 ? 0.25 : 0,
+          actionExtentRatio: 0.25,
+          enabled: deletable ? true : false,
           child: Card(
             child: ListTile(
                 title: Text(name),
@@ -277,7 +274,9 @@ class _AddActivityScreenState extends State<AddActivityScreen>
 
   //This function controls which content list is displayed.
   //Is rendered on build
-  customScrollview(BuildContext context) {
+  customScrollview(BuildContext context, int index) {
+    _selectedIndex = index;
+    print('index in csv $index');
     List<dynamic> activityList = <dynamic>[];
     List<Widget> filteredActivityList = <Widget>[];
     if (_selectedIndex == 0) {
@@ -304,10 +303,8 @@ class _AddActivityScreenState extends State<AddActivityScreen>
     }
 
     return Container(
-      child: Expanded(
-        child: SingleChildScrollView(
-          child: Column(children: filteredActivityList),
-        ),
+      child: SingleChildScrollView(
+        child: Column(children: filteredActivityList),
       ),
     );
   }
@@ -317,15 +314,15 @@ class _AddActivityScreenState extends State<AddActivityScreen>
   //Adds the activity to the diary collection in database
   Future addActivity(context, activityData) async {
     final user = Provider.of<UserClass>(context, listen: false);
-    await DatabaseService(uid: user.uid).updateTrainingData(
-        activityData.trainingid,
-        activityData.name, //name
-        activityData.description, //description
-        activityData.date, //date
-        activityData.intensity, //Intensity
-        _selectedIndex + 1,
-        true,
-        activityData.category);
+    await DatabaseService(uid: user.uid)
+        .updateTrainingData(activityData.trainingid,
+            name: activityData.name, //name
+            description: activityData.description, //description
+            date: activityData.date, //date
+            intensity: activityData.intensity, //Intensity
+            listtype: _selectedIndex + 1,
+            inHistory: true,
+            category: activityData.category);
     await DatabaseService(uid: user.uid).createTrainingDiaryData(
       activityData.name, //name
       activityData.description, //description
@@ -352,27 +349,48 @@ class _AddActivityScreenState extends State<AddActivityScreen>
     for (DocumentSnapshot entry in databaseData) {
       if (entry['inHistory']) {
         historyActivityList.insert(0, [
-          activityItem(context, entry['name'], entry['description'],
-              entry['date'], entry['intensity'], entry.id, entry['category']),
+          activityItem(
+              context,
+              entry['name'],
+              entry['description'],
+              entry['date'],
+              entry['intensity'],
+              entry.id,
+              entry['category'],
+              true),
           entry['name'] + entry['description'],
-          entry['date']
+          entry['date'],
         ]);
       }
       if (entry['listtype'] == 2) {
         //2 = MyactivityData
 
         myActivityList.insert(0, [
-          activityItem(context, entry['name'], entry['description'],
-              entry['date'], entry['intensity'], entry.id, entry['category']),
-          entry['name'] + entry['description']
+          activityItem(
+              context,
+              entry['name'],
+              entry['description'],
+              entry['date'],
+              entry['intensity'],
+              entry.id,
+              entry['category'],
+              true),
+          entry['name'] + entry['description'],
         ]);
       } else if (entry['listtype'] == 3) {
         //3 = basicActivitiesData
 
         allActivityList.insert(0, [
-          activityItem(context, entry['name'], entry['description'],
-              entry['date'], entry['intensity'], entry.id, entry['category']),
-          entry['name'] + entry['description']
+          activityItem(
+              context,
+              entry['name'],
+              entry['description'],
+              entry['date'],
+              entry['intensity'],
+              entry.id,
+              entry['category'],
+              false),
+          entry['name'] + entry['description'],
         ]);
       }
     }
@@ -404,14 +422,6 @@ class _AddActivityScreenState extends State<AddActivityScreen>
     }
   }
 
-  tabBar(BuildContext context) {
-    return TabBar(
-      controller: _tabController,
-      tabs: _activityTabs,
-      onTap: _onItemTapped,
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final user = Provider.of<UserClass>(context, listen: false);
@@ -427,50 +437,52 @@ class _AddActivityScreenState extends State<AddActivityScreen>
           } else {
             print('No training data found for user');
           }
-          return Scaffold(
-            resizeToAvoidBottomInset: false,
-            appBar: AppBar(
-              leading: Row(
-                children: [
-                  Container(
-                    width: MediaQuery.of(context).size.width * 0.09,
-                    child: FittedBox(
-                      fit: BoxFit.fitWidth,
-                      child: BackButton(),
-                    ),
+          return DefaultTabController(
+              length: 3,
+              child: Scaffold(
+                resizeToAvoidBottomInset: false,
+                appBar: AppBar(
+                  leading: Row(
+                    children: [
+                      Container(
+                        width: MediaQuery.of(context).size.width * 0.09,
+                        child: FittedBox(
+                          fit: BoxFit.fitWidth,
+                          child: BackButton(),
+                        ),
+                      ),
+                      Container(
+                        width: MediaQuery.of(context).size.width * 0.06,
+                        child: FittedBox(
+                          fit: BoxFit.fitWidth,
+                          child: IconButton(
+                              icon: _searchIcon, onPressed: _searchPressed),
+                        ),
+                      ),
+                    ],
                   ),
-                  Container(
-                    width: MediaQuery.of(context).size.width * 0.06,
-                    child: FittedBox(
-                      fit: BoxFit.fitWidth,
-                      child: IconButton(
-                          icon: _searchIcon, onPressed: _searchPressed),
-                    ),
-                  ),
-                ],
-              ),
-              leadingWidth: MediaQuery.of(context).size.width * 0.15,
-              title: _appBarTitle,
-              backgroundColor: Color(0xFF99163D),
-              toolbarHeight: MediaQuery.of(context).size.height * 0.1,
-            ),
-            body: Center(
-                child: Column(
-              children: [
-                Container(
-                  height: MediaQuery.of(context).size.height * 0.075,
-                  width: MediaQuery.of(context).size.width * 1,
-                  child: new Card(
-                    elevation: 26.0,
-                    color: Color(0xFFF0F0F0),
-                    child: tabBar(context),
+                  leadingWidth: MediaQuery.of(context).size.width * 0.15,
+                  title: _appBarTitle,
+                  backgroundColor: Color(0xFF99163D),
+                  toolbarHeight: MediaQuery.of(context).size.height * 0.1,
+                  bottom: TabBar(
+                    tabs: _activityTabs,
+                    //onTap: _onItemTapped,
+                    indicatorColor: Colors.white,
+                    automaticIndicatorColorAdjustment: true,
                   ),
                 ),
-                customScrollview(context),
-              ],
-            )),
-            bottomNavigationBar: bottomButton(context, 'Create New Activity'),
-          );
+                body: TabBarView(
+                  //controller: _tabController,
+                  children: [
+                    customScrollview(context, 0),
+                    customScrollview(context, 1),
+                    customScrollview(context, 2)
+                  ],
+                ),
+                bottomNavigationBar:
+                    bottomButton(context, 'Create New Activity'),
+              ));
         });
   }
 }

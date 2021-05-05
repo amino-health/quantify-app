@@ -357,15 +357,14 @@ class DatabaseService {
     print('leaving');
   }
 
-  Future<void> updateTrainingData(
-      String trainingid,
-      String name,
+  Future<void> updateTrainingData(String trainingid,
+      {String name,
       String description,
       DateTime date,
       int intensity,
       int listtype,
       bool inHistory,
-      int category) async {
+      int category}) async {
     return await userInfo
         .doc(uid)
         .collection('training')
