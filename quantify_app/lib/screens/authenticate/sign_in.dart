@@ -40,6 +40,7 @@ class _SignInState extends State<SignIn> {
               Padding(
                 padding: const EdgeInsets.all(10.0),
                 child: TextFormField(
+                    key: Key('emailfield'),
                     validator: (val) {
                       return EmailValidator.validate(val)
                           ? null
@@ -59,6 +60,7 @@ class _SignInState extends State<SignIn> {
               Padding(
                 padding: const EdgeInsets.all(10.0),
                 child: TextFormField(
+                    key: Key('passfield'),
                     obscureText: true,
                     validator: (val) => val.length < 8
                         ? 'Enter password 8+ chars'
@@ -94,15 +96,19 @@ class _SignInState extends State<SignIn> {
                   height: 50,
                   width: 350,
                   child: ElevatedButton(
+                    key: Key('signIn'),
                     child: Text("Sign in"),
                     onPressed: () async {
                       if (_formKey.currentState.validate()) {
                         dynamic result = await _auth.signInWithEmailAndPassword(
                             email, password);
+                        result = [result];
                         if (result[0] == null) {
                           setState(() {
                             error = result[1];
                           });
+                        } else {
+                          print('Sign in succeded');
                         }
                       }
                     },
@@ -175,6 +181,7 @@ class _SignInState extends State<SignIn> {
                 padding: const EdgeInsets.all(4.0),
                 // ignore: missing_required_param
                 child: TextButton(
+                  key: Key('donthaveanaccountyet'),
                   onPressed: () => widget.toggleView(),
                   child: Text(
                     'Dont have an account yet? Sign up', //title

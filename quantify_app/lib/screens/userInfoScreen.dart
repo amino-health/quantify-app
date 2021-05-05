@@ -138,6 +138,7 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
                       Padding(
                         padding: const EdgeInsets.all(10.0),
                         child: TextFormField(
+                          key: Key('pickDate'),
                           readOnly: true,
                           onTap: () {
                             _selectDate(context);
@@ -157,6 +158,7 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
                       Padding(
                         padding: const EdgeInsets.all(10.0),
                         child: TextFormField(
+                            key: Key('enterWeight'),
                             validator: (String val) =>
                                 int.parse(val) < 30 && int.parse(val) > 442
                                     ? 'Enter a valid weight'
@@ -169,6 +171,7 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
                               border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(32.0)),
                             ),
+                            keyboardType: TextInputType.number,
                             onChanged: (val) {
                               setState(() => newweight = val.trim());
                             }),
@@ -176,6 +179,7 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
                       Padding(
                         padding: const EdgeInsets.all(10.0),
                         child: TextFormField(
+                            key: Key('enterHeight'),
                             validator: (val) =>
                                 int.parse(val) < 67 && int.parse(val) > 270
                                     ? 'Enter a valid height'
@@ -187,6 +191,7 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
                               border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(32.0)),
                             ),
+                            keyboardType: TextInputType.number,
                             onChanged: (val) {
                               setState(() => newheight = val.trim());
                             }),
@@ -198,7 +203,8 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
                           // margin: EdgeInsets.fromLTRB(30.0, 10.0, 20.0, 10.0),
                           child: DropdownButtonHideUnderline(
                             child: Container(
-                              padding: EdgeInsets.fromLTRB(85.0, 0, 85.0, 0),
+                              key: Key('pickGender'),
+                              padding: EdgeInsets.fromLTRB(60.0, 0, 60.0, 0),
                               decoration: ShapeDecoration(
                                 shape: RoundedRectangleBorder(
                                     side: BorderSide(
@@ -238,6 +244,7 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
                           height: 50,
                           width: 350,
                           child: ElevatedButton(
+                            key: Key('confirm'),
                             child: Text("Confirm"),
                             onPressed: () async {
                               if (_formKey.currentState.validate()) {

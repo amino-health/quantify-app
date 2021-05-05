@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:quantify_app/customWidgets/timeAndDate.dart';
 import 'package:quantify_app/loading.dart';
-import 'package:quantify_app/models/mealData.dart';
 import 'package:quantify_app/models/userClass.dart';
 import 'package:quantify_app/screens/homeSkeleton.dart';
 import 'dart:io';
@@ -193,7 +192,9 @@ class _AddMealScreenState extends State<AddMealScreen> {
         return addImageButton(context, index);
       } else {
         print('returned null 1');
-        return Container(width: 0.0, height: 0.0);
+
+        return Container();
+
       }
     } else {
       print('returned 4');

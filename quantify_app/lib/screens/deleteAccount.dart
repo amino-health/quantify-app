@@ -6,6 +6,8 @@ class DeleteAccount extends StatefulWidget {
 }
 
 class _DeleteAccountState extends State<DeleteAccount> {
+  //This widget builds buttons that on pressed pop the screen stack while
+  //returning true or false if the user said yes or no to deleting account.
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
