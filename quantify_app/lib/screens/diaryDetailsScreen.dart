@@ -296,15 +296,13 @@ class _DiaryDetailsState extends State<DiaryDetailsScreen> {
 
   List<Widget> buildCarousel(context, imgref, localpath) {
     List<Widget> imgList = [];
-    if (imgref.length > localpath.length) {
+    if (imgref.length <= localpath.length) {
       for (int i = 0; i < imgref.length; i++) {
         imgList.add(mealImage(context, imgRef[i], localPath[i], isIos));
       }
     } else {
       for (int i = 0; i < localpath.length; i++) {
-        imgList.add(FittedBox(
-            fit: BoxFit.fitHeight,
-            child: mealImage(context, imgRef[i], localPath[i], isIos)));
+        imgList.add(mealImage(context, imgRef[i], localPath[i], isIos));
       }
     }
 

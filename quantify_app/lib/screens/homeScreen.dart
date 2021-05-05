@@ -88,7 +88,7 @@ class _HomeScreenState extends State<HomeScreen>
         showMeal = true;
         showActivity = false;
       });
-    } else {
+    } else if (castedData.first.runtimeType == TrainingDiaryData) {
       toSet.setState(() {
         _trainingData = castedData.first;
         showActivity = true;
@@ -184,7 +184,10 @@ class _HomeScreenState extends State<HomeScreen>
                   _mealData.mealDescription,
                   _mealData.mealImageUrl,
                   true,
-                  _mealData.docId))).then((values) => setData([values, false]));
+                  _mealData.docId))).then((values) {
+        print("Values: " + values.toString());
+        return setData([values, false]);
+      });
     } else {
       await showDialog(
           context: context,
@@ -288,8 +291,10 @@ class _HomeScreenState extends State<HomeScreen>
                   Align(
                     alignment: Alignment.center,
                     child: Text(
-                      DateFormat("yyyy-MM-dd - kk:mm")
-                          .format(_trainingData.date),
+                      _trainingData != null
+                          ? DateFormat("yyyy-MM-dd - kk:mm")
+                              .format(_trainingData.date)
+                          : "",
                       textScaleFactor: 1.5,
                       style: TextStyle(
                           color: Colors.white, fontStyle: FontStyle.italic),
