@@ -18,7 +18,7 @@ class _TosScreenState extends State<TosScreen> {
   ScrollController _scrollController = ScrollController(keepScrollOffset: true);
 
   final _scaffoldKey = new GlobalKey<ScaffoldState>();
-
+//Boolean value that is checked when user presses continue.
   var _checked = false;
   Widget build(BuildContext context) {
     final user = Provider.of<UserClass>(context);
@@ -61,6 +61,7 @@ class _TosScreenState extends State<TosScreen> {
                     Align(
                       alignment: Alignment.centerLeft,
                       child: CheckboxListTile(
+                          key: Key('tos'),
                           title: Text("I accept the terms and conditions."),
                           controlAffinity: ListTileControlAffinity.leading,
                           value: _checked,
@@ -74,6 +75,7 @@ class _TosScreenState extends State<TosScreen> {
                       flex: 1,
                       child: Align(
                         child: ElevatedButton(
+                          key: Key('continue'),
                           onPressed: () async {
                             if (_checked) {
                               await DatabaseService(uid: user.uid)

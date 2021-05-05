@@ -6,6 +6,10 @@ import 'dart:typed_data';
 import 'package:nfc_manager/nfc_manager.dart';
 import 'package:nfc_manager/platform_tags.dart';
 
+//import 'package:flutter/material.dart';
+
+//import 'package:quantify_app/models/sensorWidgetList.dart';
+
 import 'package:quantify_app/screens/graphs.dart';
 import 'package:quantify_app/services/database.dart';
 
@@ -36,6 +40,7 @@ class Sensor {
               print(tag.data);
 
               int result = await readDataAndroid(tag);
+
               if (result == sensorAlive) {
                 List<GlucoseData> trend = getTrendData();
                 List<GlucoseData> history = getHistoryData();
@@ -43,6 +48,13 @@ class Sensor {
                 await DatabaseService(uid: uid).updateGlucose(trend);
                 await DatabaseService(uid: uid).updateGlucose(history);
               }
+
+              List<GlucoseData> trend = getTrendData();
+              List<GlucoseData> history = getHistoryData();
+
+              await DatabaseService(uid: uid).updateGlucose(trend);
+              await DatabaseService(uid: uid).updateGlucose(history);
+
               await NfcManager.instance.stopSession();
               f(result);
             } catch (e) {

@@ -171,6 +171,7 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
                               border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(32.0)),
                             ),
+                            keyboardType: TextInputType.number,
                             onChanged: (val) {
                               setState(() => newweight = val.trim());
                             }),
@@ -190,6 +191,7 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
                               border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(32.0)),
                             ),
+                            keyboardType: TextInputType.number,
                             onChanged: (val) {
                               setState(() => newheight = val.trim());
                             }),

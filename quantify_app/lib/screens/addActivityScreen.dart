@@ -47,7 +47,9 @@ class _AddActivityScreenState extends State<AddActivityScreen>
               Text('Basic Activities', style: TextStyle(color: Colors.black))),
     ),
   ];
-
+/*
+  This list is used when rendering the image linked to the activity's categories. 
+*/
   List<IconData> iconList = [
     Icons.directions_bike,
     Icons.directions_run,
@@ -80,6 +82,7 @@ class _AddActivityScreenState extends State<AddActivityScreen>
   //END
   //
 
+  //Changes the appbar search logo into a TextField for search input.
   void _searchPressed() {
     setState(() {
       if (this._searchIcon.icon == Icons.search) {
@@ -128,6 +131,7 @@ class _AddActivityScreenState extends State<AddActivityScreen>
     super.dispose();
   }
 
+  //Create activity button widget
   bottomButton(BuildContext context, String _title) {
     return Container(
         child: FittedBox(
@@ -185,6 +189,8 @@ class _AddActivityScreenState extends State<AddActivityScreen>
     });
   }
 
+  //If user has removed an item from History list, Update the 'InHistory' field to false
+  //If the item was in another list, remove it from database completely
   void _removeItem(ValueKey dismissKey) {
     setState(() {});
 
@@ -197,13 +203,8 @@ class _AddActivityScreenState extends State<AddActivityScreen>
     final user = Provider.of<UserClass>(context, listen: false);
     for (int j = 0; j < activityList.length; j++) {
       for (int i = 0; i < activityList[j].length; i++) {
-        print(activityList[j][i][0].key.value);
-        print(dismissKey.value);
-        print(j);
         if (activityList[j][i][0].key.value == (dismissKey.value)) {
           if (j == 0) {
-            print('list item is');
-            print(historyActivityList[i][1]);
             DatabaseService(uid: user.uid).updateTrainingData(
                 (dismissKey.value.toString()),
                 '',
@@ -217,27 +218,20 @@ class _AddActivityScreenState extends State<AddActivityScreen>
             j += 1;
           }
           if (j == 1 && j == _selectedIndex) {
-            print(' J == 1');
             myActivityList.remove(myActivityList[i][1]);
             DatabaseService(uid: user.uid).removeActivity(dismissKey.value);
           } else if (j == 2 && j == _selectedIndex) {
-            print(' J == 2');
-            allActivityList.remove(allActivityList[i]);
-            DatabaseService(uid: user.uid).removeActivity(dismissKey.value);
+            print('cant remove from basic list');
+            //allActivityList.remove(allActivityList[i]);
+            //DatabaseService(uid: user.uid).removeActivity(dismissKey.value);
           }
         }
       }
     }
-
-    //DatabaseService(uid: user.uid).removeActivity(dismissKey.value);
-    print('value for key is');
-    print(dismissKey.value);
   }
 
-  //This method returns a string converted integer higher than the highest
-  //existing key integer.
-
-  //Returns a container item with key _name and a child slider with a numbered key
+  //Build the widget containing information about activity in activity adding screen IE the tile in scrollview
+  //
   activityItem(BuildContext context, String name, String _subtitle, int date,
       int intensity, String keyRef, int category) {
     return Container(
@@ -246,13 +240,12 @@ class _AddActivityScreenState extends State<AddActivityScreen>
         height: MediaQuery.of(context).size.height * 0.1,
         child: Slidable(
           actionPane: SlidableDrawerActionPane(),
-          actionExtentRatio: 0.25,
-          //_removeItem(newKey);
-
+          actionExtentRatio: _selectedIndex != 2 ? 0.25 : 0,
           child: Card(
             child: ListTile(
                 title: Text(name),
                 subtitle: Text(_subtitle),
+                trailing: Icon(iconList[category]),
                 isThreeLine: false,
                 onTap: () async {
                   TrainingData activityData = await Navigator.push(
@@ -283,7 +276,8 @@ class _AddActivityScreenState extends State<AddActivityScreen>
         ));
   }
 
-  //This function controls which content list is displayed
+  //This function controls which content list is displayed.
+  //Is rendered on build
   customScrollview(BuildContext context) {
     List<dynamic> activityList = <dynamic>[];
     List<Widget> filteredActivityList = <Widget>[];
@@ -296,6 +290,8 @@ class _AddActivityScreenState extends State<AddActivityScreen>
       activityList = myActivityList;
     }
     if (_selectedIndex == 2) {
+      allActivityList
+          .sort((a, b) => a[1].toString().compareTo(b[1].toString()));
       activityList = allActivityList;
     }
 
@@ -311,19 +307,17 @@ class _AddActivityScreenState extends State<AddActivityScreen>
     return Container(
       child: Expanded(
         child: SingleChildScrollView(
-          child: Column(
-              //mainAxisAlignment: MainAxisAlignment.end,
-              children: filteredActivityList),
+          child: Column(children: filteredActivityList),
         ),
       ),
     );
   }
 
   //Is called whenever a user presses Done in add activity view
+  //Updates the history list with the activity item
+  //Adds the activity to the diary collection in database
   Future addActivity(context, activityData) async {
-    print('in add activity');
     final user = Provider.of<UserClass>(context, listen: false);
-    print(activityData);
     await DatabaseService(uid: user.uid).updateTrainingData(
         activityData.trainingid,
         activityData.name, //name
@@ -374,7 +368,7 @@ class _AddActivityScreenState extends State<AddActivityScreen>
           entry['name'] + entry['description']
         ]);
       } else if (entry['listtype'] == 3) {
-        //1 = basicActivitiesData
+        //3 = basicActivitiesData
 
         allActivityList.insert(0, [
           activityItem(context, entry['name'], entry['description'],
@@ -385,17 +379,20 @@ class _AddActivityScreenState extends State<AddActivityScreen>
     }
   }
 
+  //Creates two objects. One activity for the 'add activity view'
+  //and one activity for the diary and adds them to the diary
   void addItem(context, activityData) async {
-    print('In add item');
     final user = Provider.of<UserClass>(context, listen: false);
     await DatabaseService(uid: user.uid).createTrainingData(
-        activityData.name, //name
-        activityData.description, //desc
-        activityData.date, //date
-        activityData.intensity, //intensity
-        2,
-        true,
-        activityData.category);
+      null,
+      activityData.name, //name
+      activityData.description, //desc
+      activityData.date, //date
+      activityData.intensity, //intensity
+      2,
+      activityData.category,
+      inHistory: true,
+    );
     await DatabaseService(uid: user.uid).createTrainingDiaryData(
         activityData.name, //name
         activityData.description, //description
@@ -420,16 +417,13 @@ class _AddActivityScreenState extends State<AddActivityScreen>
   Widget build(BuildContext context) {
     final user = Provider.of<UserClass>(context, listen: false);
 
-    return FutureBuilder<QuerySnapshot>(
-        future: FirebaseFirestore.instance
-            .collection('userData')
-            .doc(user.uid)
-            .collection('training')
-            .get(),
+    return StreamBuilder(
+        stream: DatabaseService(uid: user.uid).allActivities,
         builder: (context, snapshot) {
           if (snapshot.data != null) {
-            final List<DocumentSnapshot> documents = snapshot.data.docs;
-            //print('documents is ${documents}');
+            List documents = snapshot.data.toList();
+            //documents = documents.expand((i) => i).toList();
+            //final List<DocumentSnapshot> documents = snapshot.data.docs;
             structureData(context, documents);
           } else {
             print('No training data found for user');
@@ -437,7 +431,6 @@ class _AddActivityScreenState extends State<AddActivityScreen>
           return Scaffold(
             resizeToAvoidBottomInset: false,
             appBar: AppBar(
-              //elevation: 0.0,
               leading: Row(
                 children: [
                   Container(
