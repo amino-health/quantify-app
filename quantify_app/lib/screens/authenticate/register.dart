@@ -140,8 +140,6 @@ class _RegisterState extends State<Register> {
                     child: Text("Sign up"),
                     onPressed: () async {
                       if (_formKey.currentState.validate()) {
-                        print("name: " + name);
-                        print("Controller: " + _nameController.text);
                         name = _nameController.text.trim();
                         dynamic result =
                             await _auth.registerWithEmailAndPassword(

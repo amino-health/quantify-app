@@ -181,8 +181,14 @@ class DatabaseService {
 
   UserData _userDataFromSnapshot(DocumentSnapshot snapshot) {
     print("Snapshot: " + snapshot.data.toString());
+    String name;
+    try {
+      name = snapshot.get('name');
+    } catch (e) {
+      name = "";
+    }
     return UserData(
-        name: snapshot.get('name'),
+        name: name,
         uid: uid,
         email: snapshot.get('email'),
         newuser: snapshot.get('newuser'),
