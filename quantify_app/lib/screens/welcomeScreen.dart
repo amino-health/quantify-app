@@ -41,6 +41,7 @@ class WelcomeScreen extends StatelessWidget {
         padding:
             EdgeInsets.only(top: (MediaQuery.of(context).size.height * 0.1)),
         child: ElevatedButton(
+            key: Key('getstarted'),
             style: ButtonStyle(
               backgroundColor: MaterialStateProperty.resolveWith<Color>(
                 (Set<MaterialState> states) {

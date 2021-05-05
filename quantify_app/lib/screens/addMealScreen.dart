@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:quantify_app/loading.dart';
+import 'package:quantify_app/models/mealData.dart';
 import 'package:quantify_app/models/userClass.dart';
 import 'package:quantify_app/screens/homeSkeleton.dart';
 import 'dart:io';
@@ -698,8 +699,8 @@ class _AddMealScreenState extends State<AddMealScreen> {
     while (Navigator.canPop(context)) {
       Navigator.pop(
         context,
-        /*new MealData(_note, _timeStamp, null, _docId,
-              imageList != null ? imageList : null)*/
+        /*MealData(_note, _timeStamp, null, _docId,
+              imageList != null ? imageList.map((e) => e.path) : null)*/
       );
     }
   }
