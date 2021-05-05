@@ -1,35 +1,70 @@
 //import 'package:duration_picker/duration_picker.dart';
+import 'package:duration_picker/duration_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 @immutable
 class TimeAndDatePicker extends StatefulWidget {
-  final ValueChanged<DateTime> update;
+  final ValueChanged<int> updateTime;
   final DateTime date;
   final int duration;
 
-  TimeAndDatePicker({this.update, this.date, this.duration});
+  TimeAndDatePicker({this.updateTime, this.date, this.duration});
+  TimeAndDatePicker.duration({this.updateTime, this.date, this.duration});
   @override
-  _TimeAndDatePickerState createState() =>
-      _TimeAndDatePickerState(update: update, date: date, duration: duration);
+  _TimeAndDatePickerState createState() => _TimeAndDatePickerState(
+      updateTime: updateTime, date: date, duration: duration);
 }
 
 class _TimeAndDatePickerState extends State<TimeAndDatePicker> {
   DateTime selectedDate = DateTime.now();
   TimeOfDay selectedTime = TimeOfDay.now();
-  Duration selectedDuration = Duration(hours: 0);
+  Duration selectedDuration = Duration(hours: 0, minutes: 0);
   DateTime date;
-  int duration = 0;
+  int duration;
 
-  final ValueChanged<DateTime> update;
-  _TimeAndDatePickerState({this.update, this.date, this.duration});
+  final ValueChanged<int> updateTime;
+  _TimeAndDatePickerState({this.updateTime, this.date, this.duration});
   @override
   void initState() {
     super.initState();
-    selectedDate = date;
-    print('date is $date');
+
+    if (duration != null) {
+      selectedDuration = Duration(milliseconds: duration);
+    }
+
+    print('date is $selectedDate');
+    print('duration is $selectedDuration');
+    selectedDate =
+        DateTime(date.year, date.month, date.day, date.hour, date.minute);
     selectedTime = TimeOfDay(hour: date.hour, minute: date.minute);
+  }
+
+  String convertTime(int time) {
+    time ~/= 1000; //To centiseconds
+    time ~/= 60; //to seconds
+    int minutes = time % 60;
+    time ~/= 60;
+    int hours = time;
+    if (hours == 1) {
+      if (minutes == 0) {
+        return "$hours Hour";
+      } else {
+        return "$hours Hour and $minutes Minutes";
+      }
+    }
+    if (hours > 1) {
+      if (minutes == 0) {
+        return "$hours Hours";
+      } else {
+        return "$hours Hours and $minutes Minutes";
+      }
+    } else if (minutes > 0) {
+      return "$minutes Minutes";
+    } else {
+      return "No duration";
+    }
   }
 
   selectTime(BuildContext context) async {
@@ -62,6 +97,34 @@ class _TimeAndDatePickerState extends State<TimeAndDatePicker> {
     }
   }
 
+  selectDuration(BuildContext context) async {
+    final ThemeData theme = Theme.of(context);
+    assert(theme.platform != null);
+    switch (theme.platform) {
+      case TargetPlatform.android:
+      case TargetPlatform.fuchsia:
+      case TargetPlatform.windows:
+      case TargetPlatform.linux:
+      case TargetPlatform.macOS:
+        return buildMaterialDurationPicker(context);
+      case TargetPlatform.iOS:
+        return buildCupertinoTimePicker(context);
+    }
+  }
+
+//Build the duration selector for Android
+  buildMaterialDurationPicker(BuildContext context) async {
+    final Duration picked = await showDurationPicker(
+      context: context,
+      initialTime: Duration(milliseconds: duration),
+    );
+    if (picked != null && picked != selectedDuration)
+      setState(() {
+        selectedDuration = picked;
+        updateTime(selectedDuration.inMilliseconds);
+      });
+  }
+
 //Build the duration selector for Android
   buildMaterialTimePicker(BuildContext context) async {
     final TimeOfDay picked = await showTimePicker(
@@ -74,7 +137,7 @@ class _TimeAndDatePickerState extends State<TimeAndDatePicker> {
         selectedTime = picked;
         selectedDate = DateTime(selectedDate.year, selectedDate.month,
             selectedDate.day, selectedTime.hour, selectedTime.minute);
-        update(selectedDate);
+        updateTime(selectedDate.millisecondsSinceEpoch);
       });
   }
 
@@ -98,6 +161,7 @@ class _TimeAndDatePickerState extends State<TimeAndDatePicker> {
                           if (picked != null && picked != selectedDuration)
                             setState(() {
                               selectedDuration = picked;
+                              updateTime(selectedDuration.inMilliseconds);
                             });
                         }),
                   ),
@@ -168,7 +232,7 @@ class _TimeAndDatePickerState extends State<TimeAndDatePicker> {
                       ),
                       onPressed: () {
                         FocusScope.of(context).unfocus();
-                        update(selectedDate);
+                        updateTime(selectedDate.millisecondsSinceEpoch);
                         Navigator.of(context).pop();
                       })
                 ],
@@ -191,14 +255,17 @@ class _TimeAndDatePickerState extends State<TimeAndDatePicker> {
                 decoration: InputDecoration(
                   filled: true,
                   fillColor: Colors.white,
-                  hintText:
-                      DateFormat('EEE, M/d/y - HH:mm').format(selectedDate),
+                  hintText: duration == null
+                      ? DateFormat('EEE, M/d/y - HH:mm').format(selectedDate)
+                      : convertTime(selectedDuration.inMilliseconds),
                   contentPadding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
                   border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8.0)),
                 ),
                 readOnly: true,
-                onTap: () => selectDate(context))));
+                onTap: duration == null
+                    ? () => selectDate(context)
+                    : () => selectDuration(context))));
   }
 }
 
@@ -206,3 +273,5 @@ class AlwaysDisabledFocusNode extends FocusNode {
   @override
   bool get hasFocus => false;
 }
+
+//Switch cases meant to return different widgets for different platforms

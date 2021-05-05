@@ -10,7 +10,6 @@ import 'package:quantify_app/screens/homeSkeleton.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'package:image_cropper/image_cropper.dart';
-import 'dart:io' show Platform;
 import 'package:quantify_app/services/database.dart';
 //import 'package:quantify_app/customWidgets/globals.dart' as globals;
 
@@ -87,8 +86,10 @@ class _AddMealScreenState extends State<AddMealScreen> {
     super.dispose();
   }
 
-  void setDate(DateTime dateTime) {
-    print('datetime is $dateTime');
+  void setDate(int dateTimeInt) {
+    print('datetime is $dateTimeInt');
+    DateTime dateTime = DateTime.fromMillisecondsSinceEpoch(dateTimeInt);
+
     _date = DateTime(dateTime.year, dateTime.month, dateTime.day);
     _time = TimeOfDay(hour: dateTime.hour, minute: dateTime.minute);
   }
@@ -242,12 +243,6 @@ class _AddMealScreenState extends State<AddMealScreen> {
   }
 
   Widget build(BuildContext context) {
-    bool _isIos = false;
-    try {
-      _isIos = Platform.isIOS || Platform.isMacOS;
-    } catch (e) {
-      _isIos = false;
-    }
     final user = Provider.of<UserClass>(context);
 
     List<dynamic> displayImageList = [null, null, null, null];
@@ -361,7 +356,8 @@ class _AddMealScreenState extends State<AddMealScreen> {
               Container(
                   height: MediaQuery.of(context).size.height * 0.07,
                   width: MediaQuery.of(context).size.width * 0.75,
-                  child: TimeAndDatePicker(update: setDate, date: _timeStamp)),
+                  child:
+                      TimeAndDatePicker(updateTime: setDate, date: _timeStamp)),
               Container(
                   padding: EdgeInsets.only(
                       top: (MediaQuery.of(context).size.height * 0.05),
