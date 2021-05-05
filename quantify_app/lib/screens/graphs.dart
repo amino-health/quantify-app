@@ -1,32 +1,27 @@
 import 'dart:math';
-//import 'dart:io';
-//import 'package:cached_network_image/cached_network_image.dart';
-//import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_search_bar/flutter_search_bar.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:quantify_app/loading.dart';
 import 'package:quantify_app/models/activityDiary.dart';
 import 'package:quantify_app/models/userClass.dart';
-//import 'package:quantify_app/screens/homeScreen.dart';
 import 'package:quantify_app/services/database.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:intl/date_symbol_data_local.dart';
-//import 'package:path_provider/path_provider.dart';
-//import 'package:flutter/services.dart' show rootBundle;
 import 'package:quantify_app/models/mealData.dart';
-
-//import 'package:bezier_chart/bezier_chart.dart';
 
 class GraphicalInterface extends StatefulWidget {
   final ValueChanged update;
+  final ValueChanged latest;
+  GraphicalInterface({this.update, this.latest, @required this.graphPosSetter});
   final DateTime graphPosSetter;
-  GraphicalInterface({this.update, this.graphPosSetter});
+
   //GraphicalInterface({Key key});
 
   @override
-  _GraphicalInterfaceState createState() =>
-      _GraphicalInterfaceState(update: update, graphPosSetter: graphPosSetter);
+  _GraphicalInterfaceState createState() => _GraphicalInterfaceState(
+      update: update, latest: latest, graphPosSetter: graphPosSetter);
 }
 
 class _GraphicalInterfaceState extends State<GraphicalInterface> {
@@ -35,8 +30,10 @@ class _GraphicalInterfaceState extends State<GraphicalInterface> {
   TooltipBehavior _tooltipBehavior;
   bool alreadyRandom = false;
   final ValueChanged<List<dynamic>> update;
+  final ValueChanged latest;
+
+  _GraphicalInterfaceState({this.update, this.latest, this.graphPosSetter});
   DateTime graphPosSetter;
-  _GraphicalInterfaceState({this.update, this.graphPosSetter});
 
   @override
   void initState() {
@@ -85,10 +82,9 @@ class _GraphicalInterfaceState extends State<GraphicalInterface> {
           }
           tempGluclist = _createRandomData(1000);
           List graphData = snapshot.data;
-          List imageData = graphData[1];
+          List mealData = graphData[1];
           List activityData = graphData[0];
-
-          imageData = imageData.map((e) {
+          mealData = mealData.map((e) {
             var data = e.data();
             data['docId'] = e.id;
             return data;
@@ -99,7 +95,7 @@ class _GraphicalInterfaceState extends State<GraphicalInterface> {
             data['docId'] = e.id;
             return data;
           }).toList();
-          for (var item in imageData + activityData) {
+          for (var item in mealData + activityData) {
             item['gluc'] = tempGluclist.firstWhere((element) {
               if (element.time != null &&
                   element.time.millisecondsSinceEpoch < item['date']) {
@@ -112,6 +108,35 @@ class _GraphicalInterfaceState extends State<GraphicalInterface> {
                   DateTime.fromMillisecondsSinceEpoch(item['date']), 10.0);
             });
           }
+          mealData.sort(
+              (b, a) => a['date'].toString().compareTo(b['date'].toString()));
+          activityData.sort(
+              (b, a) => a['date'].toString().compareTo(b['date'].toString()));
+          var latestMeal;
+          var latestAct;
+          if (mealData.length > 0) {
+            latestMeal = mealData[0];
+
+            latestMeal = MealData(
+                latestMeal['note'],
+                DateTime.fromMillisecondsSinceEpoch(latestMeal['date']),
+                latestMeal['imageRef'].cast<String>(),
+                latestMeal['docId'],
+                latestMeal['localPath'].cast<String>());
+          }
+          if (activityData.length > 0) {
+            latestAct = activityData[0];
+            latestAct = TrainingDiaryData(
+                trainingid: latestAct['docId'],
+                name: latestAct['name'],
+                description: latestAct['description'],
+                date: DateTime.fromMillisecondsSinceEpoch(latestAct['date']),
+                duration: Duration(milliseconds: latestAct['duration']),
+                intensity: latestAct['intensity'],
+                category: latestAct['category']);
+          }
+
+          latest([latestMeal, latestAct]);
           GlobalKey titleKey = new GlobalKey();
           return Scaffold(
             body: Center(
@@ -135,15 +160,15 @@ class _GraphicalInterfaceState extends State<GraphicalInterface> {
                       zoomPanBehavior: _zoomPanBehavior,
                       onPointTapped: (PointTapArgs args) {
                         if (args.seriesIndex == 1) {
-                          var meal = imageData[args.pointIndex];
+                          var latestMeal = mealData[args.pointIndex];
                           update([
                             new MealData(
-                                meal['note'],
+                                latestMeal['note'],
                                 DateTime.fromMillisecondsSinceEpoch(
-                                    meal['date']),
-                                meal['imageRef'],
-                                meal['docId'],
-                                meal['localPath']),
+                                    latestMeal['date']),
+                                latestMeal['imageRef'].cast<String>(),
+                                latestMeal['docId'],
+                                latestMeal['localPath'].cast<String>()),
                             true
                           ]);
                         } else if (args.seriesIndex == 2) {
@@ -210,7 +235,7 @@ class _GraphicalInterfaceState extends State<GraphicalInterface> {
                         ScatterSeries(
                             color: Colors.red,
                             enableTooltip: true,
-                            dataSource: imageData,
+                            dataSource: mealData,
                             xValueMapper: (x, _) =>
                                 DateTime.fromMillisecondsSinceEpoch(x['date']),
                             yValueMapper: (x, _) => x['gluc'].glucoseVal,

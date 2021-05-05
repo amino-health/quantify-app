@@ -44,7 +44,7 @@ class AuthService {
 
       await DatabaseService(uid: user.uid).createBasicTrainingData();
 
-      return user;
+      return [user];
     } catch (error) {
       print(error.code);
       switch (error.code) {

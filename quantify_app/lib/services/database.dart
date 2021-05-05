@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 //import 'package:quantify_app/models/info.dart';
 import 'dart:io';
@@ -26,24 +28,38 @@ class DatabaseService {
   final CollectionReference basicTraining = FirebaseFirestore.instance
       .collection('basicTraining'); //collection of info
 
-  Future<void> uploadImage(File imageFile, DateTime date, String note) async {
+  Future<void> uploadImage(
+      List<File> imageList, DateTime date, String note) async {
     String downloadURL;
+    imageList.sort((a, b) => a.path == '' ? 1 : 0);
+
+    List<String> urlArray = [];
+    List<String> localPathArray = [];
+    //File firstFile = imageList[0];
+
     DocumentReference doc = userInfo.doc(uid).collection('mealData').doc();
-    if (imageFile != null) {
-      String fileName = Path.basename(imageFile.path).substring(14);
-      firebase_storage.Reference storageRef = firebase_storage
-          .FirebaseStorage.instance
-          .ref()
-          .child('images/users/' + uid + '/mealImages/' + fileName);
-      firebase_storage.UploadTask uploadTask = storageRef.putFile(imageFile);
-      uploadTask.whenComplete(() async {
-        downloadURL = await storageRef.getDownloadURL();
-        await doc.update({'imageRef': downloadURL});
-      });
+    for (File image in imageList) {
+      if (image.path != '') {
+        String fileName = Path.basename(image.path).substring(14);
+        firebase_storage.Reference storageRef = firebase_storage
+            .FirebaseStorage.instance
+            .ref()
+            .child('images/users/' + uid + '/mealImages' + '/' + fileName);
+
+        localPathArray.add(image.path);
+        firebase_storage.UploadTask uploadTask = storageRef.putFile(image);
+        uploadTask.whenComplete(() async {
+          downloadURL = await storageRef.getDownloadURL();
+          urlArray.add(downloadURL);
+
+          await doc.update({'imageRef': urlArray});
+        });
+      }
     }
+
     await doc.set({
-      'imageRef': downloadURL,
-      'localPath': imageFile != null ? imageFile.path : null,
+      'imageRef': urlArray,
+      'localPath': localPathArray != [] ? localPathArray : [],
       'note': note,
       'date': date.millisecondsSinceEpoch
     });
@@ -71,38 +87,56 @@ class DatabaseService {
     });
   }
 
-  Future<void> editMeal(
-      docId, newImage, DateTime newDate, newNote, imageChanged) async {
-    String downloadURL;
-    if (imageChanged && newImage != null) {
-      DocumentSnapshot mealDoc =
-          await userInfo.doc(uid).collection('mealData').doc(docId).get();
-      String url = mealDoc.get('imageRef');
+  Future<void> editMeal(docId, List<File> imageList, DateTime newDate, newNote,
+      imageChanged) async {
+    print('list in edit is $imageList');
+    List<String> urlArray = [];
+    List<String> localPathArray = [];
+    for (File newImage in imageList) {
+      String downloadURL;
+      if (imageChanged && newImage != null) {
+        localPathArray.add(newImage.path);
+        DocumentSnapshot mealDoc =
+            await userInfo.doc(uid).collection('mealData').doc(docId).get();
+        List<String> urlList = mealDoc.get('imageRef').cast<String>();
 
-      if (url != null) {
-        firebase_storage.Reference storageRef =
-            firebase_storage.FirebaseStorage.instance.refFromURL(url);
-        await storageRef.delete().catchError((error) => print(error));
+        for (String url in urlList) {
+          if (url != null) {
+            firebase_storage.Reference storageRef =
+                firebase_storage.FirebaseStorage.instance.refFromURL(url);
+            await storageRef.delete().catchError((error) => print(error));
+          }
+        }
+
+        DocumentReference doc =
+            userInfo.doc(uid).collection('mealData').doc(docId);
+        String fileName = Path.basename(newImage.path).substring(14);
+        firebase_storage.Reference storageRef = firebase_storage
+            .FirebaseStorage.instance
+            .ref()
+            .child('images/users/' + uid + '/mealImages/' + fileName);
+        firebase_storage.UploadTask uploadTask = storageRef.putFile(newImage);
+        uploadTask.whenComplete(() async {
+          downloadURL = await storageRef.getDownloadURL();
+          urlArray.add(downloadURL);
+          await doc.update({'imageRef': urlArray});
+        });
       }
-      DocumentReference doc =
-          userInfo.doc(uid).collection('mealData').doc(docId);
-      String fileName = Path.basename(newImage.path).substring(14);
-      firebase_storage.Reference storageRef = firebase_storage
-          .FirebaseStorage.instance
-          .ref()
-          .child('images/users/' + uid + '/mealImages/' + fileName);
-      firebase_storage.UploadTask uploadTask = storageRef.putFile(newImage);
-      uploadTask.whenComplete(() async {
-        downloadURL = await storageRef.getDownloadURL();
-        await doc.update({'imageRef': downloadURL});
-      });
+      if (imageChanged) {
+        await userInfo.doc(uid).collection('mealData').doc(docId).update({
+          'imageRef': urlArray,
+          'localPath': localPathArray.length != 0 ? localPathArray : null,
+          'note': newNote,
+          'date': newDate.millisecondsSinceEpoch
+        });
+      } else {
+        await userInfo
+            .doc(uid)
+            .collection('mealData')
+            .doc(docId)
+            .update({'note': newNote, 'date': newDate.millisecondsSinceEpoch});
+      }
     }
-    await userInfo.doc(uid).collection('mealData').doc(docId).update({
-      'imageRef': downloadURL,
-      'localPath': newImage != null ? newImage.path : null,
-      'note': newNote,
-      'date': newDate.millisecondsSinceEpoch
-    });
   }
 
   Future<void> updateUserProfile(
@@ -116,15 +150,17 @@ class DatabaseService {
   }
 
   Future<void> removeMeal(MealData mealData) async {
-    if (mealData.mealImageUrl != null) {
-      firebase_storage.Reference storageRef = firebase_storage
-          .FirebaseStorage.instance
-          .ref()
-          .storage
-          .refFromURL(mealData.mealImageUrl);
-      print(storageRef);
-      print(mealData.mealImageUrl);
-      await storageRef.delete().catchError((error) => print(error));
+    for (int i = 0; i < mealData.mealImageUrl.length; i++) {
+      if (mealData.mealImageUrl[i] != null) {
+        firebase_storage.Reference storageRef = firebase_storage
+            .FirebaseStorage.instance
+            .ref()
+            .storage
+            .refFromURL(mealData.mealImageUrl[i]);
+        //print(storageRef);
+        //print(mealData.mealImageUrl);
+        await storageRef.delete().catchError((error) => print(error));
+      }
     }
     return await userInfo
         .doc(uid)
@@ -221,7 +257,7 @@ class DatabaseService {
       int listtype,
       int category,
       {bool inHistory}) async {
-    print("In history is $inHistory");
+    //print("In history is $inHistory");
     if (inHistory != null) {
       return await userInfo
           .doc(uid)
@@ -254,7 +290,7 @@ class DatabaseService {
 
   Future<void> createBasicTrainingData() async {
     bool existed = false;
-    print('In create function');
+    //print('In create function');
     FirebaseFirestore.instance
         .collection("basicTraining")
         .get()
@@ -268,13 +304,13 @@ class DatabaseService {
             .then((querySnapshot) {
           querySnapshot.docs.forEach((intraining) {
             if (intraining.id == basic.id) {
-              print(intraining.id);
-              print(basic.id);
-              print('item already existed');
+              // print(intraining.id);
+              // print(basic.id);
+              // print('item already existed');
               existed = true;
             }
           });
-          print(basic['name']);
+          //print(basic['name']);
           if (!existed) {
             createTrainingData(
                 basic.id,
