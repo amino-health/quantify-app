@@ -43,6 +43,7 @@ class _RegisterState extends State<Register> {
               Padding(
                 padding: const EdgeInsets.all(10.0),
                 child: TextFormField(
+                    key: Key('inputName'),
                     validator: (val) => val.isEmpty ? "Ente a name" : null,
                     decoration: InputDecoration(
                       hintText: 'Full name',
@@ -56,6 +57,7 @@ class _RegisterState extends State<Register> {
               Padding(
                 padding: const EdgeInsets.all(10.0),
                 child: TextFormField(
+                    key: Key('inputEmail'),
                     validator: (val) {
                       return EmailValidator.validate(val)
                           ? null
@@ -75,6 +77,7 @@ class _RegisterState extends State<Register> {
               Padding(
                 padding: const EdgeInsets.all(10.0),
                 child: TextFormField(
+                    key: Key('inputPassword'),
                     controller: _password,
                     validator: (val) {
                       String result = '';
@@ -104,6 +107,7 @@ class _RegisterState extends State<Register> {
               Padding(
                 padding: const EdgeInsets.all(10.0),
                 child: TextFormField(
+                    key: Key('inputPasswordAgain'),
                     controller: _passwordConf,
                     decoration: InputDecoration(
                       hintText: 'Re-enter Password',
@@ -133,6 +137,7 @@ class _RegisterState extends State<Register> {
                   height: 50,
                   width: 350,
                   child: ElevatedButton(
+                    key: Key('register'),
                     child: Text("Register"),
                     onPressed: () async {
                       if (_formKey.currentState.validate()) {

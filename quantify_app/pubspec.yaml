@@ -62,7 +62,7 @@ dependencies:
   fluttericon: ^2.0.0
   font_awesome_flutter: ^9.0.0
   nfc_manager: ^3.0.0+1
-  webdriver: ^3.0.0
+  #webdriver: ^3.0.0
 
 dependency_overrides:
   archive: 3.0.0

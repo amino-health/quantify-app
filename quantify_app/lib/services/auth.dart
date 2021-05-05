@@ -40,7 +40,7 @@ class AuthService {
           password: password.trim()); //from firebase library
       User user = result.user;
       print(user);
-      return [user];
+      return user;
     } catch (error) {
       print(error.code);
       switch (error.code) {

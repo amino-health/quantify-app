@@ -40,6 +40,7 @@ class _SignInState extends State<SignIn> {
               Padding(
                 padding: const EdgeInsets.all(10.0),
                 child: TextFormField(
+                    key: Key('emailfield'),
                     validator: (val) {
                       return EmailValidator.validate(val)
                           ? null
@@ -59,6 +60,7 @@ class _SignInState extends State<SignIn> {
               Padding(
                 padding: const EdgeInsets.all(10.0),
                 child: TextFormField(
+                    key: Key('passfield'),
                     obscureText: true,
                     validator: (val) => val.length < 8
                         ? 'Enter password 8+ chars'
@@ -99,12 +101,13 @@ class _SignInState extends State<SignIn> {
                       if (_formKey.currentState.validate()) {
                         dynamic result = await _auth.signInWithEmailAndPassword(
                             email, password);
+                        result = [result];
                         if (result[0] == null) {
                           setState(() {
                             error = result[1];
                           });
                         } else {
-                          print('No error');
+                          print('Sign in succeded');
                         }
                       }
                     },
