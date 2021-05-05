@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 //import 'package:quantify_app/models/info.dart';
 import 'dart:io';
@@ -182,7 +184,7 @@ class DatabaseService {
     snapshot.docs.forEach((element) {
       result.add(GlucoseData(
           DateTime.fromMillisecondsSinceEpoch(element['date']),
-          element['glucose']));
+          (element['glucose'] / 10).round() / 18));
     });
     return result;
   }
@@ -384,6 +386,25 @@ class DatabaseService {
       result = false;
     }
     return result;
+  }
+
+  Future<void> uploadBlockData(List data, int time) async {
+    try {
+      await userInfo
+          .doc(uid)
+          .collection('rawBlockData')
+          .doc(time.toString())
+          .set({
+        'fstGlucose': data[0],
+        'sndGlucose': data[1],
+        'fstFlag': data[2],
+        'fstTemp': data[3],
+        'sndTemp': data[4],
+        'sndFlag': data[5],
+      });
+    } catch (e) {
+      print(e);
+    }
   }
 }
 
