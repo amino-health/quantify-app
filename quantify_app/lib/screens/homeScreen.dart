@@ -66,10 +66,8 @@ class _HomeScreenState extends State<HomeScreen>
     dynamic toSet;
     if (castedData.last) {
       toSet = overviewKey.currentState;
-      print('setting state of overviewkey');
     } else {
       toSet = this;
-      print('setting state of homescreen');
     }
     if (castedData.first.runtimeType == MealData) {
       toSet.setState(() {
@@ -78,7 +76,6 @@ class _HomeScreenState extends State<HomeScreen>
         showActivity = false;
       });
     } else {
-      print('State is now ${overviewKey.currentState}');
       toSet.setState(() {
         _trainingData = castedData.first;
         showActivity = true;
@@ -389,8 +386,6 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   welcomeContent(context, _isIos) {
-    final user = Provider.of<UserClass>(context, listen: false);
-
     return Padding(
       padding: const EdgeInsets.only(bottom: 8.0, left: 8, right: 8),
       child: Container(
@@ -460,45 +455,56 @@ class _HomeScreenState extends State<HomeScreen>
                     children: [
                       Expanded(
                         flex: 1,
-                        child: Container(
-                          child: Column(
-                            children: [
-                              Text(
-                                "Your latest meal:",
-                                textScaleFactor: 1.2,
-                                style: TextStyle(color: Colors.black),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: FutureBuilder(
-                                    future: displayImage(_isIos, latest: true),
-                                    builder: (BuildContext context,
-                                        AsyncSnapshot snapshot) {
-                                      if (!snapshot.hasData) {
-                                        return Loading();
-                                      }
-                                      return Container(
-                                        width:
-                                            MediaQuery.of(context).size.width *
-                                                0.2,
-                                        height:
-                                            MediaQuery.of(context).size.width *
-                                                0.2,
-                                        child: ClipRRect(
-                                          borderRadius:
-                                              BorderRadius.circular(10),
-                                          child: FittedBox(
-                                              fit: BoxFit.fitHeight,
-                                              child: snapshot.data),
-                                        ),
-                                      );
-                                    }),
-                              ),
-                              Text(
-                                  DateFormat("dd MMM: HH:mm")
-                                      .format(latestMeal.mealDate),
-                                  style: TextStyle(color: Colors.black)),
-                            ],
+                        child: InkWell(
+                          onTap: () {
+                            findGraphPoint(latestMeal.mealDate);
+                            print("After findgraph" + graphPos.toString());
+                            setData([latestMeal, false]);
+                            setState(() {});
+                          },
+                          child: Container(
+                            child: Column(
+                              children: [
+                                Text(
+                                  "Your latest meal:",
+                                  textScaleFactor: 1.2,
+                                  style: TextStyle(color: Colors.black),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: FutureBuilder(
+                                      future:
+                                          displayImage(_isIos, latest: true),
+                                      builder: (BuildContext context,
+                                          AsyncSnapshot snapshot) {
+                                        if (!snapshot.hasData) {
+                                          return Loading();
+                                        }
+                                        return Container(
+                                          width: MediaQuery.of(context)
+                                                  .size
+                                                  .width *
+                                              0.2,
+                                          height: MediaQuery.of(context)
+                                                  .size
+                                                  .width *
+                                              0.2,
+                                          child: ClipRRect(
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                            child: FittedBox(
+                                                fit: BoxFit.fitHeight,
+                                                child: snapshot.data),
+                                          ),
+                                        );
+                                      }),
+                                ),
+                                Text(
+                                    DateFormat("dd MMM: HH:mm")
+                                        .format(latestMeal.mealDate),
+                                    style: TextStyle(color: Colors.black)),
+                              ],
+                            ),
                           ),
                         ),
                       ),
@@ -691,8 +697,12 @@ class _HomeScreenState extends State<HomeScreen>
     } catch (e) {
       _isIos = false;
     }
-    GraphicalInterface graph =
-        GraphicalInterface(update: setData, latestMeal: getLatestMeal);
+    GraphicalInterface graph = GraphicalInterface(
+      update: setData,
+      latestMeal: getLatestMeal,
+      graphPosSetter: graphPos,
+    );
+    print("homescreen: " + graph.graphPosSetter.toString());
     final List<Widget> _children = [
       Center(
         child: Column(
@@ -704,18 +714,16 @@ class _HomeScreenState extends State<HomeScreen>
               ),
             ),
             Expanded(
-              child: StatefulBuilder(
-                  key: overviewKey,
-                  builder: (BuildContext context, setStateMeal) {
-                    if (showMeal) {
-                      return mealContent(context, _isIos);
-                    } else if (showActivity) {
-                      return activityContent(context, _isIos);
-                    } else {
+                child: StatefulBuilder(
+                    key: overviewKey,
+                    builder: (BuildContext context, StateSetter setStateMeal) {
+                      if (showMeal) {
+                        return mealContent(context, _isIos);
+                      } else if (showActivity) {
+                        return activityContent(context, _isIos);
+                      }
                       return welcomeContent(context, _isIos);
-                    }
-                  }),
-            ),
+                    })),
           ],
         ),
       ),
@@ -730,7 +738,6 @@ class _HomeScreenState extends State<HomeScreen>
       });
     }
 
-    print(selectedIndex);
     return Scaffold(
       appBar: CustomAppBar(),
       body: _children[selectedIndex],

@@ -1,28 +1,23 @@
 import 'dart:math';
-//import 'dart:io';
-//import 'package:cached_network_image/cached_network_image.dart';
-//import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:quantify_app/customWidgets/globals.dart' as globals;
 import 'package:quantify_app/loading.dart';
 import 'package:quantify_app/models/activityDiary.dart';
 import 'package:quantify_app/models/userClass.dart';
-//import 'package:quantify_app/screens/homeScreen.dart';
 import 'package:quantify_app/services/database.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:intl/date_symbol_data_local.dart';
-//import 'package:path_provider/path_provider.dart';
-//import 'package:flutter/services.dart' show rootBundle;
 import 'package:quantify_app/models/mealData.dart';
-
-//import 'package:bezier_chart/bezier_chart.dart';
 
 class GraphicalInterface extends StatefulWidget {
   final ValueChanged update;
   final ValueChanged<MealData> latestMeal;
-  GraphicalInterface({this.update, this.latestMeal, this.graphPosSetter});
+  GraphicalInterface(
+      {this.update, this.latestMeal, @required this.graphPosSetter});
   final DateTime graphPosSetter;
+
   //GraphicalInterface({Key key});
 
   @override
@@ -43,6 +38,7 @@ class _GraphicalInterfaceState extends State<GraphicalInterface> {
 
   @override
   void initState() {
+    print("In init: " + graphPosSetter.toString());
     initializeDateFormatting();
     super.initState();
     _tooltipBehavior = TooltipBehavior(
@@ -124,6 +120,8 @@ class _GraphicalInterfaceState extends State<GraphicalInterface> {
                   DateTime.fromMillisecondsSinceEpoch(item['date']), 10.0);
             });
           }
+
+          print("Graphpos in graph.dart: " + graphPosSetter.toString());
           GlobalKey titleKey = new GlobalKey();
           return Scaffold(
             body: Center(
