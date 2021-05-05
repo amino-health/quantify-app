@@ -69,6 +69,7 @@ class _ExpandableFabState extends State<ExpandableFab>
     super.dispose();
   }
 
+  // ignore: sdk_version_async_exported_from_core
   Future<void> _toggle() async {
     setState(() {
       _open = !_open;
@@ -171,6 +172,7 @@ class _ExpandableFabState extends State<ExpandableFab>
                 padding: EdgeInsets.only(
                     bottom: MediaQuery.of(context).size.width * 0.075),
                 child: _buildTapToCloseFab()),
+            // ignore: sdk_version_ui_as_code
             ..._buildExpandingActionButtons(),
             Padding(
                 padding: EdgeInsets.only(

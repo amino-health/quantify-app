@@ -1,0 +1,4 @@
+#!/bin/bash
+flutter clean 
+flutter pub get 
+flutter drive --target=test_driver/app.dart
