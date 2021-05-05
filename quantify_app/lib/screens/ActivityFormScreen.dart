@@ -8,8 +8,6 @@ import 'package:quantify_app/screens/homeSkeleton.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:sleek_circular_slider/sleek_circular_slider.dart';
 
-import 'package:fluttericon/rpg_awesome_icons.dart';
-
 /*
   This list is used when rendering the image linked to the activity's categories. 
 */
@@ -25,7 +23,7 @@ List<IconData> iconList = [
   Icons.sports_tennis,
   Icons.sports_handball,
   Icons.miscellaneous_services,
-  RpgAwesome.muscle_up,
+  Icons.fitness_center
 ];
 
 class ActivityPopup extends StatefulWidget {

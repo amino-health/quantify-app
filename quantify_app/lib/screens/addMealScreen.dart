@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:quantify_app/customWidgets/timeAndDate.dart';
 import 'package:quantify_app/loading.dart';
 import 'package:quantify_app/models/mealData.dart';
 import 'package:quantify_app/models/userClass.dart';
@@ -61,6 +62,7 @@ class _AddMealScreenState extends State<AddMealScreen> {
   var _displayImage;
   int _index;
   List<File> imageList;
+  DateTime newDate;
   @override
   void initState() {
     super.initState();
@@ -73,15 +75,8 @@ class _AddMealScreenState extends State<AddMealScreen> {
       _imageUrl.add(null);
     }
     imageList = _image;
-
-    print('_image is');
-    for (File img in _image) {
-      print(img);
-    }
-    print('_imageurl is');
-    for (String img in _imageUrl) {
-      print(img);
-    }
+    _timeStamp =
+        DateTime(_date.year, _date.month, _date.day, _time.hour, _time.minute);
   }
 
   @override
@@ -90,6 +85,12 @@ class _AddMealScreenState extends State<AddMealScreen> {
     // Clean up the controller when the widget is disposed.
     textController.dispose();
     super.dispose();
+  }
+
+  void setDate(DateTime dateTime) {
+    print('datetime is $dateTime');
+    _date = DateTime(dateTime.year, dateTime.month, dateTime.day);
+    _time = TimeOfDay(hour: dateTime.hour, minute: dateTime.minute);
   }
 
   Widget addImageButton(BuildContext context, int index) {
@@ -112,7 +113,7 @@ class _AddMealScreenState extends State<AddMealScreen> {
                         _getImageCamera(index);
                       },
                       child: Container(
-                        child: Icon(Icons.camera),
+                        child: Icon(Icons.camera_alt),
                         color: Color(0xFF99163D),
                         height: MediaQuery.of(context).size.width * 0.1,
                         width: MediaQuery.of(context).size.width * 0.2,
@@ -191,7 +192,7 @@ class _AddMealScreenState extends State<AddMealScreen> {
         return addImageButton(context, index);
       } else {
         print('returned null 1');
-        return null;
+        return Container(width: 0.0, height: 0.0);
       }
     } else {
       print('returned 4');
@@ -241,7 +242,7 @@ class _AddMealScreenState extends State<AddMealScreen> {
   }
 
   Widget build(BuildContext context) {
-    bool _isIos;
+    bool _isIos = false;
     try {
       _isIos = Platform.isIOS || Platform.isMacOS;
     } catch (e) {
@@ -267,40 +268,46 @@ class _AddMealScreenState extends State<AddMealScreen> {
           stream: null,
           builder: (context, snapshot) {
             var children = [
-              Stack(children: [
-                Container(
-                    //This container contains the grey area for the photo, changes to the image if one is taken.
-                    height: MediaQuery.of(context).size.height * 0.3,
-                    width: MediaQuery.of(context).size.height * 0.3,
-                    decoration: BoxDecoration(
-                      color: _displayImage == null
-                          ? Colors.grey
-                          : Color(0x00000000),
-                    ),
-                    child: _displayImage != null
-                        ? FutureBuilder(
-                            future: fetchImage(context, false,
-                                _image[_index].path, _imageUrl[_index]),
-                            builder:
-                                (BuildContext context, AsyncSnapshot snapshot) {
-                              if (!snapshot.hasData) {
-                                Loading();
-                              } else {
-                                return snapshot.data;
-                              }
-                              return Container();
-                            })
-                        : null),
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(40),
-                  child: Container(
-                    color: Colors.white.withOpacity(0.5),
-                    child: IconButton(
-                        icon: Icon(Icons.delete),
-                        onPressed: () => removeImage()),
-                  ),
-                )
-              ]),
+              Padding(
+                padding: const EdgeInsets.only(top: 8.0),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8.0),
+                  child: Stack(children: [
+                    Container(
+                        //This container contains the grey area for the photo, changes to the image if one is taken.
+                        height: MediaQuery.of(context).size.height * 0.3,
+                        width: MediaQuery.of(context).size.height * 0.3,
+                        decoration: BoxDecoration(
+                          color: _displayImage == null
+                              ? Colors.grey
+                              : Color(0x00000000),
+                        ),
+                        child: _displayImage != null
+                            ? FutureBuilder(
+                                future: fetchImage(context, false,
+                                    _image[_index].path, _imageUrl[_index]),
+                                builder: (BuildContext context,
+                                    AsyncSnapshot snapshot) {
+                                  if (!snapshot.hasData) {
+                                    Loading();
+                                  } else {
+                                    return snapshot.data;
+                                  }
+                                  return Container();
+                                })
+                            : null),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(40),
+                      child: Container(
+                        color: Colors.white.withOpacity(0.5),
+                        child: IconButton(
+                            icon: Icon(Icons.delete),
+                            onPressed: () => removeImage()),
+                      ),
+                    )
+                  ]),
+                ),
+              ),
               Padding(
                 padding: EdgeInsets.all(10),
                 child: Row(
@@ -344,185 +351,17 @@ class _AddMealScreenState extends State<AddMealScreen> {
                   keyboardType: TextInputType.text,
                   maxLength: 128,
                   decoration: InputDecoration(
+                      filled: true,
+                      fillColor: Colors.white,
                       border: OutlineInputBorder(),
                       hintText: "Write something about your meal!",
                       hintStyle: TextStyle(fontFamily: 'Roboto-Medium')),
                 ),
               ),
-              Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                Container(
-                  //This container is for picking date
-                  color: Color(0x00f0f0f0),
-                  child: FittedBox(
-                    fit: BoxFit.fitWidth,
-                    child: ElevatedButton(
-                      style: ButtonStyle(backgroundColor:
-                          MaterialStateProperty.resolveWith<Color>(
-                              (Set<MaterialState> states) {
-                        return const Color(0xFF99163D);
-                      })),
-                      onPressed: () async {
-                        FocusScope.of(context).unfocus();
-
-                        DateTime newDate;
-                        if (_isIos) {
-                          await showCupertinoModalPopup(
-                            context: context,
-                            builder: (BuildContext context) => Container(
-                              color: Colors.white,
-                              height: MediaQuery.of(context).size.height * 0.6,
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: [
-                                  Container(
-                                    color: Colors.white,
-                                    height: MediaQuery.of(context).size.height *
-                                        0.5,
-                                    child: CupertinoDatePicker(
-                                      mode: CupertinoDatePickerMode.date,
-                                      onDateTimeChanged: (picked) {
-                                        FocusScope.of(context).unfocus();
-                                        newDate = picked;
-                                      },
-                                      maximumDate: DateTime.now(),
-                                      initialDateTime: _date,
-                                      minimumDate: DateTime(2000),
-                                    ),
-                                  ),
-                                  CupertinoButton(
-                                      child: Text(
-                                        'OK',
-                                        style: TextStyle(color: Colors.black),
-                                      ),
-                                      onPressed: () {
-                                        FocusScope.of(context).unfocus();
-
-                                        Navigator.of(context).pop();
-                                      })
-                                ],
-                              ),
-                            ),
-                          );
-                        } else {
-                          FocusScope.of(context).unfocus();
-                          newDate = await showDatePicker(
-                              context: context,
-                              initialDate: _date,
-                              firstDate: DateTime(2000),
-                              lastDate: DateTime.now());
-                        }
-                        if (newDate != null) {
-                          setState(() {
-                            _date = newDate;
-                          });
-                        }
-                      },
-                      child: Text(
-                        _date.year.toString() +
-                            "-" +
-                            (_date.month < 10 ? "0" : "") +
-                            _date.month.toString() +
-                            "-" +
-                            (_date.day < 10 ? "0" : "") +
-                            _date.day.toString(),
-                        style: TextStyle(
-                            fontSize: 22, fontFamily: 'Roboto-Medium'),
-                      ),
-                    ),
-                  ),
-                ),
-                Container(
-                  child: Text(
-                    ":",
-                    style: TextStyle(fontSize: 22, fontFamily: 'Roboto-Medium'),
-                  ),
-                ),
-                Container(
-                  //This container is for picking time
-                  color: Color(0x00f0f0f0),
-                  child: FittedBox(
-                    fit: BoxFit.fitWidth,
-                    child: ElevatedButton(
-                      style: ButtonStyle(backgroundColor:
-                          MaterialStateProperty.resolveWith<Color>(
-                              (Set<MaterialState> states) {
-                        return const Color(0xFF99163D);
-                      })),
-                      onPressed: () async {
-                        FocusScope.of(context).unfocus();
-
-                        TimeOfDay newTime;
-                        if (_isIos) {
-                          await showCupertinoModalPopup(
-                              context: context,
-                              builder: (BuildContext context) => Container(
-                                    color: Colors.white,
-                                    height: MediaQuery.of(context).size.height *
-                                        0.6,
-                                    child: Column(
-                                      mainAxisAlignment: MainAxisAlignment.end,
-                                      children: [
-                                        Container(
-                                          height: MediaQuery.of(context)
-                                                  .size
-                                                  .height *
-                                              0.5,
-                                          color: Colors.white,
-                                          child: CupertinoDatePicker(
-                                              use24hFormat: true,
-                                              mode:
-                                                  CupertinoDatePickerMode.time,
-                                              initialDateTime: DateTime(
-                                                  today.year,
-                                                  today.month,
-                                                  today.day,
-                                                  _time.hour,
-                                                  _time.minute),
-                                              onDateTimeChanged: (picked) {
-                                                newTime =
-                                                    TimeOfDay.fromDateTime(
-                                                        picked);
-                                              }),
-                                        ),
-                                        CupertinoButton(
-                                            child: Text(
-                                              'OK',
-                                              style: TextStyle(
-                                                  color: Colors.black),
-                                            ),
-                                            onPressed: () {
-                                              FocusScope.of(context).unfocus();
-
-                                              Navigator.of(context).pop();
-                                            })
-                                      ],
-                                    ),
-                                  ));
-                        } else {
-                          FocusScope.of(context).unfocus();
-
-                          newTime = await showTimePicker(
-                              context: context, initialTime: _time);
-                        }
-                        if (newTime != null) {
-                          setState(() {
-                            _time = newTime;
-                          });
-                        }
-                      },
-                      child: Text(
-                        (_time.hour < 10 ? "0" : "") +
-                            _time.hour.toString() +
-                            ":" +
-                            (_time.minute < 10 ? "0" : "") +
-                            _time.minute.toString(),
-                        style: TextStyle(
-                            fontSize: 22, fontFamily: 'Roboto-Medium'),
-                      ),
-                    ),
-                  ),
-                ),
-              ]),
+              Container(
+                  height: MediaQuery.of(context).size.height * 0.07,
+                  width: MediaQuery.of(context).size.width * 0.75,
+                  child: TimeAndDatePicker(update: setDate, date: _timeStamp)),
               Container(
                   padding: EdgeInsets.only(
                       top: (MediaQuery.of(context).size.height * 0.05),
@@ -698,10 +537,14 @@ class _AddMealScreenState extends State<AddMealScreen> {
 
     while (Navigator.canPop(context)) {
       Navigator.pop(
-        context,
-        /*new MealData(_note, _timeStamp, null, _docId,
-              imageList != null ? imageList : null)*/
-      );
+          context,
+          new MealData(
+              _note, _timeStamp, null, _docId, imageList != null ? [] : null));
     }
   }
+}
+
+class AlwaysDisabledFocusNode extends FocusNode {
+  @override
+  bool get hasFocus => false;
 }
