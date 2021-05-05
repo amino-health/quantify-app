@@ -128,6 +128,7 @@ class _ChangeState extends State<Change> {
                             if (_change == "weight") {
                               await DatabaseService(uid: user.uid)
                                   .updateUserData(
+                                      userData.name,
                                       userData.uid,
                                       userData.email,
                                       userData.newuser,
@@ -142,6 +143,7 @@ class _ChangeState extends State<Change> {
                             if (_change == "height") {
                               await DatabaseService(uid: user.uid)
                                   .updateUserData(
+                                      userData.name,
                                       userData.uid,
                                       userData.email,
                                       userData.newuser,

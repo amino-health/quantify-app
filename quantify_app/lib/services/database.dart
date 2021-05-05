@@ -67,15 +67,17 @@ class DatabaseService {
 
 //För att updaterauser information, används när register och när updateras
   Future<void> updateUserData(
+      String name,
       String uid,
       String email,
       bool newuser,
-      String age,
+      int age,
       String weight,
       String height,
       bool consent,
       String gender) async {
     return await userInfo.doc(uid).set({
+      'name': name,
       'uid': uid,
       'email': email,
       'newuser': newuser, //För att kunna veta om homescreen/eller andra
@@ -179,7 +181,14 @@ class DatabaseService {
 
   UserData _userDataFromSnapshot(DocumentSnapshot snapshot) {
     print("Snapshot: " + snapshot.data.toString());
+    String name;
+    try {
+      name = snapshot.get('name');
+    } catch (e) {
+      name = "";
+    }
     return UserData(
+        name: name,
         uid: uid,
         email: snapshot.get('email'),
         newuser: snapshot.get('newuser'),

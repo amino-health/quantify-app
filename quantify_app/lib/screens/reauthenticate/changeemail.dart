@@ -124,6 +124,7 @@ class _ChangeEmailState extends State<ChangeEmail> {
                                   if (working) {
                                     await DatabaseService(uid: user.uid)
                                         .updateUserData(
+                                            userData.name,
                                             userData.uid,
                                             newemail,
                                             userData.newuser,
