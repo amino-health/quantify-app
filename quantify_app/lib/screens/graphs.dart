@@ -25,7 +25,8 @@ class GraphicalInterface extends StatefulWidget {
 }
 
 class _GraphicalInterfaceState extends State<GraphicalInterface> {
-  ZoomPanBehavior _zoomPanBehavior = ZoomPanBehavior(enablePanning: true);
+  ZoomPanBehavior _zoomPanBehavior =
+      ZoomPanBehavior(enablePanning: true, enableDoubleTapZooming: true);
   DateTime today = DateTime.now();
   TooltipBehavior _tooltipBehavior;
   bool alreadyRandom = false;
@@ -46,7 +47,7 @@ class _GraphicalInterfaceState extends State<GraphicalInterface> {
         canShowMarker: false);
   }
 
-  var tempGluclist = <GlucoseData>[];
+  List<GlucoseData> tempGluclist = <GlucoseData>[];
 
   _createRandomData(int n) {
     if (!alreadyRandom) {
@@ -55,7 +56,7 @@ class _GraphicalInterfaceState extends State<GraphicalInterface> {
       double rand = (2 + random.nextInt(5)).toDouble();
       for (int i = 0; i < n; i++) {
         tempGluclist
-            .add(GlucoseData(now.subtract(Duration(minutes: 5 * i)), rand));
+            .add(GlucoseData(now.subtract(Duration(minutes: 5 * i)), 0));
         if (rand < 4) {
           rand += random.nextInt(2).toDouble();
         } else if (rand > 10) {
@@ -80,10 +81,11 @@ class _GraphicalInterfaceState extends State<GraphicalInterface> {
           if (!snapshot.hasData) {
             return Loading();
           }
-          tempGluclist = _createRandomData(1000);
           List graphData = snapshot.data;
           List mealData = graphData[1];
           List activityData = graphData[0];
+          tempGluclist = graphData[2];
+
           mealData = mealData.map((e) {
             var data = e.data();
             data['docId'] = e.id;

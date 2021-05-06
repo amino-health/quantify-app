@@ -25,9 +25,11 @@ class Sensor {
 
   int nfcReadTimeout = 1000;
   Uint8List data = Uint8List(360);
+  String uid;
 
   Future<int> sensorSession(String uid, Function(int) f) async {
     bool isAvailable = await NfcManager.instance.isAvailable();
+    this.uid = uid;
 
     if (isAvailable) {
       print("isAvaliable");
@@ -45,7 +47,8 @@ class Sensor {
                 List<GlucoseData> trend = getTrendData();
                 List<GlucoseData> history = getHistoryData();
 
-                await DatabaseService(uid: uid).updateGlucose(trend);
+                await DatabaseService(uid: uid).updateGlucose(avgTrendData(
+                    trend)); // Pushes an average of the 15 last minutes
                 await DatabaseService(uid: uid).updateGlucose(history);
               }
 
@@ -122,16 +125,16 @@ class Sensor {
     return 6;
   }
 
-  int getHistoryIndex() {
+  int getTrendIndex() {
     return data[26];
   }
 
-  int getTrendIndex() {
+  int getHistoryIndex() {
     return data[27];
   }
 
   double getGlucoseLevel(int fstByte, int sndByte) {
-    return (((256 * fstByte) + (sndByte)) & 0x0FFF) / 8.5;
+    return (((256 * fstByte) + (sndByte)) & 0x0FFF) / 1;
   }
 
   List<GlucoseData> getHistoryData() {
@@ -161,6 +164,12 @@ class Sensor {
           ),
         ),
       );
+      List list = [];
+      for (int j = 0; j < 6; j++) {
+        list.add(data[(i * blockSize + histOffsetSndByte) + j]);
+      }
+      DatabaseService(uid: this.uid)
+          .uploadBlockData(list, sensorStartTime + time * minInMilliSec);
     }
 
     return result;
@@ -182,8 +191,22 @@ class Sensor {
               sensorStartTime + time * minInMilliSec),
           getGlucoseLevel(data[(i * blockSize + trendOffsetFstByte)],
               data[(i * blockSize + trendOffsetSndByte)])));
+      List list = [];
+      for (int j = 0; j < 6; j++) {
+        list.add(data[(i * blockSize + trendOffsetSndByte) + j]);
+      }
+      DatabaseService(uid: this.uid)
+          .uploadBlockData(list, sensorStartTime + time * minInMilliSec);
     }
-
     return result;
+  }
+
+  List<GlucoseData> avgTrendData(List<GlucoseData> list) {
+    double avg = 0;
+    list.forEach((element) {
+      avg += element.glucoseVal;
+    });
+    avg /= list.length;
+    return [GlucoseData(list[0].time, avg)];
   }
 }

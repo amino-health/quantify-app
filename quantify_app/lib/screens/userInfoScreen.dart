@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
@@ -26,6 +28,8 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
   final _heighttext = TextEditingController();
   //bool _heightvalidate = false;
   //bool _weightvalidate = false;
+  final GlobalKey<ScaffoldState> _scaffoldkey = new GlobalKey<ScaffoldState>();
+  static const PickerData = '''['Gender', 'Male', 'Female']''';
 
   @override
   void dispose() {
@@ -121,6 +125,7 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
           if (snapshot.hasData) {
             UserData userData = snapshot.data;
             return Scaffold(
+              key: _scaffoldkey,
               resizeToAvoidBottomInset: false,
               body: Container(
                 padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 60.0),
@@ -205,13 +210,9 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
                           //margin: EdgeInsets.fromLTRB(30.0, 0, 20.0, 0),
                           child: DropdownButtonHideUnderline(
                             child: Container(
-
                               padding: EdgeInsets.fromLTRB(20, 0, 20, 0),
                               width: MediaQuery.of(context).size.width * 0.6,
-
                               key: Key('pickGender'),
-                              
-
                               decoration: ShapeDecoration(
                                 shape: RoundedRectangleBorder(
                                     side: BorderSide(

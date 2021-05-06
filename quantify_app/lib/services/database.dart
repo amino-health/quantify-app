@@ -15,6 +15,10 @@ import 'package:quantify_app/screens/graphs.dart';
 
 import 'package:stream_transform/stream_transform.dart';
 
+import '../screens/graphs.dart';
+import '../screens/graphs.dart';
+import '../screens/graphs.dart';
+
 //refrence
 //
 //
@@ -232,6 +236,16 @@ class DatabaseService {
     return activityData;
   }
 
+  List<GlucoseData> _getGlucose(QuerySnapshot snapshot) {
+    List<GlucoseData> result = [];
+    snapshot.docs.forEach((element) {
+      result.add(GlucoseData(
+          DateTime.fromMillisecondsSinceEpoch(element['date']),
+          (element['glucose'] / 10).round() / 18));
+    });
+    return result;
+  }
+
   Stream get userDiary {
     Stream mealData = userInfo
         .doc(uid)
@@ -244,7 +258,10 @@ class DatabaseService {
         .snapshots()
         .map(_userActivityFromSnapshot);
 
-    return activityData.combineLatestAll([mealData]);
+    Stream glucoseData =
+        userInfo.doc(uid).collection('glucose').snapshots().map(_getGlucose);
+
+    return activityData.combineLatestAll([mealData, glucoseData]);
   }
 
   final CollectionReference trainingData =
@@ -510,6 +527,25 @@ class DatabaseService {
       result = false;
     }
     return result;
+  }
+
+  Future<void> uploadBlockData(List data, int time) async {
+    try {
+      await userInfo
+          .doc(uid)
+          .collection('rawBlockData')
+          .doc(time.toString())
+          .set({
+        'fstGlucose': data[0],
+        'sndGlucose': data[1],
+        'fstFlag': data[2],
+        'fstTemp': data[3],
+        'sndTemp': data[4],
+        'sndFlag': data[5],
+      });
+    } catch (e) {
+      print(e);
+    }
   }
 }
 
