@@ -23,6 +23,9 @@ It is recommended to use an IDE like visual studio code. From there you can debu
 Hot reload might crash with the web emulator. Use another emulator instead or run on a device.  
 Porting to iOS might give an error saying modules not found. Run `rm ios/Podfile && flutter build ios` in the working directory. 
 
+## Fixes
+To use Google signin when running debug mode you have to run `cd quantify_app/android && ./gradlew signingReport` and copy the SHA1 fingerprint that belongs to the debugAndroidTest and add it as a fingerprint in the firebase app through the firebase console at console.firebase.google.com  
+
 # Git workflow
 ## Pull requests, branches, commits
 Every new feature should be developed in a appropriately named branch.  
