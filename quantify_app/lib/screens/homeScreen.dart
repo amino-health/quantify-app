@@ -1,24 +1,17 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttericon/rpg_awesome_icons.dart';
 import 'package:provider/provider.dart';
 import 'package:quantify_app/customWidgets/bottomNavbar.dart';
 import 'package:quantify_app/customWidgets/expandingFAB.dart';
-import 'package:quantify_app/models/training.dart';
-//import 'package:quantify_app/loading.dart';
 import 'package:quantify_app/models/userClass.dart';
 import 'package:quantify_app/screens/ActivityFormScreen.dart';
 import 'package:quantify_app/screens/diaryScreen.dart';
-//import 'package:quantify_app/screens/diaryScreen.dart';
 
 import 'package:quantify_app/screens/addMealScreen.dart';
 import 'package:quantify_app/customWidgets/globals.dart' as globals;
-
-//import 'package:flutter_svg/flutter_svg.dart';
-//import 'package:quantify_app/screens/firstScanScreen.dart';
-
 import 'package:quantify_app/models/activityDiary.dart';
 
 import 'package:quantify_app/screens/graphs.dart';
@@ -55,15 +48,20 @@ List<IconData> iconList = [
   Icons.sports_tennis,
   Icons.sports_handball,
   Icons.miscellaneous_services,
-  RpgAwesome.muscle_up,
+  Icons.fitness_center
 ];
 
 class _HomeScreenState extends State<HomeScreen>
     with SingleTickerProviderStateMixin {
   MealData _mealData = new MealData("", DateTime.now(), null, null, null);
+
   TrainingDiaryData _trainingData = new TrainingDiaryData();
+  MealData latestMeal = new MealData("", null, null, null, null);
+  TrainingDiaryData latestTraining = new TrainingDiaryData(date: null);
+
   bool showMeal = false;
   bool showActivity = false;
+  bool showWelcome = true;
   int selectedIndex = 0;
   DateTime graphPos;
 
@@ -77,15 +75,12 @@ class _HomeScreenState extends State<HomeScreen>
 
   setData(Object data) {
     List castedData = data as List;
-    print('data is ');
-    print(castedData[0].category);
+
     dynamic toSet;
     if (castedData.last) {
       toSet = overviewKey.currentState;
-      print('setting state of overviewkey');
     } else {
       toSet = this;
-      print('setting state of homescreen');
     }
     if (castedData.first.runtimeType == MealData) {
       toSet.setState(() {
@@ -93,15 +88,22 @@ class _HomeScreenState extends State<HomeScreen>
         showMeal = true;
         showActivity = false;
       });
-    } else {
-      print('State is now ${overviewKey.currentState}');
+    } else if (castedData.first.runtimeType == TrainingDiaryData) {
       toSet.setState(() {
         _trainingData = castedData.first;
         showActivity = true;
         showMeal = false;
       });
     }
-    /**/
+  }
+
+  getLatest(latest) {
+    Future.delayed(Duration.zero, () {
+      overviewKey.currentState.setState(() {
+        this.latestMeal = latest[0];
+        this.latestTraining = latest[1];
+      });
+    });
   }
 
   Future<void> delete({@required bool isMeal}) {
@@ -164,11 +166,13 @@ class _HomeScreenState extends State<HomeScreen>
 
   Future<void> edit({@required bool isMeal}) async {
     if (isMeal) {
-      File file;
-      if (_mealData.localPath != null) {
-        try {
-          file = File(_mealData.localPath);
-        } catch (e) {}
+      List<File> file = [];
+      for (String path in _mealData.localPath) {
+        if (path != null) {
+          try {
+            file.add(File(path));
+          } catch (e) {}
+        }
       }
       Navigator.push(
           context,
@@ -180,9 +184,12 @@ class _HomeScreenState extends State<HomeScreen>
                   _mealData.mealDescription,
                   _mealData.mealImageUrl,
                   true,
-                  _mealData.docId))).then((values) => setData([values, false]));
+                  _mealData.docId))).then((values) {
+        print("Values: " + values.toString());
+        return setData([values, false]);
+      });
     } else {
-      TrainingData activityData = await showDialog(
+      await showDialog(
           context: context,
           builder: (context) => ActivityPopup(
               keyRef: _trainingData.trainingid,
@@ -200,25 +207,33 @@ class _HomeScreenState extends State<HomeScreen>
                 date: values.date,
                 duration: values.duration,
                 intensity: values.intensity,
-                category: values.category)
+                category: values.category),
+            false
           ]));
+
       final user = Provider.of<UserClass>(context, listen: false);
       await DatabaseService(uid: user.uid).updateTrainingDiaryData(
-        activityData.trainingid, //ID
-        activityData.name, //name
-        activityData.description, //description
-        activityData.date, //date
-        activityData.duration, //duration
-        activityData.intensity, //Intensity
-        activityData.category,
+        _trainingData.trainingid, //ID
+        _trainingData.name, //name
+        _trainingData.description, //description
+        _trainingData.date, //date
+        _trainingData.duration, //duration
+        _trainingData.intensity, //Intensity
+        _trainingData.category,
       );
     }
   }
 
-  Future<Widget> displayImage(bool _isIos) async {
-    if (_mealData.localPath != null) {
+  Future<Widget> displayImage(bool _isIos, {bool latest = false}) async {
+    MealData selectedMeal;
+    if (latest) {
+      selectedMeal = latestMeal;
+    } else {
+      selectedMeal = _mealData;
+    }
+    if (selectedMeal != null && selectedMeal.localPath != null) {
       try {
-        File imageFile = File(_mealData.localPath);
+        File imageFile = File(_mealData.localPath[0]);
         if (await imageFile.exists()) {
           Image img = Image.file(imageFile);
           return img;
@@ -229,21 +244,22 @@ class _HomeScreenState extends State<HomeScreen>
         print(e);
       }
     }
-    return _mealData.mealImageUrl != null
+    return (selectedMeal != null && selectedMeal.mealImageUrl != null)
         ? CachedNetworkImage(
             progressIndicatorBuilder: (context, url, downProg) =>
                 CircularProgressIndicator(value: downProg.progress),
-            imageUrl: _mealData.mealImageUrl,
+            imageUrl: selectedMeal.mealImageUrl[0],
             errorWidget: (context, url, error) => Icon(_isIos
                 ? CupertinoIcons.exclamationmark_triangle_fill
                 : Icons.error),
           )
         : Container(
-            child: Icon(
-              Icons.image_not_supported,
-              size: MediaQuery.of(context).size.height * 0.1,
-            ),
-          );
+            child: latest
+                ? null
+                : Icon(
+                    Icons.image_not_supported,
+                    size: MediaQuery.of(context).size.height * 0.1,
+                  ));
   }
 
   String _printDuration(Duration duration) {
@@ -275,8 +291,10 @@ class _HomeScreenState extends State<HomeScreen>
                   Align(
                     alignment: Alignment.center,
                     child: Text(
-                      DateFormat("yyyy-MM-dd - kk:mm")
-                          .format(_trainingData.date),
+                      _trainingData != null
+                          ? DateFormat("yyyy-MM-dd - kk:mm")
+                              .format(_trainingData.date)
+                          : "",
                       textScaleFactor: 1.5,
                       style: TextStyle(
                           color: Colors.white, fontStyle: FontStyle.italic),
@@ -383,6 +401,205 @@ class _HomeScreenState extends State<HomeScreen>
     );
   }
 
+  String greeting() {
+    var hour = DateTime.now().hour;
+    if (hour < 12) {
+      return 'Good morning!';
+    }
+    if (hour < 17) {
+      return 'Good afternoon!';
+    }
+    return 'Good evening!';
+  }
+
+  welcomeContent(context, _isIos) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8.0, left: 8, right: 8),
+      child: Container(
+        decoration: BoxDecoration(
+            color: Color(0x22808080),
+            borderRadius: BorderRadius.all(Radius.circular(20))),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: Align(
+                alignment: Alignment.center,
+                child: Text(
+                  greeting(),
+                  textScaleFactor: 2.5,
+                  style: TextStyle(
+                      color: Colors.black, fontStyle: FontStyle.italic),
+                ),
+              ),
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Spacer(
+                  flex: 1,
+                ),
+                Align(
+                  alignment: Alignment.center,
+                  child: Text(
+                    "Latest glucose value: ",
+                    textScaleFactor: 1.5,
+                    style: TextStyle(color: Colors.black),
+                  ),
+                ),
+                Container(
+                  child: Padding(
+                    padding: const EdgeInsets.all(15.0),
+                    child: Text(
+                      "6.7",
+                      textScaleFactor: 1.5,
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                  decoration: BoxDecoration(
+                      shape: BoxShape.circle, color: Color(0xff99163d)),
+                ),
+                Spacer(
+                  flex: 1,
+                )
+              ],
+            ),
+            Padding(
+              padding: const EdgeInsets.only(top: 10),
+              child: Divider(
+                thickness: 4,
+                indent: 20,
+                endIndent: 20,
+                color: Color(0xff99163d),
+                height: 1,
+              ),
+            ),
+            Expanded(
+              child: Container(
+                child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Expanded(
+                        flex: 1,
+                        child: InkWell(
+                          onTap: () {
+                            if (latestMeal != null &&
+                                latestMeal.mealDate != null) {
+                              setData([latestMeal, false]);
+                            }
+                          },
+                          child: Container(
+                            child: Column(
+                              children: [
+                                Text(
+                                  "Your latest meal:",
+                                  textScaleFactor: 1.2,
+                                  style: TextStyle(color: Colors.black),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: FutureBuilder(
+                                      future:
+                                          displayImage(_isIos, latest: true),
+                                      builder: (BuildContext context,
+                                          AsyncSnapshot snapshot) {
+                                        if (!snapshot.hasData) {
+                                          return Loading();
+                                        }
+                                        return Container(
+                                          width: MediaQuery.of(context)
+                                                  .size
+                                                  .width *
+                                              0.2,
+                                          height: MediaQuery.of(context)
+                                                  .size
+                                                  .width *
+                                              0.2,
+                                          child: ClipRRect(
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                            child: FittedBox(
+                                                fit: BoxFit.fitHeight,
+                                                child: snapshot.data),
+                                          ),
+                                        );
+                                      }),
+                                ),
+                                (latestMeal != null &&
+                                        latestMeal.mealDate != null)
+                                    ? Text(
+                                        DateFormat("dd MMM: HH:mm")
+                                            .format(latestMeal.mealDate),
+                                        style: TextStyle(color: Colors.black))
+                                    : Container(),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      VerticalDivider(
+                        color: Color(0xff99163d),
+                        thickness: 4,
+                        endIndent: 15,
+                      ),
+                      Expanded(
+                        flex: 1,
+                        child: InkWell(
+                          onTap: () {
+                            if (latestTraining != null &&
+                                latestTraining.date != null) {
+                              setData([latestTraining, false]);
+                            }
+                          },
+                          child: Container(
+                            child: Column(
+                              children: [
+                                Text(
+                                  "Your latest exercise:",
+                                  textScaleFactor: 1.2,
+                                  style: TextStyle(color: Colors.black),
+                                ),
+                                Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: (latestTraining != null &&
+                                            latestTraining.category != null)
+                                        ? Container(
+                                            width: MediaQuery.of(context)
+                                                    .size
+                                                    .width *
+                                                0.2,
+                                            height: MediaQuery.of(context)
+                                                    .size
+                                                    .width *
+                                                0.2,
+                                            child: FittedBox(
+                                                fit: BoxFit.fitWidth,
+                                                child: Icon(iconList[
+                                                    latestTraining.category])),
+                                          )
+                                        : null),
+                                (latestTraining != null &&
+                                        latestTraining.date != null)
+                                    ? Text(
+                                        DateFormat("dd MMM: HH:mm")
+                                            .format(latestTraining.date),
+                                        style: TextStyle(color: Colors.black))
+                                    : Container(),
+                              ],
+                            ),
+                          ),
+                        ),
+                      )
+                    ]),
+              ),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
   mealContent(context, _isIos) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8.0, left: 8, right: 8),
@@ -431,22 +648,60 @@ class _HomeScreenState extends State<HomeScreen>
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  Container(
-                      height: MediaQuery.of(context).size.height * 0.2,
-                      width: MediaQuery.of(context).size.width * 0.45,
-                      child: FutureBuilder(
+                  Column(
+                    children: [
+                      FutureBuilder(
                           future: displayImage(_isIos),
                           builder:
                               (BuildContext context, AsyncSnapshot snapshot) {
                             if (!snapshot.hasData) {
-                              Loading();
+                              return Loading();
                             } else {
-                              return snapshot.data;
+                              return Container(
+                                height:
+                                    MediaQuery.of(context).size.height * 0.2,
+                                width: MediaQuery.of(context).size.height * 0.2,
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(15),
+                                  child: FittedBox(
+                                      fit: BoxFit.fill, child: snapshot.data),
+                                ),
+                              );
                             }
-                            return Container();
-                          })),
+                          }),
+                      Container(
+                        width: MediaQuery.of(context).size.width * 0.45,
+                        height: MediaQuery.of(context).size.height * 0.1,
+                        child: Row(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(left: 32),
+                              child: IconButton(
+                                  color: Colors.white,
+                                  iconSize:
+                                      MediaQuery.of(context).size.height * 0.04,
+                                  onPressed: () {
+                                    delete(isMeal: true);
+                                  },
+                                  icon: Icon(_isIos
+                                      ? CupertinoIcons.trash
+                                      : Icons.delete)),
+                            ),
+                            IconButton(
+                                color: Colors.white,
+                                iconSize:
+                                    MediaQuery.of(context).size.height * 0.04,
+                                onPressed: () {
+                                  edit(isMeal: true);
+                                },
+                                icon: Icon(Icons.edit))
+                          ],
+                        ),
+                      )
+                    ],
+                  ),
                   Container(
-                    height: MediaQuery.of(context).size.height * 0.2,
+                    height: MediaQuery.of(context).size.height * 0.3,
                     width: MediaQuery.of(context).size.width * 0.45,
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -465,32 +720,6 @@ class _HomeScreenState extends State<HomeScreen>
                   ),
                 ],
               ),
-              Container(
-                width: MediaQuery.of(context).size.width * 0.9333,
-                height: MediaQuery.of(context).size.height * 0.1,
-                child: Row(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(left: 32),
-                      child: IconButton(
-                          color: Colors.white,
-                          iconSize: MediaQuery.of(context).size.height * 0.04,
-                          onPressed: () {
-                            delete(isMeal: true);
-                          },
-                          icon: Icon(
-                              _isIos ? CupertinoIcons.trash : Icons.delete)),
-                    ),
-                    IconButton(
-                        color: Colors.white,
-                        iconSize: MediaQuery.of(context).size.height * 0.04,
-                        onPressed: () {
-                          edit(isMeal: true);
-                        },
-                        icon: Icon(Icons.edit))
-                  ],
-                ),
-              )
             ]),
       ),
     );
@@ -504,30 +733,33 @@ class _HomeScreenState extends State<HomeScreen>
     } catch (e) {
       _isIos = false;
     }
-    final List<Widget> _children = [
+    GraphicalInterface graph = GraphicalInterface(
+      update: setData,
+      latest: getLatest,
+      graphPosSetter: graphPos,
+    );
+
+    List<Widget> _children = [
       Center(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
               child: Container(
-                child: GraphicalInterface(
-                    update: setData, graphPosSetter: graphPos),
+                child: graph,
               ),
             ),
             Expanded(
-              child: StatefulBuilder(
-                  key: overviewKey,
-                  builder: (BuildContext context, setStateMeal) {
-                    if (showMeal) {
-                      return mealContent(context, _isIos);
-                    } else if (showActivity) {
-                      return activityContent(context, _isIos);
-                    } else {
-                      return Container();
-                    }
-                  }),
-            ),
+                child: StatefulBuilder(
+                    key: overviewKey,
+                    builder: (BuildContext context, StateSetter setStateMeal) {
+                      if (showMeal) {
+                        return mealContent(context, _isIos);
+                      } else if (showActivity) {
+                        return activityContent(context, _isIos);
+                      }
+                      return welcomeContent(context, _isIos);
+                    })),
           ],
         ),
       ),
@@ -542,8 +774,8 @@ class _HomeScreenState extends State<HomeScreen>
       });
     }
 
-    print(selectedIndex);
     return Scaffold(
+      key: globals.scaffoldKey,
       appBar: CustomAppBar(),
       body: _children[selectedIndex],
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,

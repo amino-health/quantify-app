@@ -50,10 +50,10 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
   }
 
   buildMaterialDatePicker(BuildContext context) async {
-    final DateTime picked = await showDatePicker(
+    DateTime picked = await showDatePicker(
       context: context,
       initialDate: selectedDate,
-      firstDate: DateTime(1900),
+      firstDate: DateTime(1905),
       lastDate: selectedDate.add(Duration(minutes: 30)),
       builder: (context, child) {
         return Theme(
@@ -62,6 +62,8 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
         );
       },
     );
+
+    print(picked.millisecondsSinceEpoch);
     if (picked != null && picked != selectedDate)
       setState(() {
         selectedDate = picked;
@@ -138,9 +140,10 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
                       Padding(
                         padding: const EdgeInsets.all(10.0),
                         child: TextFormField(
+                          key: Key('pickDate'),
                           readOnly: true,
-                          onTap: () {
-                            _selectDate(context);
+                          onTap: () async {
+                            await _selectDate(context);
                           },
                           focusNode: AlwaysDisabledFocusNode(),
                           decoration: InputDecoration(
@@ -157,6 +160,7 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
                       Padding(
                         padding: const EdgeInsets.all(10.0),
                         child: TextFormField(
+                            key: Key('enterWeight'),
                             validator: (String val) =>
                                 int.parse(val) < 30 && int.parse(val) > 442
                                     ? 'Enter a valid weight'
@@ -169,6 +173,7 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
                               border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(32.0)),
                             ),
+                            keyboardType: TextInputType.number,
                             onChanged: (val) {
                               setState(() => newweight = val.trim());
                             }),
@@ -176,6 +181,7 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
                       Padding(
                         padding: const EdgeInsets.all(10.0),
                         child: TextFormField(
+                            key: Key('enterHeight'),
                             validator: (val) =>
                                 int.parse(val) < 67 && int.parse(val) > 270
                                     ? 'Enter a valid height'
@@ -187,6 +193,7 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
                               border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(32.0)),
                             ),
+                            keyboardType: TextInputType.number,
                             onChanged: (val) {
                               setState(() => newheight = val.trim());
                             }),
@@ -195,10 +202,16 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
                         padding: const EdgeInsets.all(10.0),
                         child: Container(
                           //width: 400.0,
-                          // margin: EdgeInsets.fromLTRB(30.0, 10.0, 20.0, 10.0),
+                          //margin: EdgeInsets.fromLTRB(30.0, 0, 20.0, 0),
                           child: DropdownButtonHideUnderline(
                             child: Container(
-                              padding: EdgeInsets.fromLTRB(85.0, 0, 85.0, 0),
+
+                              padding: EdgeInsets.fromLTRB(20, 0, 20, 0),
+                              width: MediaQuery.of(context).size.width * 0.6,
+
+                              key: Key('pickGender'),
+                              
+
                               decoration: ShapeDecoration(
                                 shape: RoundedRectangleBorder(
                                     side: BorderSide(
@@ -210,6 +223,7 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
                                 hint: Text('Gender'),
                                 value: dropdownValue,
                                 icon: const Icon(Icons.arrow_downward),
+                                onTap: () => FocusScope.of(context).unfocus(),
                                 onChanged: (String newValue) {
                                   FocusScope.of(context).unfocus();
                                   setState(() {
@@ -238,15 +252,17 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
                           height: 50,
                           width: 350,
                           child: ElevatedButton(
+                            key: Key('confirm'),
                             child: Text("Confirm"),
                             onPressed: () async {
                               if (_formKey.currentState.validate()) {
                                 await DatabaseService(uid: user.uid)
                                     .updateUserData(
+                                        userData.name,
                                         userData.uid,
                                         userData.email,
                                         false,
-                                        userData.age,
+                                        selectedDate.millisecondsSinceEpoch,
                                         newweight,
                                         newheight,
                                         userData.consent,

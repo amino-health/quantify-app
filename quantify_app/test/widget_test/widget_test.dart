@@ -10,13 +10,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:quantify_app/main.dart';
 
 void main() {
-
   testWidgets('Testing menu buttons', (WidgetTester tester) async {
     // Build our app and trigger a frame.
     await tester.pumpWidget(MyApp());
 
     // Verify that we start on Home
-    expect(find.text('Monday Dec 12'), findsNothing);
   });
-  
 }

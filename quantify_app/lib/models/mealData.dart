@@ -3,7 +3,7 @@ class MealData {
       this.localPath);
   String mealDescription = "";
   DateTime mealDate;
-  String mealImageUrl;
+  List<String> mealImageUrl;
   String docId;
-  String localPath;
+  List<String> localPath;
 }

@@ -1,9 +1,10 @@
 //import 'package:dio/dio.dart';
 
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:fluttericon/rpg_awesome_icons.dart';
 import 'package:provider/provider.dart';
 import 'package:quantify_app/models/training.dart';
 //import 'package:quantify_app/loading.dart';
@@ -24,28 +25,29 @@ class AddActivityScreen extends StatefulWidget {
 class _AddActivityScreenState extends State<AddActivityScreen>
     with TickerProviderStateMixin {
   int _selectedIndex = 0;
-
   TabController _tabController;
 
   final List<Tab> _activityTabs = <Tab>[
     new Tab(
       child: FittedBox(
           fit: BoxFit.fitWidth,
-          child: Text('History', style: TextStyle(color: Colors.black))),
+          child: Text('History', style: TextStyle(color: Colors.white))),
     ),
     new Tab(
       child: FittedBox(
           fit: BoxFit.fitWidth,
-          child: Text('My Activities', style: TextStyle(color: Colors.black))),
+          child: Text('My Activities', style: TextStyle(color: Colors.white))),
     ),
     new Tab(
       child: FittedBox(
           fit: BoxFit.fitWidth,
           child:
-              Text('Basic Activities', style: TextStyle(color: Colors.black))),
+              Text('Basic Activities', style: TextStyle(color: Colors.white))),
     ),
   ];
-
+/*
+  This list is used when rendering the image linked to the activity's categories. 
+*/
   List<IconData> iconList = [
     Icons.directions_bike,
     Icons.directions_run,
@@ -58,7 +60,7 @@ class _AddActivityScreenState extends State<AddActivityScreen>
     Icons.sports_tennis,
     Icons.sports_handball,
     Icons.miscellaneous_services,
-    RpgAwesome.muscle_up,
+    Icons.fitness_center
   ];
 
   //Temporary lists for activity cards
@@ -78,6 +80,7 @@ class _AddActivityScreenState extends State<AddActivityScreen>
   //END
   //
 
+  //Changes the appbar search logo into a TextField for search input.
   void _searchPressed() {
     setState(() {
       if (this._searchIcon.icon == Icons.search) {
@@ -126,6 +129,7 @@ class _AddActivityScreenState extends State<AddActivityScreen>
     super.dispose();
   }
 
+  //Create activity button widget
   bottomButton(BuildContext context, String _title) {
     return Container(
         child: FittedBox(
@@ -179,10 +183,13 @@ class _AddActivityScreenState extends State<AddActivityScreen>
 
   void _onItemTapped(int index) {
     setState(() {
+      print(index);
       _selectedIndex = index;
     });
   }
 
+  //If user has removed an item from History list, Update the 'InHistory' field to false
+  //If the item was in another list, remove it from database completely
   void _removeItem(ValueKey dismissKey) {
     setState(() {});
 
@@ -195,49 +202,33 @@ class _AddActivityScreenState extends State<AddActivityScreen>
     final user = Provider.of<UserClass>(context, listen: false);
     for (int j = 0; j < activityList.length; j++) {
       for (int i = 0; i < activityList[j].length; i++) {
-        print(activityList[j][i][0].key.value);
-        print(dismissKey.value);
-        print(j);
         if (activityList[j][i][0].key.value == (dismissKey.value)) {
           if (j == 0) {
-            print('list item is');
-            print(historyActivityList[i][1]);
             DatabaseService(uid: user.uid).updateTrainingData(
-                (dismissKey.value.toString()),
-                '',
-                '',
-                DateTime.fromMicrosecondsSinceEpoch(historyActivityList[i][2]),
-                0,
-                0,
-                false,
-                null);
+              dismissKey.value.toString(),
+              date: DateTime.fromMicrosecondsSinceEpoch(
+                  historyActivityList[i][2]),
+              inHistory: false,
+            );
             historyActivityList.remove(historyActivityList[i]);
             j += 1;
-          }
-          if (j == 1 && j == _selectedIndex) {
-            print(' J == 1');
+          } else if (j == 1) {
             myActivityList.remove(myActivityList[i][1]);
             DatabaseService(uid: user.uid).removeActivity(dismissKey.value);
-          } else if (j == 2 && j == _selectedIndex) {
-            print(' J == 2');
-            allActivityList.remove(allActivityList[i]);
-            DatabaseService(uid: user.uid).removeActivity(dismissKey.value);
+          } else if (j == 2) {
+            print('cant remove from basic list');
+            //allActivityList.remove(allActivityList[i]);
+            //DatabaseService(uid: user.uid).removeActivity(dismissKey.value);
           }
         }
       }
     }
-
-    //DatabaseService(uid: user.uid).removeActivity(dismissKey.value);
-    print('value for key is');
-    print(dismissKey.value);
   }
 
-  //This method returns a string converted integer higher than the highest
-  //existing key integer.
-
-  //Returns a container item with key _name and a child slider with a numbered key
+  //Build the widget containing information about activity in activity adding screen IE the tile in scrollview
+  //
   activityItem(BuildContext context, String name, String _subtitle, int date,
-      int intensity, String keyRef, int category) {
+      int intensity, String keyRef, int category, bool deletable) {
     return Container(
         key: ValueKey(keyRef),
         width: MediaQuery.of(context).size.width * 0.95,
@@ -245,12 +236,12 @@ class _AddActivityScreenState extends State<AddActivityScreen>
         child: Slidable(
           actionPane: SlidableDrawerActionPane(),
           actionExtentRatio: 0.25,
-          //_removeItem(newKey);
-
+          enabled: deletable ? true : false,
           child: Card(
             child: ListTile(
                 title: Text(name),
                 subtitle: Text(_subtitle),
+                trailing: Icon(iconList[category]),
                 isThreeLine: false,
                 onTap: () async {
                   TrainingData activityData = await Navigator.push(
@@ -281,8 +272,11 @@ class _AddActivityScreenState extends State<AddActivityScreen>
         ));
   }
 
-  //This function controls which content list is displayed
-  customScrollview(BuildContext context) {
+  //This function controls which content list is displayed.
+  //Is rendered on build
+  customScrollview(BuildContext context, int index) {
+    _selectedIndex = index;
+    print('index in csv $index');
     List<dynamic> activityList = <dynamic>[];
     List<Widget> filteredActivityList = <Widget>[];
     if (_selectedIndex == 0) {
@@ -294,6 +288,8 @@ class _AddActivityScreenState extends State<AddActivityScreen>
       activityList = myActivityList;
     }
     if (_selectedIndex == 2) {
+      allActivityList
+          .sort((a, b) => a[1].toString().compareTo(b[1].toString()));
       activityList = allActivityList;
     }
 
@@ -307,30 +303,26 @@ class _AddActivityScreenState extends State<AddActivityScreen>
     }
 
     return Container(
-      child: Expanded(
-        child: SingleChildScrollView(
-          child: Column(
-              //mainAxisAlignment: MainAxisAlignment.end,
-              children: filteredActivityList),
-        ),
+      child: SingleChildScrollView(
+        child: Column(children: filteredActivityList),
       ),
     );
   }
 
   //Is called whenever a user presses Done in add activity view
+  //Updates the history list with the activity item
+  //Adds the activity to the diary collection in database
   Future addActivity(context, activityData) async {
-    print('in add activity');
     final user = Provider.of<UserClass>(context, listen: false);
-    print(activityData);
-    await DatabaseService(uid: user.uid).updateTrainingData(
-        activityData.trainingid,
-        activityData.name, //name
-        activityData.description, //description
-        activityData.date, //date
-        activityData.intensity, //Intensity
-        _selectedIndex + 1,
-        true,
-        activityData.category);
+    await DatabaseService(uid: user.uid)
+        .updateTrainingData(activityData.trainingid,
+            name: activityData.name, //name
+            description: activityData.description, //description
+            date: activityData.date, //date
+            intensity: activityData.intensity, //Intensity
+            listtype: _selectedIndex + 1,
+            inHistory: true,
+            category: activityData.category);
     await DatabaseService(uid: user.uid).createTrainingDiaryData(
       activityData.name, //name
       activityData.description, //description
@@ -357,43 +349,67 @@ class _AddActivityScreenState extends State<AddActivityScreen>
     for (DocumentSnapshot entry in databaseData) {
       if (entry['inHistory']) {
         historyActivityList.insert(0, [
-          activityItem(context, entry['name'], entry['description'],
-              entry['date'], entry['intensity'], entry.id, entry['category']),
+          activityItem(
+              context,
+              entry['name'],
+              entry['description'],
+              entry['date'],
+              entry['intensity'],
+              entry.id,
+              entry['category'],
+              true),
           entry['name'] + entry['description'],
-          entry['date']
+          entry['date'],
         ]);
       }
       if (entry['listtype'] == 2) {
         //2 = MyactivityData
 
         myActivityList.insert(0, [
-          activityItem(context, entry['name'], entry['description'],
-              entry['date'], entry['intensity'], entry.id, entry['category']),
-          entry['name'] + entry['description']
+          activityItem(
+              context,
+              entry['name'],
+              entry['description'],
+              entry['date'],
+              entry['intensity'],
+              entry.id,
+              entry['category'],
+              true),
+          entry['name'] + entry['description'],
         ]);
       } else if (entry['listtype'] == 3) {
-        //1 = basicActivitiesData
+        //3 = basicActivitiesData
 
         allActivityList.insert(0, [
-          activityItem(context, entry['name'], entry['description'],
-              entry['date'], entry['intensity'], entry.id, entry['category']),
-          entry['name'] + entry['description']
+          activityItem(
+              context,
+              entry['name'],
+              entry['description'],
+              entry['date'],
+              entry['intensity'],
+              entry.id,
+              entry['category'],
+              false),
+          entry['name'] + entry['description'],
         ]);
       }
     }
   }
 
+  //Creates two objects. One activity for the 'add activity view'
+  //and one activity for the diary and adds them to the diary
   void addItem(context, activityData) async {
-    print('In add item');
     final user = Provider.of<UserClass>(context, listen: false);
     await DatabaseService(uid: user.uid).createTrainingData(
-        activityData.name, //name
-        activityData.description, //desc
-        activityData.date, //date
-        activityData.intensity, //intensity
-        2,
-        true,
-        activityData.category);
+      null,
+      activityData.name, //name
+      activityData.description, //desc
+      activityData.date, //date
+      activityData.intensity, //intensity
+      2,
+      activityData.category,
+      inHistory: true,
+    );
     await DatabaseService(uid: user.uid).createTrainingDiaryData(
         activityData.name, //name
         activityData.description, //description
@@ -406,77 +422,67 @@ class _AddActivityScreenState extends State<AddActivityScreen>
     }
   }
 
-  tabBar(BuildContext context) {
-    return TabBar(
-      controller: _tabController,
-      tabs: _activityTabs,
-      onTap: _onItemTapped,
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final user = Provider.of<UserClass>(context, listen: false);
 
-    return FutureBuilder<QuerySnapshot>(
-        future: FirebaseFirestore.instance
-            .collection('userData')
-            .doc(user.uid)
-            .collection('training')
-            .get(),
+    return StreamBuilder(
+        stream: DatabaseService(uid: user.uid).allActivities,
         builder: (context, snapshot) {
           if (snapshot.data != null) {
-            final List<DocumentSnapshot> documents = snapshot.data.docs;
-            //print('documents is ${documents}');
+            List documents = snapshot.data.toList();
+            //documents = documents.expand((i) => i).toList();
+            //final List<DocumentSnapshot> documents = snapshot.data.docs;
             structureData(context, documents);
           } else {
             print('No training data found for user');
           }
-          return Scaffold(
-            resizeToAvoidBottomInset: false,
-            appBar: AppBar(
-              //elevation: 0.0,
-              leading: Row(
-                children: [
-                  Container(
-                    width: MediaQuery.of(context).size.width * 0.09,
-                    child: FittedBox(
-                      fit: BoxFit.fitWidth,
-                      child: BackButton(),
-                    ),
+          return DefaultTabController(
+              length: 3,
+              child: Scaffold(
+                resizeToAvoidBottomInset: false,
+                appBar: AppBar(
+                  leading: Row(
+                    children: [
+                      Container(
+                        width: MediaQuery.of(context).size.width * 0.09,
+                        child: FittedBox(
+                          fit: BoxFit.fitWidth,
+                          child: BackButton(),
+                        ),
+                      ),
+                      Container(
+                        width: MediaQuery.of(context).size.width * 0.06,
+                        child: FittedBox(
+                          fit: BoxFit.fitWidth,
+                          child: IconButton(
+                              icon: _searchIcon, onPressed: _searchPressed),
+                        ),
+                      ),
+                    ],
                   ),
-                  Container(
-                    width: MediaQuery.of(context).size.width * 0.06,
-                    child: FittedBox(
-                      fit: BoxFit.fitWidth,
-                      child: IconButton(
-                          icon: _searchIcon, onPressed: _searchPressed),
-                    ),
-                  ),
-                ],
-              ),
-              leadingWidth: MediaQuery.of(context).size.width * 0.15,
-              title: _appBarTitle,
-              backgroundColor: Color(0xFF99163D),
-              toolbarHeight: MediaQuery.of(context).size.height * 0.1,
-            ),
-            body: Center(
-                child: Column(
-              children: [
-                Container(
-                  height: MediaQuery.of(context).size.height * 0.075,
-                  width: MediaQuery.of(context).size.width * 1,
-                  child: new Card(
-                    elevation: 26.0,
-                    color: Color(0xFFF0F0F0),
-                    child: tabBar(context),
+                  leadingWidth: MediaQuery.of(context).size.width * 0.15,
+                  title: _appBarTitle,
+                  backgroundColor: Color(0xFF99163D),
+                  toolbarHeight: MediaQuery.of(context).size.height * 0.1,
+                  bottom: TabBar(
+                    tabs: _activityTabs,
+                    //onTap: _onItemTapped,
+                    indicatorColor: Colors.white,
+                    automaticIndicatorColorAdjustment: true,
                   ),
                 ),
-                customScrollview(context),
-              ],
-            )),
-            bottomNavigationBar: bottomButton(context, 'Create New Activity'),
-          );
+                body: TabBarView(
+                  //controller: _tabController,
+                  children: [
+                    customScrollview(context, 0),
+                    customScrollview(context, 1),
+                    customScrollview(context, 2)
+                  ],
+                ),
+                bottomNavigationBar:
+                    bottomButton(context, 'Create New Activity'),
+              ));
         });
   }
 }

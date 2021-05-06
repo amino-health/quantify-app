@@ -6,17 +6,19 @@ class UserClass {
 }
 
 class UserData {
+  final String name;
   final String uid;
   final String email;
   final bool newuser;
-  final String age;
+  final int age;
   final String weight;
   final String height;
   final bool consent;
   final String gender;
 
   UserData(
-      {this.uid,
+      {this.name,
+      this.uid,
       this.email,
       this.newuser,
       this.age,

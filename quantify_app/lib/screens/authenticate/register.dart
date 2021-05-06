@@ -18,10 +18,11 @@ class _RegisterState extends State<Register> {
   String email = '';
   String password = '';
   String error = '';
-
+  String name = '';
   TextEditingController _password = TextEditingController();
   TextEditingController _passwordConf = TextEditingController();
 
+  TextEditingController _nameController = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -43,6 +44,11 @@ class _RegisterState extends State<Register> {
               Padding(
                 padding: const EdgeInsets.all(10.0),
                 child: TextFormField(
+
+                    controller: _nameController,
+
+                    key: Key('inputName'),
+
                     validator: (val) => val.isEmpty ? "Ente a name" : null,
                     decoration: InputDecoration(
                       hintText: 'Full name',
@@ -51,11 +57,14 @@ class _RegisterState extends State<Register> {
                       border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(32.0)),
                     ),
-                    onChanged: (val) {}),
+                    onChanged: (val) {
+                      setState(() => name = val.trim());
+                    }),
               ),
               Padding(
                 padding: const EdgeInsets.all(10.0),
                 child: TextFormField(
+                    key: Key('inputEmail'),
                     validator: (val) {
                       return EmailValidator.validate(val)
                           ? null
@@ -75,6 +84,7 @@ class _RegisterState extends State<Register> {
               Padding(
                 padding: const EdgeInsets.all(10.0),
                 child: TextFormField(
+                    key: Key('inputPassword'),
                     controller: _password,
                     validator: (val) {
                       String result = '';
@@ -104,6 +114,7 @@ class _RegisterState extends State<Register> {
               Padding(
                 padding: const EdgeInsets.all(10.0),
                 child: TextFormField(
+                    key: Key('inputPasswordAgain'),
                     controller: _passwordConf,
                     decoration: InputDecoration(
                       hintText: 'Re-enter Password',
@@ -133,11 +144,17 @@ class _RegisterState extends State<Register> {
                   height: 50,
                   width: 350,
                   child: ElevatedButton(
-                    child: Text("Sign in"),
+
+                    key: Key('register'),
+
+                    child: Text("Sign up"),
                     onPressed: () async {
                       if (_formKey.currentState.validate()) {
+                        name = _nameController.text.trim();
                         dynamic result =
-                            await _auth.registerWithEmailAndPassword(email,
+                            await _auth.registerWithEmailAndPassword(
+                                name,
+                                email,
                                 password); // If this succed want to go to
                         if (result == null) {
                           setState(() => error =
@@ -162,7 +179,7 @@ class _RegisterState extends State<Register> {
                   onPressed: () => widget.toggleView(),
                   child: Text(
                     'Already have an account? Sign in', //title
-                    textAlign: TextAlign.end, //aligment
+                    textAlign: TextAlign.center, //aligment
                   ),
                 ),
               ),
