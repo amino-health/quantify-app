@@ -298,11 +298,15 @@ class _DiaryDetailsState extends State<DiaryDetailsScreen> {
     List<Widget> imgList = [];
     if (imgref.length <= localpath.length) {
       for (int i = 0; i < imgref.length; i++) {
-        imgList.add(mealImage(context, imgRef[i], localPath[i], isIos));
+        imgList.add(FittedBox(
+            fit: BoxFit.fill,
+            child: mealImage(context, imgRef[i], localPath[i], isIos)));
       }
     } else {
       for (int i = 0; i < localpath.length; i++) {
-        imgList.add(mealImage(context, imgRef[i], localPath[i], isIos));
+        imgList.add(FittedBox(
+            fit: BoxFit.fill,
+            child: mealImage(context, imgRef[i], localPath[i], isIos)));
       }
     }
 
