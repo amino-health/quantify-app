@@ -42,7 +42,8 @@ class Sensor {
                 List<GlucoseData> trend = getTrendData();
                 List<GlucoseData> history = getHistoryData();
 
-                await DatabaseService(uid: uid).updateGlucose(trend);
+                await DatabaseService(uid: uid).updateGlucose(avgTrendData(
+                    trend)); // Pushes an average of the 15 last minutes
                 await DatabaseService(uid: uid).updateGlucose(history);
               }
               await NfcManager.instance.stopSession();
@@ -185,7 +186,15 @@ class Sensor {
       DatabaseService(uid: this.uid)
           .uploadBlockData(list, sensorStartTime + time * minInMilliSec);
     }
-
     return result;
+  }
+
+  List<GlucoseData> avgTrendData(List<GlucoseData> list) {
+    double avg = 0;
+    list.forEach((element) {
+      avg += element.glucoseVal;
+    });
+    avg /= list.length;
+    return [GlucoseData(list[0].time, avg)];
   }
 }
