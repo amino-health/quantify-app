@@ -319,16 +319,16 @@ Icon category
               caption: 'Graph',
               color: Colors.green,
               icon: Icons.stacked_line_chart,
-              onTap: () =>
-                  goToGraphPoint(DateTime.fromMillisecondsSinceEpoch(date),
-                      trainingData: new TrainingDiaryData(
-                        trainingid: newKey.value,
-                        name: name,
-                        description: _subtitle,
-                        date: DateTime.fromMillisecondsSinceEpoch(date),
-                        duration: Duration(milliseconds: duration),
-                        intensity: intensity,
-                      )),
+              onTap: () => goToGraphPoint(
+                  DateTime.fromMillisecondsSinceEpoch(date),
+                  trainingData: new TrainingDiaryData(
+                      trainingid: newKey.value,
+                      name: name,
+                      description: _subtitle,
+                      date: DateTime.fromMillisecondsSinceEpoch(date),
+                      duration: Duration(milliseconds: duration),
+                      intensity: intensity,
+                      category: category)),
             )
           ],
           secondaryActions: <Widget>[
