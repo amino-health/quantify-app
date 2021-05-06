@@ -153,7 +153,7 @@ class Sensor {
       );
       List list = [];
       for (int j = 0; j < 6; j++) {
-        list.add((i * blockSize + histOffsetSndByte) + j);
+        list.add(data[(i * blockSize + histOffsetSndByte) + j]);
       }
       DatabaseService(uid: this.uid)
           .uploadBlockData(list, sensorStartTime + time * minInMilliSec);
@@ -180,7 +180,7 @@ class Sensor {
               data[(i * blockSize + trendOffsetSndByte)])));
       List list = [];
       for (int j = 0; j < 6; j++) {
-        list.add((i * blockSize + trendOffsetSndByte) + j);
+        list.add(data[(i * blockSize + trendOffsetSndByte) + j]);
       }
       DatabaseService(uid: this.uid)
           .uploadBlockData(list, sensorStartTime + time * minInMilliSec);
