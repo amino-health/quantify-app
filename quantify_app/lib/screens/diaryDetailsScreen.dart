@@ -547,7 +547,7 @@ And Row with button to delete and edit activity/meal
 
   @override
   Widget build(BuildContext context) {
-    if (localPath[0] == 'activity') {
+    if (localPath.length != 0 && localPath[0] == 'activity') {
       return overlayView(false, titlevalue, subtitle, dateTime,
           duration: duration, intensity: intensity, category: category);
     } else {

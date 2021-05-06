@@ -423,7 +423,7 @@ Image imageRef,
                                   Padding(
                                     padding: const EdgeInsets.all(4.0),
                                     child: ClipRRect(
-                                      borderRadius: localPath[0] != null
+                                      borderRadius: (localPath.length != 0)
                                           ? BorderRadius.circular(8.0)
                                           : BorderRadius.circular(0),
                                       child: Container(
@@ -432,8 +432,12 @@ Image imageRef,
                                               future: displayImage(
                                                   context,
                                                   _isIos,
-                                                  localPath[0],
-                                                  imageRef[0]),
+                                                  localPath.length != 0
+                                                      ? localPath[0]
+                                                      : null,
+                                                  imageRef.length != 0
+                                                      ? imageRef[0]
+                                                      : null),
                                               builder: (BuildContext context,
                                                   AsyncSnapshot snapshot) {
                                                 if (!snapshot.hasData) {
@@ -669,7 +673,8 @@ sorted by date.
         List<String> refList = entry['imageRef'].cast<String>();
         //List<String> refList = [];
         List<String> localList = entry['localPath'].cast<String>();
-
+        print('refList is $refList');
+        print('localList is $localList');
         diaryList.add(mealItem(context, entry['date'], refList, localList,
             entry['note'], ValueKey(entry.id)));
       }
