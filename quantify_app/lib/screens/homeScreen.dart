@@ -186,7 +186,9 @@ class _HomeScreenState extends State<HomeScreen>
                   true,
                   _mealData.docId))).then((values) {
         print("Values: " + values.toString());
-        return setData([values, false]);
+        //print('returned imgref = ${values.mealImageUrl}');
+        //print('returned localpath = ${values.localPath.toString()}');
+        return setData([values, true]);
       });
     } else {
       await showDialog(
@@ -231,7 +233,7 @@ class _HomeScreenState extends State<HomeScreen>
     } else {
       selectedMeal = _mealData;
     }
-    if (selectedMeal != null && selectedMeal.localPath != null) {
+    if (selectedMeal != null && selectedMeal.localPath.length != 0) {
       try {
         File imageFile = File(_mealData.localPath[0]);
         if (await imageFile.exists()) {
@@ -244,7 +246,7 @@ class _HomeScreenState extends State<HomeScreen>
         print(e);
       }
     }
-    return (selectedMeal != null && selectedMeal.mealImageUrl != null)
+    return (selectedMeal != null && selectedMeal.mealImageUrl.length != 0)
         ? CachedNetworkImage(
             progressIndicatorBuilder: (context, url, downProg) =>
                 CircularProgressIndicator(value: downProg.progress),

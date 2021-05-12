@@ -75,8 +75,8 @@ class _TimeAndDatePickerState extends State<TimeAndDatePicker> {
       case TargetPlatform.fuchsia:
       case TargetPlatform.windows:
       case TargetPlatform.linux:
-      case TargetPlatform.macOS:
         return buildMaterialTimePicker(context);
+      case TargetPlatform.macOS:
       case TargetPlatform.iOS:
         return buildCupertinoTimePicker(context);
     }
@@ -90,8 +90,8 @@ class _TimeAndDatePickerState extends State<TimeAndDatePicker> {
       case TargetPlatform.fuchsia:
       case TargetPlatform.windows:
       case TargetPlatform.linux:
-      case TargetPlatform.macOS:
         return buildMaterialDatePicker(context);
+      case TargetPlatform.macOS:
       case TargetPlatform.iOS:
         return buildCupertinoDatePicker(context);
     }

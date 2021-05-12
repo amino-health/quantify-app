@@ -66,12 +66,15 @@ class _AddMealScreenState extends State<AddMealScreen> {
   void initState() {
     super.initState();
     textController.text = _note;
-
-    while (_image.length < 4) {
-      _image.add(File(''));
+    if (_image != null) {
+      while (_image.length < 4) {
+        _image.add(File(''));
+      }
     }
-    while (_imageUrl.length < 4) {
-      _imageUrl.add(null);
+    if (_imageUrl != null) {
+      while (_imageUrl.length < 4) {
+        _imageUrl.add(null);
+      }
     }
     imageList = _image;
     _timeStamp =
@@ -183,22 +186,16 @@ class _AddMealScreenState extends State<AddMealScreen> {
     if (index != 0 &&
         _image[index - 1].path != '' &&
         _image[index].path == '') {
-      print('returned 2');
       return addImageButton(context, index);
     }
 
     if (_image[index].path == '') {
       if (index == 0) {
-        print('returned 3');
         return addImageButton(context, index);
       } else {
-        print('returned null 1');
-
         return Container();
-
       }
     } else {
-      print('returned 4');
       return Padding(
         padding: EdgeInsets.symmetric(
             horizontal: MediaQuery.of(context).size.width * 0.01),
@@ -233,7 +230,7 @@ class _AddMealScreenState extends State<AddMealScreen> {
   }
 
   void removeImage() {
-    if (_index < 4) {
+    if (_index != null && _index < 4) {
       setState(() {
         _imageChanged = true;
         _displayImage = null;
@@ -252,7 +249,9 @@ class _AddMealScreenState extends State<AddMealScreen> {
     for (File image in _image) {
       if (image.path != '') {
         displayImageList[i] = (DecorationImage(image: FileImage(image)));
-      } else if (_imageUrl.length > i && _imageUrl[i] != null) {
+      } else if (_imageUrl != null &&
+          _imageUrl.length > i &&
+          _imageUrl[i] != null) {
         displayImageList[i] =
             (DecorationImage(image: NetworkImage(_imageUrl[i])));
       } else {
@@ -532,14 +531,13 @@ class _AddMealScreenState extends State<AddMealScreen> {
     } else {
       DatabaseService(uid: user.uid).uploadImage(imageList, _timeStamp, _note);
     }
-
+    List<String> localList = [];
+    for (File file in _image) {
+      localList.add(file.path);
+    }
     while (Navigator.canPop(context)) {
-      Navigator.pop(
-
-          context,
-          new MealData(
-              _note, _timeStamp, null, _docId, imageList != null ? [] : null));
-
+      Navigator.pop(context,
+          new MealData(_note, _timeStamp, _imageUrl, _docId, localList));
     }
   }
 }

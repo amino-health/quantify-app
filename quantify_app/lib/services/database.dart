@@ -116,17 +116,22 @@ class DatabaseService {
 
         DocumentReference doc =
             userInfo.doc(uid).collection('mealData').doc(docId);
-        String fileName = Path.basename(newImage.path).substring(14);
-        firebase_storage.Reference storageRef = firebase_storage
-            .FirebaseStorage.instance
-            .ref()
-            .child('images/users/' + uid + '/mealImages/' + fileName);
-        firebase_storage.UploadTask uploadTask = storageRef.putFile(newImage);
-        uploadTask.whenComplete(() async {
-          downloadURL = await storageRef.getDownloadURL();
-          urlArray.add(downloadURL);
-          await doc.update({'imageRef': urlArray});
-        });
+        String fileName = '';
+        if (newImage.path.length > 14) {
+          fileName = Path.basename(newImage.path).substring(14);
+
+          firebase_storage.Reference storageRef = firebase_storage
+              .FirebaseStorage.instance
+              .ref()
+              .child('images/users/' + uid + '/mealImages/' + fileName);
+          firebase_storage.UploadTask uploadTask = storageRef.putFile(newImage);
+          uploadTask.whenComplete(() async {
+            downloadURL = await storageRef.getDownloadURL();
+            urlArray.add(downloadURL);
+
+            await doc.update({'imageRef': urlArray});
+          });
+        }
       }
       if (imageChanged) {
         await userInfo.doc(uid).collection('mealData').doc(docId).update({

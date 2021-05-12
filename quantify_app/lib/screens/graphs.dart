@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:math';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -36,6 +37,21 @@ class _GraphicalInterfaceState extends State<GraphicalInterface> {
   _GraphicalInterfaceState({this.update, this.latest, this.graphPosSetter});
   DateTime graphPosSetter;
 
+  List<String> iconList = [
+    'https://raw.githubusercontent.com/google/material-design-icons/master/png/maps/directions_bike/materialicons/48dp/2x/baseline_directions_bike_black_48dp.png',
+    'https://raw.githubusercontent.com/google/material-design-icons/master/png/maps/directions_run/materialicons/48dp/2x/baseline_directions_run_black_48dp.png',
+    'https://raw.githubusercontent.com/google/material-design-icons/master/png/maps/directions_walk/materialicons/48dp/2x/baseline_directions_walk_black_48dp.png',
+    'https://raw.githubusercontent.com/google/material-design-icons/master/png/social/sports_hockey/materialicons/48dp/2x/baseline_sports_hockey_black_48dp.png',
+    'https://raw.githubusercontent.com/google/material-design-icons/master/png/social/sports_baseball/materialicons/48dp/2x/baseline_sports_baseball_black_48dp.png',
+    'https://raw.githubusercontent.com/google/material-design-icons/master/png/social/sports_basketball/materialicons/48dp/2x/baseline_sports_basketball_black_48dp.png',
+    'https://raw.githubusercontent.com/google/material-design-icons/master/png/social/sports_football/materialicons/48dp/2x/baseline_sports_football_black_48dp.png',
+    'https://raw.githubusercontent.com/google/material-design-icons/master/png/social/sports_soccer/materialicons/48dp/2x/baseline_sports_soccer_black_48dp.png',
+    'https://raw.githubusercontent.com/google/material-design-icons/master/png/social/sports_tennis/materialicons/48dp/2x/baseline_sports_tennis_black_48dp.png',
+    'https://raw.githubusercontent.com/google/material-design-icons/master/png/social/sports_handball/materialicons/48dp/2x/baseline_sports_handball_black_48dp.png',
+    'https://raw.githubusercontent.com/google/material-design-icons/master/png/maps/miscellaneous_services/materialicons/48dp/2x/baseline_miscellaneous_services_black_48dp.png',
+    'https://raw.githubusercontent.com/google/material-design-icons/master/png/places/fitness_center/materialicons/48dp/2x/baseline_fitness_center_black_48dp.png'
+  ];
+
   @override
   void initState() {
     initializeDateFormatting();
@@ -68,6 +84,16 @@ class _GraphicalInterfaceState extends State<GraphicalInterface> {
       alreadyRandom = true;
     }
     return tempGluclist;
+  }
+
+  List<String> mapToString(List<dynamic> dynList) {
+    List<String> returnList = [];
+    if (dynList != null) {
+      for (dynamic item in dynList) {
+        returnList.add(item.toString());
+      }
+    }
+    return returnList;
   }
 
   DateTime visMin = DateTime.now().subtract(Duration(hours: 8));
@@ -122,9 +148,9 @@ class _GraphicalInterfaceState extends State<GraphicalInterface> {
             latestMeal = MealData(
                 latestMeal['note'],
                 DateTime.fromMillisecondsSinceEpoch(latestMeal['date']),
-                latestMeal['imageRef'].cast<String>(),
+                mapToString(latestMeal['imageRef']),
                 latestMeal['docId'],
-                latestMeal['localPath'].cast<String>());
+                mapToString(latestMeal['localPath']));
           }
           if (activityData.length > 0) {
             latestAct = activityData[0];
@@ -168,9 +194,9 @@ class _GraphicalInterfaceState extends State<GraphicalInterface> {
                                 latestMeal['note'],
                                 DateTime.fromMillisecondsSinceEpoch(
                                     latestMeal['date']),
-                                latestMeal['imageRef'].cast<String>(),
+                                mapToString(latestMeal['imageRef']),
                                 latestMeal['docId'],
-                                latestMeal['localPath'].cast<String>()),
+                                mapToString(latestMeal['localPath'])),
                             true
                           ]);
                         } else if (args.seriesIndex == 2) {
@@ -220,7 +246,7 @@ class _GraphicalInterfaceState extends State<GraphicalInterface> {
                         autoScrollingDelta: 8,
                         autoScrollingDeltaType: DateTimeIntervalType.hours,
                       ),
-
+                      onMarkerRender: (MarkerRenderArgs markerargs) {},
                       series: <ChartSeries>[
                         LineSeries<GlucoseData, DateTime>(
                             enableTooltip: true,
@@ -242,21 +268,45 @@ class _GraphicalInterfaceState extends State<GraphicalInterface> {
                                 DateTime.fromMillisecondsSinceEpoch(x['date']),
                             yValueMapper: (x, _) => x['gluc'].glucoseVal,
                             markerSettings: MarkerSettings(
-                                height: 25.0,
-                                width: 25.0,
-                                shape: DataMarkerType.diamond)),
+                              height: 25,
+                              width: 25,
+                              shape: DataMarkerType.circle,
+                            )),
                         ScatterSeries(
-                          color: Colors.blue,
-                          enableTooltip: true,
-                          dataSource: activityData,
-                          xValueMapper: (x, _) =>
-                              DateTime.fromMillisecondsSinceEpoch(x['date']),
-                          yValueMapper: (x, _) => x['gluc'].glucoseVal,
-                          markerSettings: MarkerSettings(
-                              height: 25.0,
-                              width: 25.0,
-                              shape: DataMarkerType.diamond),
-                        )
+                            isVisible: true,
+                            enableTooltip: true,
+                            dataSource: activityData,
+                            xValueMapper: (x, _) =>
+                                DateTime.fromMillisecondsSinceEpoch(x['date']),
+                            yValueMapper: (x, _) => x['gluc'].glucoseVal,
+                            dataLabelMapper: (x, _) =>
+                                x['gluc'].glucoseVal.toString(),
+                            markerSettings: MarkerSettings(
+                              width: 15,
+                              height: 15,
+                              isVisible: true,
+                              shape: DataMarkerType.circle,
+                              borderWidth: 3,
+                              borderColor: Colors.white,
+                            ),
+                            dataLabelSettings: DataLabelSettings(
+                                isVisible: true,
+                                builder: (dynamic data,
+                                    dynamic point,
+                                    dynamic series,
+                                    int pointIndex,
+                                    int seriesIndex) {
+                                  return Container(
+                                    height: 20,
+                                    width: 20,
+                                    child: CachedNetworkImage(
+                                        imageUrl: iconList[
+                                            activityData[pointIndex]
+                                                ['category']],
+                                        errorWidget: (context, _, nullval) =>
+                                            Icon(Icons.warning)),
+                                  );
+                                }))
                       ],
                     ),
                   ),
